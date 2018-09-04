@@ -173,7 +173,7 @@ export class Corpus {
 			});
 			
 			out+=' src="'+url+'"></iframe>'
-			resolve(html`${out}`)
+			resolve(out)
 		})
 	}
 	
