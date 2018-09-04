@@ -142,7 +142,7 @@ export class Corpus {
 		}).then(data => isDocumentsMode(config) ? data.documentTerms.terms : data.corpusTerms.terms)
 	}
 	
-	htmltool(tool, config) {
+	htmltool(html, tool, config) {
 		let me = this;
 		return new Promise((resolve, reject) => {
 
@@ -173,7 +173,8 @@ export class Corpus {
 			});
 			
 			out+=' src="'+url+'"></iframe>'
-			resolve(out)
+			debugger
+			resolve(html`${out}`)
 		})
 	}
 	
