@@ -146,7 +146,7 @@ export class Corpus {
 		let me = this;
 		return new Promise((resolve, reject) => {
 
-			let html='<iframe ';
+			let out='<iframe ';
 
 			// construct attributes of iframe
 			let defaultAttributes = {
@@ -157,7 +157,7 @@ export class Corpus {
 			for (let attr in defaultAttributes) {
 				var val = config[attr] || defaultAttributes[attr];
 				if (val) {
-					html+=' '+attr+'="'+val+'"';
+					out+=' '+attr+'="'+val+'"';
 				}
 			}
 
@@ -172,8 +172,8 @@ export class Corpus {
 				}
 			});
 			
-			html+=' src="'+url+'"></iframe>'
-			resolve("html`"+html+"`")
+			out+=' src="'+url+'"></iframe>'
+			resolve(html`${out}`)
 		})
 	}
 	
