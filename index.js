@@ -4,7 +4,7 @@ export let voyantUrl = "https://voyant-tools.org";
 
 export let tromboneUrl = voyantUrl+"/trombone";
 
-export function load(config) {
+export default function(config) {
 	return Corpus.load(config);
 }
 
@@ -173,7 +173,7 @@ export class Corpus {
 			});
 			
 			html+=' src="'+url+'"></iframe>'
-			resolve(html);
+			resolve("html`"+html+"`")
 		})
 	}
 	

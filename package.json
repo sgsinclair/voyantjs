@@ -3,6 +3,7 @@
   "version": "1.0.0",
   "description": "Simple library for interacting with Voyant Tools",
   "main": "index.js",
+  "unpkg": "dist/voyant.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
