@@ -52,8 +52,8 @@ export function correlations(config, api) {
 	return Corpus.load(config).then(corpus => corpus.correlations(api || config));
 }
 
-export function htmltool(tool, config, api) {
-	return Corpus.load(config).then(corpus => corpus.htmltool(tool, api || config));
+export function htmltool(html, tool, config, api) {
+	return Corpus.load(config).then(corpus => corpus.htmltool(html, tool, api || config));
 }
 
 function trombone(config, params) {
