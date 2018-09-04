@@ -173,7 +173,7 @@ export class Corpus {
 			});
 			
 			out+=' src="'+url+'"></iframe>'
-			debugger
+			// this assumes we're working with ObservableHQ and can use the html function
 			resolve(html`${out}`)
 		})
 	}
