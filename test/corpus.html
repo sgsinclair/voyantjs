@@ -1,0 +1,82 @@
+<script type="module">
+	import * as Corpus from '../src/corpus.js';
+	import * as Test from './test.js'
+	
+	let trombone = Corpus.tromboneUrl; // "http://localhost:8080/voyant/trombone"
+	
+	let corpus;
+	
+	Corpus.id({corpus: "austen", trombone: trombone}).then(id => Test.equals(id, "austen"))
+	Promise.all([
+		Corpus.id({corpus: "austen", trombone: trombone}).then(id => Test.equals(id, "austen")),
+		Corpus.metadata({corpus: "austen", trombone: trombone}).then(data => {
+			Test.equals(data.alias ? data.alias : data.id, "austen");
+			Test.equals(data.documentsCount, 8);
+			Test.equals(data.languageCodes[0], "en");
+		}),
+		Corpus.id({corpus: "austen", trombone: trombone}).then(id => Test.equals(id, "austen")),
+		Corpus.metadata({corpus: "austen", trombone: trombone}).then(data => {
+			Test.equals(data.alias ? data.alias : data.id, "austen");
+			Test.equals(data.documentsCount, 8);
+			Test.equals(data.languageCodes[0], "en");
+		}),
+		Corpus.summary({corpus: "austen", trombone: trombone}).then(data => Test.equals(data, "This corpus (austen) has 8 documents with 781763 total words and 15368 unique word forms.")),
+		Corpus.titles("austen").then(data => {
+			Test.equals(data.length, 8);
+			Test.equals(data[0], "1790 Love And Freindship")
+		}),
+		Corpus.text({corpus: "austen", trombone: trombone, limit: 100}).then(data => {
+			Test.equals(data.length, 807);
+			Test.equals(data.indexOf("LOVE AND FREINDSHIP AND OTHER EARLY WORKS"), 6)
+		}),
+		Corpus.texts({corpus: "austen", trombone: trombone, limit: 100}).then(data => {
+			Test.equals(data.length, 8);
+			Test.equals(data[0].indexOf("LOVE AND FREINDSHIP AND OTHER EARLY WORKS"), 6)
+		}),
+		Corpus.terms({corpus: "austen", trombone: trombone, limit: 10}).then(data => {
+			Test.equals(data.length, 10);
+			Test.equals(data[0].term, "the");
+			Test.equals(data[0].rawFreq, 28292);
+		}),
+		Corpus.tokens({corpus: "austen", trombone: trombone, limit: 10}).then(data => {
+			Test.equals(data.length, 24);
+			Test.equals(data[2].term, "LOVE");
+			Test.equals(data[2].rawFreq, 54);
+		}),
+		Corpus.words({corpus: "austen", trombone: trombone, limit: 10}).then(data => {
+			Test.equals(data.length, 10);
+			Test.equals(data[0].term, "LOVE");
+			Test.equals(data[2].rawFreq, 18);
+		}),
+		Corpus.contexts({corpus: "austen", trombone: trombone, limit: 10}).then(data => {
+			Test.equals(data.length, 0);
+		}),
+		Corpus.contexts({corpus: "austen", trombone: trombone, limit: 10, query: "love"}).then(data => {
+			Test.equals(data.length, 10);
+			Test.equals(data[0].term, "love");
+			Test.equals(data[0].left, "");
+		}),
+		Corpus.collocates({corpus: "austen", trombone: trombone, limit: 10}).then(data => {
+			Test.equals(data.length, 0);
+		}),
+		Corpus.collocates({corpus: "austen", trombone: trombone, limit: 10, query: "love"}).then(data => {
+			Test.equals(data.length, 10);
+			Test.equals(data[0].term, "love");
+			Test.equals(data[0].contextTerm, "and");
+		}),
+		Corpus.phrases({corpus: "austen", trombone: trombone, limit: 10}).then(data => {
+			Test.equals(data.length, 10);
+			Test.equals(data[0].term, "of the");
+			Test.equals(data[0].length, 2);
+			Test.equals(data[0].rawFreq, 3189);
+		}),
+		Corpus.correlations({corpus: "austen", trombone: trombone, limit: 10, query: "love"}).then(data => {
+			Test.equals(data.length, 10);
+			Test.equals(data[0].source.term, "to");
+			Test.equals(data[0].target.term, "love");
+			Test.equals(data[0].correlation, 0.09780626);
+			Test.equals(data[0].significance, 0.7185813);
+		})
+	]).then(() => console.warn("all done"))
+	
+</script>

@@ -19,34 +19,52 @@ function parseCsvLine(line) {
 	
 }
 
-export function table(data, config) {
-	return new Table(data, config);
+export function create(data, config, ...other) {
+	return new Table(data, config, ...other);
 }
 
 export class Table {
 
-	constructor(data, config) {
+	constructor(data, config, ...other) {
+
 		this._rows = [];
 		this._headers = {};
 		this._rowKeyColumnIndex = 0;
 		
+		// we have a configuration object followed by values: create({headers: []}, 1,2,3) …
+		if (data && typeof data == "object" && (typeof config == "string" || typeof config == "number" || Array.isArray(config))) {
+			data.rows = [config].concat(other);
+			config = undefined;
+		}
+		
+		// we have a simple variable set of arguments: create(1,2,3) …
+		if (Array.from(arguments).every(a => a!==undefined && !Array.isArray(a) && typeof a != "object")) {
+			data = [data,config].concat(other);
+			config = undefined;
+		}
+		
 		// first check if we have a string that might be delimited data
-		if (data && typeof data == "string") {
+		if (data && (typeof data == "string" || typeof data =="number")) {
+			if (typeof data == "number") {data = String(data)} // convert to string for split
 			let rows = [];
-			let format = config && "format" in config ? config.format : undefined;			
+			let format = config && "format" in config ? config.format : undefined;
 			data.split(/(\r\n|\r|\n)+/).forEach(line => {
+				let values;
 				if ((format && format=="tsv") || line.indexOf("\t")>-1) {
-					rows.push(line.split(/\t/))
+					values = line.split(/\t/);
 				} else if ((format && format=="csv") || line.indexOf(",")>-1) {
-					rows.push(parseCsvLine(line))
+					values = parseCsvLine(line)
+				} else {
+					values = [line]
 				}
+				rows.push(values.map(v => isNaN(v) ? v : Number(v)))
 			})
 			data = rows;
 		}
-
-		if (data && typeof data == "array") {
+		
+		if (data && Array.isArray(data)) {
 			if (config) {
-				if (typeof config == "array") {
+				if (Array.isArray(config)) {
 					this.setHeaders(config);
 				} else if (typeof config == "object") {
 					if ("headers" in config) {
@@ -56,80 +74,114 @@ export class Table {
 					}
 				}
 			}
-			this.addRows(data);
+			if (config && "count" in config && config.count) {
+				let freqs = counts(data);
+				if (config.count=="vertical") {
+					for (let item in freqs) {
+						this.addRow(item, freqs[item])
+					}
+				} else {
+					this._headers = []; // reset and use the terms as headers
+					this.addRow(freqs)
+				}
+			} else {
+				this.addRows(data);
+			}
 		} else if (data && typeof data == "object") {
-			if ("headers" in data && typeof data.headers == "array") {
+			if ("headers" in data && Array.isArray(data.headers)) {
 				this.setHeaders(data.headers);
 			} else if ("hasHeaders" in data && "rows" in data) {
 				this.setHeaders(data.rows.shift())
 			}
-			if ("rows" in data && typeof data.rows == "array") {
+			if ("rows" in data && Array.isArray(data.rows)) {
 				this.addRows(data.rows)
 			}
 			if ("rowKeyColumn" in data) {
 				if (typeof data.rowKeyColumn == "number") {
-					if (data.rowKeyColumn < this._headers.length) {
+					if (data.rowKeyColumn < this.columns()) {
 						this._rowKeyColumnIndex = data.rowKeyColumn;
 					} else {
-						throw "The rowKeyColumn value is higher than the number headers designated: "+data.rowKeyColum;
+						throw new Error("The rowKeyColumn value is higher than the number headers designated: "+data.rowKeyColum);
 					}
-				} else if (tyepof data.rowKeyColumn == "string") {
+				} else if (typeof data.rowKeyColumn == "string") {
 					if (data.rowKeyColumn in this._headers) {
 						this._rowKeyColumnIndex = this._headers[data.rowKeyColumn];
 					} else {
-						throw "Unable to find column designated by rowKeyColumn: "+data.rowKeyColumn;
+						throw new Error("Unable to find column designated by rowKeyColumn: "+data.rowKeyColumn);
 					}
 				}
 			}
 		}
+	}
+	
+	setHeaders(data) {
+		if (data && Array.isArray(data)) {
+			data.forEach(h => this.addColumn(h), this);
+		} else if (typeof data == "object") {
+			if (this.columns()==0 || Object.keys(data).length==this.columns()) {
+				this._headers = data;
+			} else {
+				throw new Error("The number of columns don't match: ");
+			}
+		} else {
+			throw new Error("Unrecognized argument for headers, it should be an array or an object."+data)
+		}
+		return this;
 	}
 	
 	addRows(data) {
 		data.forEach(row => this.addRow(row), this);
+		return this;
 	}
 	
-	addRow(data) {
+	addRow(data, ...other) {
 		
 		// we have multiple arguments, so call again as an array
-		if (arguments.length>1) {
-			this.addRow(arguments)
+		if (other.length>0) {
+			return this.addRow([data].concat(other))
 		}
 
 		this.setRow(this.rows(), data, true);
+		return this;
 	}
 	
 	setRow(ind, data, create) {
-		let rowIndex = this.getRowIndex(ind);
+
+		let rowIndex = this.getRowIndex(ind, create);
 		if (ind>=this.rows() && !create) {
-			throw "Attempt to set row values for a row that does note exist: "+ind+". Maybe use addRow() instead?";
+			throw new Error("Attempt to set row values for a row that does note exist: "+ind+". Maybe use addRow() instead?");
 		}
 		
-		
 		// we have a simple array, so we'll just push to the rows
-		else if (typeof data == "array") {
-			if (data.length>this.headers() {
+		if (data && Array.isArray(data)) {
+			if (data.length>this.columns()) {
 				if (create) {
-					for (let i = this.headers(); i<data.length; i++) {
+					for (let i = this.columns(); i<data.length; i++) {
 						this.addColumn();
 					}
 				} else {
-					throw "The row that you've created contains more columns than the current table. Maybe use addColunm() first?"
+					throw new Error("The row that you've created contains more columns than the current table. Maybe use addColunm() first?")
 				}
 			}
-			data.forEach((d,i) => this.setCell(ind, i, d), this);
+			data.forEach((d,i) => this.setCell(rowIndex, i, d), this);
 		}
 		
 		// we have an object so we'll use the headers
 		else if (typeof data == "object") {
-			for (column in data) {
+			for (let column in data) {
 				if (!this.hasColumn(column)) {
 				}
 				this.setCell(rowIndex, column, data[column]);
 			}
 		}
 		
-		else { // hopefully some scalar value
-			throw "setRow() expects an array or an object, maybe setCell()?"
+		else if (this.columns()<2 && create) { // hopefully some scalar value
+			if (this.columns()==0) {
+				this.addColumn(); // create first column if it doesn't exist
+			}
+			this.setCell(rowIndex,0,data);
+		} else {
+			throw new Error("setRow() expects an array or an object, maybe setCell()?")
 		}
 		
 		return this;
@@ -141,12 +193,18 @@ export class Table {
 	updateCell(row, column, value, overwrite) {
 		let rowIndex = this.getRowIndex(row, true);
 		let columnIndex = this.getColumnIndex(column, true);
-		let val = this.getCell(rowIndex, columnIndex);
-		this.rows[rowIndex][columnIndex] = val && !overwrite ? val+value : value;
+		let val = this.cell(rowIndex, columnIndex);
+		this._rows[rowIndex][columnIndex] = val && !overwrite ? val+value : value;
+		return this;
 	}
 	
+	cell(rowInd, colInd) {
+		return this._rows[this.getRowIndex(rowInd)][this.getColumnIndex(colInd)];
+	}
+
 	setCell(row, column, value) {
 		this.updateCell(row,column,value,true);
+		return this;
 	}
 		
 	getRowIndex(ind, create) {
@@ -154,36 +212,35 @@ export class Table {
 			if (ind < this._rows.length) {
 				return ind;
 			} else if (create) {
-				this._rows[ind] = [];
+				this._rows[ind] = Array(this.columns());
 				return ind;
 			}
-			throw "The requested row does not exist: "+ind
+			throw new Error("The requested row does not exist: "+ind)
 		} else if (typeof ind == "string") {
-			if (ind in this._headers) {
-				let i = this._rowKeyIndex || 0;
-				let row = this._rows.findIndex(r = r[i] === ind);
-				if (row) {return row;}
-				throw "Unable to find the row named "+ind;
-			} else if (create) {
-				let arr = [];
-				arr[this._rowKeyIndex] = ind;
-				this._rows.push(arr);
-				return this._rows.length-1;
+			let row = this._rows.findIndex(r => r[this._rowKeyColumnIndex] === ind, this);
+			if (row>-1) {return row;}
+			else if (create) {
+				let arr = Array(this.columns());
+				arr[this._rowKeyColumnIndex] = ind;
+				this.addRow(arr);
+				return this.rows();
 			}
-			throw "Unable to find row named "+ind;
+			else {
+				throw new Error("Unable to find the row named "+ind);
+			}
 		}
-		throw "Please provide a valid row (number or named row)";
+		throw new Error("Please provide a valid row (number or named row)");
 	}
 	
 	getColumnIndex(ind, create) {
 		if (typeof ind == "number") {
-			if (ind < this._headers.length) {
+			if (ind < this.columns()) {
 				return ind;
 			} else if (create) {
 				this.addColumn(ind)
 				return ind;
 			}
-			throw "The requested column does not exist: "+ind
+			throw new Error("The requested column does not exist: "+ind)
 		} else if (typeof ind == "string") {
 			if (ind in this._headers) {
 				return this._headers[ind];
@@ -191,23 +248,36 @@ export class Table {
 				this.addColumn({header: ind});
 				return this._headers[ind];
 			}
-			throw "Unable to find column named "+ind;
+			throw new Error("Unable to find column named "+ind);
 		}
-		throw "Please provide a valid column (number or named column)";
+		throw new Error("Please provide a valid column (number or named column)");
 	}
 	
 	addColumn(config, ind) {
 	
 		// determine col
-		let col = config && ("header" in config) ? config.header : String(ind ? ind : this._headers.length);
+		let col = this.columns(); // default
+		if (config && typeof config == "string") {col=config}
+		else if (config && (typeof config == "object") && ("header" in config)) {col = config.header}
+		else if (ind!==undefined) {col=ind}
+
+		// check if it exists
 		if (col in this._headers) {
-			throw "This column exists already: "+config.header
+			throw new Error("This column exists already: "+config.header)
 		}
-		let colIndex = this.getColumnIndex(col, true);
-		let data = config && ("rows" in config) ? config.rows : (typeof config == "array" ? config : []);
+		
+		// add column
+		let colIndex = this.columns();
+		this._headers[col] = colIndex;
+		
+		// determine data
+		let data = [];
+		if (config && typeof config == "object" && "rows" in config) {data=config.rows}
+		else if (Array.isArray(config)) {data = config;}
 		
 		// add data to each row
 		this._rows.forEach((r,i) => r[colIndex] = data[i])
+		return this;
 	}
 	
 	/**
@@ -243,6 +313,30 @@ export class Table {
 		}
 	}
 	
+	/**
+	 * This function returns different values depending on the arguments provided.
+	 * When there are no arguments, it returns the number of rows in this table.
+	 * When the first argument is the boolean value `true` all rows are returned.
+	 * When the first argument is a number a slice of the rows is returned and if
+	 * the second argument is a number it is treated as the length of the slice to
+	 * return (note that it isn't the `end` index like with Array.slice()).
+	 */
+	columns(start, length) {
+		if (start) {
+			let columns = [];
+			this._headers.forEach((h, i) => {
+				columns.push(this.column(i))
+			});
+			if (typeof start === "boolean" && start) {
+				return columns;
+			}
+			if (typeof start === "number") {
+				return columns.slice(start, length && typeof length === "number" ? start+length : undefined);
+			}
+		}
+		return Object.keys(this._headers).length;
+	}
+	
 	column(ind, asObj) {
 		let column = this.getColumnIndex(ind);
 		let data = this._rows.forEach(r => r[column]);
@@ -257,32 +351,42 @@ export class Table {
 		}
 	}
 	
+	header(ind) {
+		let keys = Object.keys(this._headers);
+		let i = this.getColumnIndex(ind);
+		return keys[keys.findIndex(k => i==this._headers[k])]
+	}
+
+	hasColumn(ind) {
+		return ind in this._headers;
+	}
+	
 	forEach(fn) {
 		this._rows.forEach((r,i) => fn(r,i));
 	}
 	
 	rowMin(ind) {
-		Math.min.apply(null, this.row(ind));
+		return Math.min.apply(null, this.row(ind));
 	}
 	
 	rowMax(ind) {
-		Math.max.apply(null, this.row(ind));
+		return Math.max.apply(null, this.row(ind));
 	}
 	
 	columnMin(ind) {
-		Math.min.apply(null, this.column(ind));
+		return Math.min.apply(null, this.column(ind));
 	}
 	
 	columnMax(ind) {
-		Math.max.apply(null, this.column(ind));
+		return Math.max.apply(null, this.column(ind));
 	}
 	
 	rowSum(ind) {
-		sum(this.row(ind));
+		return sum(this.row(ind));
 	}
 	
 	columnSum(ind) {
-		sum(this.column(ind));
+		return sum(this.column(ind));
 	}
 
 	rowMean(ind) {
@@ -329,6 +433,106 @@ export class Table {
 		return zScores(this.column(ind));
 	}
 	
+	rowSort(inds, config) {
+
+		// no inds, use all columns
+		if (inds===undefined) {
+			inds = Array(this.columns()).fill().map((_,i) => i)
+		}
+
+		// wrap a single index as array
+		if (typeof inds == "string" || typeof inds == "number") {
+			inds = [inds];
+		}
+
+		if (Array.isArray(inds)) {
+			return this.rowSort((a,b) => {
+				let ind;
+				for (let i=0, len=inds.length; i<len; i++) {
+					ind = this.getColumnIndex(inds[i]);
+					if (a!=b) {
+						if (typeof a[ind] == "string" && typeof b[ind] == "string") {
+							return a[ind].localeCompare(b[ind]);
+						} else {
+							return a[ind]-b[ind];
+						}
+					}
+				}
+				return 0;
+			}, config)
+		}
+
+		if (typeof inds == "function") {
+			this._rows.sort((a,b) => {
+				if (config && "asObject" in config && config.asObject) {
+					let c = {};
+					for (let k in this._headers) {
+						c[k] = a[this._headers[k]]
+					}
+					let d = {};
+					for (let k in this._headers) {
+						d[k] = b[this._headers[k]]
+					}
+					return inds(c,d);
+				} else {
+					return inds(a,b);
+				}
+			});
+			if (config && "reverse" in config && config.reverse) {
+				this._rows.reverse(); // in place
+			}
+		}
+		
+		return this;
+	}
+	
+	columnSort(inds, config) {
+		
+		// no inds, use all columns
+		if (inds===undefined) {
+			inds = Array(this.columns()).fill().map((_,i) => i)
+		}
+
+		// wrap a single index as array
+		if (typeof inds == "string" || typeof inds == "number") {
+			inds = [inds];
+		}
+		
+		if (inds.length<this.columns()) {
+			
+		}
+		
+		if (Array.isArray(inds)) {
+			// we'll do a simple sort of the columns as strings
+			this.columnSort((a,b) => {
+				return a.localeCompare(b);
+			})
+		}
+		
+		if (typeof inds == "function") {
+			let headers = Object.keys(this._headers);
+			if (config && "asObject" in headers && headers.asObject) {
+				headers = headers.map((h,i) => {
+					return {header: h, data: this._rows.map((r,j) => this.cell(i,j))}
+				})
+			}
+			headers.sort((a,b) => {
+				return inds(a,b);
+			})
+			headers = headers.map(h => typeof h == "object" ? h.header : h); // convert back to string
+			
+			// make sure we have all keys
+			Object.keys(this._headers).forEach(k => {
+				if (headers.indexOf(k)==-1) {headers.push(k)}
+			})
+			
+			this._rows = this._rows.map((_,i) => headers.map(h => this.cell(i,h)));
+			this._headers = {};
+			headers.forEach((h,i) => this._headers[h]=i)
+		}
+		
+	}
+	
 	static create(config, data) {
 		return new Table(config, data);
 	}
@@ -365,4 +569,10 @@ function zScores(data) {
 	let m = mean(data);
 	let s = standardDeviation(data);
 	return data.map(num => (num-m) / s);
+}
+
+function counts(data) {
+	let vals = {};
+	data.forEach(v => v in vals ? vals[v]++ : vals[v]=1);
+	return vals;
 }

@@ -1,11 +1,10 @@
 {
   "name": "voyant",
-  "version": "1.0.5",
+  "version": "1.0.6",
   "description": "Simple library for interacting with Voyant Tools",
   "main": "index.js",
   "unpkg": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {
     "type": "git",
@@ -13,15 +12,17 @@
   },
   "keywords": [
     "voyant",
-	"text"
+    "text"
   ],
   "author": {
-	  "name": "Stéfan Sinclair",
-	  "url": "http://stefansinclair.name"
+    "name": "Stéfan Sinclair",
+    "url": "http://stefansinclair.name"
   },
   "license": "BSD-3-Clause",
   "bugs": {
     "url": "https://github.com/sgsinclair/voyantjs/issues"
   },
-  "homepage": "https://github.com/sgsinclair/voyantjs"
+  "homepage": "https://github.com/sgsinclair/voyantjs",
+  "devDependencies": {
+  }
 }
