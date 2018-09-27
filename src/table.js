@@ -1,3 +1,4 @@
+import Chart from "./chart";
 
 // this seems like a good balance between a built-in flexible parser and a heavier external parser
 // https://lowrey.me/parsing-a-csv-file-in-es6-javascript/
@@ -356,6 +357,22 @@ export class Table {
 		let i = this.getColumnIndex(ind);
 		return keys[keys.findIndex(k => i==this._headers[k])]
 	}
+	
+	headers(start, length) {
+		if (start) {
+			let headers = [];
+			for (let k in this._headers) {
+				headers[this._headers[k]] = k;
+			}
+			if (typeof start === "boolean" && start) {
+				return headers;
+			}
+			if (typeof start === "number") {
+				return headers.slice(start, length && typeof length === "number" ? start+length : undefined);
+			}
+		}
+		return Object.keys(this._headers).length;
+	}
 
 	hasColumn(ind) {
 		return ind in this._headers;
@@ -531,6 +548,32 @@ export class Table {
 			headers.forEach((h,i) => this._headers[h]=i)
 		}
 		
+	}
+	
+	chart(target, config) {
+		Chart.chart(target, this, config);
+	}
+	
+	toCsv(config) {
+		let quote = /"/g;
+		return = config && "noHeaders" in config && config.noHeaders ? "" : this.headers(true).join(",") + "\n" +
+			this._rows().map(row => {
+				return row.map(c => isNaN(c) : '"'+c.replace(quote,'\"')+'"' : c).join(",");
+			}).join("\n");
+	}
+	
+	toTsv(config) {
+		return = config && "noHeaders" in config && config.noHeaders ? "" : this.headers(true).join("\t") + "\n" +
+			this._rows().map(row => row.join("\t")).join("\n");
+	}
+	
+	toHtml(config) {
+		return = "<table class='voyantTable'>" +
+			((config && "caption" in config && typeof config.caption == "string") ?
+					"<caption>"+config.caption+"</caption>" : "") +
+			((config && "noHeaders" in config && config.noHeaders) ? "" : ("<tr>"+this.headers(true).map(c => "<th>"+c+"</th>")+"</tr>"))+
+			this._rows().map(row => "<tr>"+row.map(c => "<td>"+c+"</td>")+"</tr>") +
+			"</table>";
 	}
 	
 	static create(config, data) {
