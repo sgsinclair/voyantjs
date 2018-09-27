@@ -4,8 +4,7 @@
   "description": "Simple library for interacting with Voyant Tools",
   "main": "index.js",
   "unpkg": "index.js",
-  "scripts": {
-  },
+  "scripts": {},
   "repository": {
     "type": "git",
     "url": "git+https://github.com/sgsinclair/voyantjs.git"
@@ -23,6 +22,8 @@
     "url": "https://github.com/sgsinclair/voyantjs/issues"
   },
   "homepage": "https://github.com/sgsinclair/voyantjs",
-  "devDependencies": {
+  "devDependencies": {},
+  "dependencies": {
+    "highcharts": "^6.1.4"
   }
 }
