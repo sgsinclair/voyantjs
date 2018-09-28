@@ -64,6 +64,10 @@ export function correlations(config, api) {
 	return Corpus.load(config).then(corpus => corpus.correlations(api || config));
 }
 
+export function tool(target, tool, config, api) {
+	return Corpus.load(config).then(corpus => corpus.tool(target, tool, api || config));
+}
+
 export function htmltool(html, tool, config, api) {
 	return Corpus.load(config).then(corpus => corpus.htmltool(html, tool, api || config));
 }
@@ -179,8 +183,7 @@ export class Corpus {
 		}).then(data => data.termCorrelations.correlations)
 	}
 	
-	
-	htmltool(html, tool, config) {
+	tool(target, tool, config) {
 		let me = this;
 		return new Promise((resolve, reject) => {
 
@@ -211,9 +214,26 @@ export class Corpus {
 			});
 			
 			out+=' src="'+url+'"></iframe>'
-			// this assumes we're working with ObservableHQ and can use the html function
-			resolve(html`${out}`)
+			
+			if (typeof target == "function") {
+				resolve(target(out));
+			} else {
+				if (typeof target == "string") {
+					target = document.querySelector(target);
+				}
+				if (typeof target == "object" && "innerHTML" in target) {
+					target.innerHTML = out;
+					resolve(out);
+				}
+			}
+			resolve(out); // just return the tag
 		})
+	}
+
+	htmltool(html, tool, config) {
+		return new Promise((resolve,reject) => {
+			this.tool(undefined, tool, config).then(out => resolve(html`${out}`));
+		});
 	}
 	
 	static load(config) {

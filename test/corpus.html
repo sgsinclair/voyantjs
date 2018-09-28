@@ -1,3 +1,7 @@
+<html>
+<body>
+	<div id="cirrus1"></div>
+	<div id="cirrus2"></div>
 <script type="module">
 	import * as Corpus from '../src/corpus.js';
 	import * as Test from './test.js'
@@ -76,7 +80,16 @@
 			Test.equals(data[0].target.term, "love");
 			Test.equals(data[0].correlation, 0.09780626);
 			Test.equals(data[0].significance, 0.7185813);
-		})
-	]).then(() => console.warn("all done"))
+		}),
+		Corpus.tool("#cirrus1", "Cirrus", {corpus: "austen", trombone: trombone}),
+		Corpus.tool(document.getElementById("cirrus2"), "Cirrus", {corpus: "austen", trombone: trombone}),
+		Corpus.tool(undefined, "Cirrus", {corpus: "austen", trombone: trombone}).then(tag => {document.body.innerHTML+=tag})
+		
+	]).then(() => {
+		Test.equals(document.querySelectorAll("iframe").length, 3);
+		console.warn("all done")
+	})
 	
 </script>
+</body>
+</html>

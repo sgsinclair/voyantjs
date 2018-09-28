@@ -1,4 +1,4 @@
-import Chart from "./chart";
+//import Chart from "./chart";
 
 // this seems like a good balance between a built-in flexible parser and a heavier external parser
 // https://lowrey.me/parsing-a-csv-file-in-es6-javascript/
@@ -507,7 +507,7 @@ export class Table {
 		
 		// no inds, use all columns
 		if (inds===undefined) {
-			inds = Array(this.columns()).fill().map((_,i) => i)
+			inds = Array(this.columns()).fill().map((_,i) => i);
 		}
 
 		// wrap a single index as array
@@ -515,15 +515,20 @@ export class Table {
 			inds = [inds];
 		}
 		
-		if (inds.length<this.columns()) {
-			
-		}
-		
 		if (Array.isArray(inds)) {
-			// we'll do a simple sort of the columns as strings
-			this.columnSort((a,b) => {
-				return a.localeCompare(b);
+			
+			// convert to column names
+			let headers = inds.map(ind => this.header(ind));
+			
+			// make sure we have all columns
+			Object.keys(this._headers).forEach(h => {
+				if (!headers.includes(h)) {headers.push(h)}
 			})
+			// reorder by columns
+			this._rows = this._rows.map((_,i) => headers.map(h => this.cell(i,h)));
+			this._headers = {};
+			headers.forEach((h,i) => this._headers[h]=i)
+			
 		}
 		
 		if (typeof inds == "function") {
@@ -555,24 +560,43 @@ export class Table {
 	}
 	
 	toCsv(config) {
-		let quote = /"/g;
-		return = config && "noHeaders" in config && config.noHeaders ? "" : this.headers(true).join(",") + "\n" +
-			this._rows().map(row => {
-				return row.map(c => isNaN(c) : '"'+c.replace(quote,'\"')+'"' : c).join(",");
-			}).join("\n");
+		const cell = function(c) {
+			let quote = /"/g;
+			return typeof c == "string" && (c.indexOf(",")>-1 || c.indexOf('"')>-1) ? '"'+c.replace(quote,'\"')+'"' : c;
+		}
+		return (config && "noHeaders" in config && config.noHeaders ? "" : this.headers(true).map(h => cell(h)).join(",") + "\n") +
+			this._rows.map(row => row.map(c => cell(c)).join(",")).join("\n")
 	}
 	
 	toTsv(config) {
-		return = config && "noHeaders" in config && config.noHeaders ? "" : this.headers(true).join("\t") + "\n" +
-			this._rows().map(row => row.join("\t")).join("\n");
+		return config && "noHeaders" in config && config.noHeaders ? "" : this.headers(true).join("\t") + "\n" +
+			this._rows.map(row => row.join("\t")).join("\n");
+	}
+	
+	html(target, config) {
+		let html = this.toHtml();
+		if (typeof target == "function") {
+			target(html)
+		} else {
+			if (typeof target == "string") {
+				target = document.querySelector(target);
+				if (!target) {
+					throw "Unable to find specified target: "+target;
+				}
+			}
+			if (typeof target == "object" && "innerHTML" in target) {
+				target.innerHTML = html;
+			}
+		}
+		return this;
 	}
 	
 	toHtml(config) {
-		return = "<table class='voyantTable'>" +
+		return "<table class='voyantTable'>" +
 			((config && "caption" in config && typeof config.caption == "string") ?
 					"<caption>"+config.caption+"</caption>" : "") +
 			((config && "noHeaders" in config && config.noHeaders) ? "" : ("<tr>"+this.headers(true).map(c => "<th>"+c+"</th>")+"</tr>"))+
-			this._rows().map(row => "<tr>"+row.map(c => "<td>"+c+"</td>")+"</tr>") +
+			this._rows.map(row => "<tr>"+row.map(c => "<td>"+c+"</td>")+"</tr>") +
 			"</table>";
 	}
 	
