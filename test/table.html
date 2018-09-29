@@ -88,8 +88,24 @@
 	Test.equals(table.rows(),1);
 	Test.equals(table.columns(),3);
 	Test.equals(table.cell(0,0), 1);
-	Test.equals(table.cell(0,1), 2);
-	Test.equals(table.cell(0,2), 3);
+	Test.equals(table.cell(0,1), 3);
+	Test.equals(table.cell(0,2), 2);
+	table.setColumn("four", 4, true);
+	Test.equals(table.rows(),1);
+	Test.equals(table.columns(),4);
+	Test.equals(table.cell(0,3), 4);
+	Test.equals(table.cell(0,"four"), 4);
+	table.setColumn("five", [5], true);
+	Test.equals(table.rows(),1);
+	Test.equals(table.columns(),5);
+	Test.equals(table.cell(0,4), 5);
+	Test.equals(table.cell(0,"five"), 5);
+	Test.equals(table.rowRollingMean(0,1)[4], 4.5);
+	table.rowRollingMean(0,1,true);
+	Test.equals(table.rows(),1);
+	Test.equals(table.columns(),5);
+	Test.equals(table.cell(0,4), 4.5);
+	Test.equals(table.cell(0,"five"), 4.5);
 
 	// table with single array to be counted
 	table = Table.create(words, {count: "vertical", rowKeyColumn: 0, headers: ["item","count"]});
@@ -115,6 +131,7 @@
 	Test.equals(table.rows(),3);
 	Test.equals(table.columns(),2);
 	Test.equals(table.cell(2,0), "one"); // reverse sorted alphabetically at end
+
 	table.columnSort(); // sort by column name
 	Test.equals(table.rows(),3);
 	Test.equals(table.columns(),2);

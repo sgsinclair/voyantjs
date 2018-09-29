@@ -149,7 +149,7 @@ export class Table {
 	setRow(ind, data, create) {
 
 		let rowIndex = this.getRowIndex(ind, create);
-		if (ind>=this.rows() && !create) {
+		if (rowIndex>=this.rows() && !create) {
 			throw new Error("Attempt to set row values for a row that does note exist: "+ind+". Maybe use addRow() instead?");
 		}
 		
@@ -183,6 +183,34 @@ export class Table {
 			this.setCell(rowIndex,0,data);
 		} else {
 			throw new Error("setRow() expects an array or an object, maybe setCell()?")
+		}
+		
+		return this;
+
+	}
+	
+	setColumn(ind, data, create) {
+
+		let columnIndex = this.getColumnIndex(ind, create);
+		if (columnIndex>=this.columns() && !create) {
+			throw new Error("Attempt to set column values for a column that does note exist: "+ind+". Maybe use addColumn() instead?");
+		}
+		
+		// we have a simple array, so we'll just push to the rows
+		if (data && Array.isArray(data)) {
+			data.forEach((d,i) => this.setCell(i, columnIndex, d, create), this);
+		}
+		
+		// we have an object so we'll use the headers
+		else if (typeof data == "object") {
+			for (let row in data) {
+				this.setCell(row, columnIndex, data[column], create);
+			}
+		}
+		
+		// hope we have a scalar value to assign to the first row
+		else {
+			this.setCell(0,columnIndex,data, create);
 		}
 		
 		return this;
@@ -422,8 +450,12 @@ export class Table {
 		return means;
 	}
 	
-	columnRollingMean(ind, neighbors) {
-		return rollingMean(this.column(ind), neighbors);
+	columnRollingMean(ind, neighbors, overwrite) {
+		let means = rollingMean(this.column(ind), neighbors);
+		if (overwrite) {
+			this.setColumn(ind, means);
+		}
+		return means;
 	}
 	
 	rowVariance(ind) {
@@ -523,7 +555,11 @@ export class Table {
 			// make sure we have all columns
 			Object.keys(this._headers).forEach(h => {
 				if (!headers.includes(h)) {headers.push(h)}
-			})
+			});
+			
+			// sort names alphabetically
+			headers.sort((a,b) => a.localeCompare(b))
+			
 			// reorder by columns
 			this._rows = this._rows.map((_,i) => headers.map(h => this.cell(i,h)));
 			this._headers = {};
