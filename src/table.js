@@ -313,20 +313,56 @@ export class Table {
 	 * This function returns different values depending on the arguments provided.
 	 * When there are no arguments, it returns the number of rows in this table.
 	 * When the first argument is the boolean value `true` all rows are returned.
-	 * When the first argument is a number a slice of the rows is returned and if
-	 * the second argument is a number it is treated as the length of the slice to
-	 * return (note that it isn't the `end` index like with Array.slice()).
+	 * When the first argument is a an array then the rows corresponding to the row
+	 * indices or names are returned. When all arguments except are numbers or strings
+	 * then each of those is returned. 
 	 */
-	rows(start, length) {
-		if (start) {
-			if (typeof start === "boolean" && start) {
-				return this._rows;
+	rows(inds, config, ...other) {
+	
+		// return length
+		if (inds==undefined) {
+			return this._rows.length;
+		}
+		
+		let rows = [];
+		let asObj = (config && typeof config == "object" && config.asObj) ||
+			(other.length>0 && typeof other[other.length-1] == "object" && other[other.length-1].asObj);
+		
+		// return all
+		if (typeof inds == "boolean" && start) {
+			rows = this._rows.map((r,i) => this.row(i, asObj))
+		}
+		
+		// return specified rows
+		else if (Array.isArray(inds)) {
+			rows = inds.map(ind => row(ind));
+		}
+		
+		// return specified rows as varargs
+		else if (typeof inds == "number" || typeof inds == "string") {
+			[inds, config, ...other].every(i => {
+				if (typeof i == "number" || typeof i == "string") {
+					rows.push(row(ind, asObj));
+					return true
+				} else {
+					return false
+				}
 			}
-			if (typeof start === "number") {
-				return this._rows.slice(start, length && typeof length === "number" ? start+length : undefined);
+			if (other.length>0) { // when config is in last position
+				if (typeof other[other.length-1] == "object") {
+					config = other[other.length-1]
+				}
 			}
 		}
-		return this._rows.length;
+		
+		// zip if requested
+		if (config && typeof config == "object" && "zip" in config && config.zip) {
+			if (rows.length<2) {throw new Error("Only one row available, can't zip")}
+			return zip(rows);
+		}
+		else {
+			return rows;
+		}
 	}
 	
 	row(ind, asObj) {
@@ -350,20 +386,52 @@ export class Table {
 	 * the second argument is a number it is treated as the length of the slice to
 	 * return (note that it isn't the `end` index like with Array.slice()).
 	 */
-	columns(start, length) {
-		if (start) {
-			let columns = [];
-			this._headers.forEach((h, i) => {
-				columns.push(this.column(i))
-			});
-			if (typeof start === "boolean" && start) {
-				return columns;
-			}
-			if (typeof start === "number") {
-				return columns.slice(start, length && typeof length === "number" ? start+length : undefined);
+	columns(inds, config, ...other) {
+	
+		// return length
+		if (inds==undefined) {
+			return Object.keys(this._headers).length;
+		}
+		
+		let columns = [];
+		let asObj = (config && typeof config == "object" && config.asObj) ||
+			(other.length>0 && typeof other[other.length-1] == "object" && other[other.length-1].asObj);
+		
+		// return all columns
+		if (typeof inds == "boolean" && start) {
+			for (let i=0, len=this.columns(); i<len; i++) {
+				columns.push(this.column(i, asObj));
 			}
 		}
-		return Object.keys(this._headers).length;
+		
+		// return specified columns
+		else if (Array.isArray(inds)) {
+			inds.forEach(i => columns.push(this.column(i, asObj)), this);
+		}
+		
+		else if (typeof inds == "number" || typeof inds == "string") {
+			[inds, config, ...other].every(i => {
+				if (typeof i == "number" || typeof i == "string") {
+					columns.push(column(ind, asObj));
+					return true
+				} else {
+					return false
+				}
+			}
+			if (other.length>0) { // when config is in last position
+				if (typeof other[other.length-1] == "object") {
+					config = other[other.length-1]
+				}
+			}
+		}
+		
+		if (config && typeof config == "object" && "zip" in config && config.zip)) {
+			if (columns.length<2) {throw new Error("Only one column available, can't zip")}
+			return zip(columns);
+		}
+		else {
+			return columns;
+		}
 	}
 	
 	column(ind, asObj) {
@@ -678,4 +746,24 @@ function counts(data) {
 	let vals = {};
 	data.forEach(v => v in vals ? vals[v]++ : vals[v]=1);
 	return vals;
+}
+
+function zip(...data) {
+
+	// we have a single nested array, so let's recall with flattened arguments
+	if (data.length==1 && Array.isArray(data) && data.every(d => Array.isArray(d)) {
+		return zip.apply(null, data);
+	}
+	
+	// allow arrays to be of different lengths
+	let len = Array.max.apply(data.map(d => d.length));
+	
+	let arr = [];
+	let misMatched = false;
+	for (let i=0; i<data.length; i++) {
+		if (!misMatched && data[i].length!=len) {misMatched=true;} 
+		arr.push(new Array(len).map((_,j) => data[i][j]);
+	}
+	if (misMatched && console) {console.warn("Warning: zip() called with different array lengths: ")}
+	return arr;
 }
