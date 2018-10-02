@@ -61,7 +61,7 @@ export class Table {
 				
 				// if we can't find any config information for headers then we try to guess
 				// if the first line doesn't have any numbers - this heuristic may be questionable
-				if (line==0 && values.every(v => isNaN(v) && 
+				if (line==0 && values.every(v => isNaN(v)) && 
 					((typeof config != "object") || (typeof config == "object" && !("hasHeaders" in config) && !("headers" in config)))) {
 					this.setHeaders(values);
 				} else {
@@ -337,25 +337,25 @@ export class Table {
 			(other.length>0 && typeof other[other.length-1] == "object" && other[other.length-1].asObj);
 		
 		// return all
-		if (typeof inds == "boolean" && start) {
+		if (typeof inds == "boolean" && inds) {
 			rows = this._rows.map((r,i) => this.row(i, asObj))
 		}
 		
 		// return specified rows
 		else if (Array.isArray(inds)) {
-			rows = inds.map(ind => row(ind));
+			rows = inds.map(ind => this.row(ind));
 		}
 		
 		// return specified rows as varargs
 		else if (typeof inds == "number" || typeof inds == "string") {
 			[inds, config, ...other].every(i => {
 				if (typeof i == "number" || typeof i == "string") {
-					rows.push(row(ind, asObj));
+					rows.push(this.row(i, asObj));
 					return true
 				} else {
 					return false
 				}
-			}
+			})
 			if (other.length>0) { // when config is in last position
 				if (typeof other[other.length-1] == "object") {
 					config = other[other.length-1]
@@ -406,7 +406,7 @@ export class Table {
 			(other.length>0 && typeof other[other.length-1] == "object" && other[other.length-1].asObj);
 		
 		// return all columns
-		if (typeof inds == "boolean" && start) {
+		if (typeof inds == "boolean" && inds) {
 			for (let i=0, len=this.columns(); i<len; i++) {
 				columns.push(this.column(i, asObj));
 			}
@@ -425,7 +425,7 @@ export class Table {
 				} else {
 					return false
 				}
-			}
+			})
 			if (other.length>0) { // when config is in last position
 				if (typeof other[other.length-1] == "object") {
 					config = other[other.length-1]
@@ -433,7 +433,7 @@ export class Table {
 			}
 		}
 		
-		if (config && typeof config == "object" && "zip" in config && config.zip)) {
+		if (config && typeof config == "object" && "zip" in config && config.zip) {
 			if (columns.length<2) {throw new Error("Only one column available, can't zip")}
 			return zip(columns);
 		}
@@ -770,19 +770,11 @@ function counts(data) {
 function zip(...data) {
 
 	// we have a single nested array, so let's recall with flattened arguments
-	if (data.length==1 && Array.isArray(data) && data.every(d => Array.isArray(d)) {
-		return zip.apply(null, data);
+	if (data.length==1 && Array.isArray(data) && data.every(d => Array.isArray(d))) {
+		return zip.apply(null, ...data);
 	}
 	
 	// allow arrays to be of different lengths
-	let len = Array.max.apply(data.map(d => d.length));
-	
-	let arr = [];
-	let misMatched = false;
-	for (let i=0; i<data.length; i++) {
-		if (!misMatched && data[i].length!=len) {misMatched=true;} 
-		arr.push(new Array(len).map((_,j) => data[i][j]);
-	}
-	if (misMatched && console) {console.warn("Warning: zip() called with different array lengths: ")}
-	return arr;
+	let len = Math.max.apply(null, data.map(d => d.length));
+	return new Array(len).fill().map((_,i) => data.map(d => d[i]));
 }
