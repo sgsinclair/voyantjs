@@ -49,7 +49,7 @@ export class Table {
 			if (typeof data == "number") {data = String(data)} // convert to string for split
 			let rows = [];
 			let format = config && "format" in config ? config.format : undefined;
-			data.split(/(\r\n|\r|\n)+/).forEach(line => {
+			data.split(/(\r\n|\r|\n)+/).forEach((line,i) => {
 				let values;
 				if ((format && format=="tsv") || line.indexOf("\t")>-1) {
 					values = line.split(/\t/);
@@ -58,7 +58,15 @@ export class Table {
 				} else {
 					values = [line]
 				}
-				rows.push(values.map(v => isNaN(v) ? v : Number(v)))
+				
+				// if we can't find any config information for headers then we try to guess
+				// if the first line doesn't have any numbers - this heuristic may be questionable
+				if (line==0 && values.every(v => isNaN(v) && 
+					((typeof config != "object") || (typeof config == "object" && !("hasHeaders" in config) && !("headers" in config)))) {
+					this.setHeaders(values);
+				} else {
+					rows.push(values.map(v => isNaN(v) ? v : Number(v)))
+				}
 			})
 			data = rows;
 		}
@@ -706,6 +714,17 @@ export class Table {
 	
 	static create(config, data) {
 		return new Table(config, data);
+	}
+	
+	static fetch(input, api, config) {
+		return new Promise((resolve, reject) => {
+			fetch(input, api).then(response => {
+				if (!response.ok) {throw new Error(response.status + " " + response.statusText);}
+				let inp = response.text();
+				let table = Table.create(inp, config || api);  
+				resolve(table);
+			})
+		})
 	}
 }
 
