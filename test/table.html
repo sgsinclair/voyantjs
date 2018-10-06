@@ -143,9 +143,12 @@
 	table.html("#table1");
 	table.html(document.getElementById("table2"))
 	Test.equals(document.querySelectorAll("table").length, 2)
-	// let newTable = Table.create(table.toCsv());
-	// console.warn(newTable);
 
+	// make sure we get same thing from CSV
+	let newTable = Table.create(table.toCsv());
+	Test.equals(newTable.rows(),3);
+	Test.equals(newTable.columns(),2);
+	Test.equals(newTable.header(0), "count");
 
 	// table adding rows with chaining
 	table = Table.create({headers: ["item","count"]});
@@ -181,8 +184,12 @@
 	Test.equals(rows[1][1], 3);
 	
 	
-
-	console.info("all done.")
+	Table.fetch("https://raw.githubusercontent.com/piperandrew/enumerations/master/01_Punctuation/Punctuation_Novel_19C_20C_ByYear.csv").then(table => {
+		Test.equals(table.rows(), 199);
+		Test.equals(table.columns(), 8);
+		Test.equals(table.header(0), "year");
+		console.warn("all done.")
+	})
 	
 </script>
 </body>
