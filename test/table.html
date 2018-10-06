@@ -143,6 +143,8 @@
 	table.html("#table1");
 	table.html(document.getElementById("table2"))
 	Test.equals(document.querySelectorAll("table").length, 2)
+	// let newTable = Table.create(table.toCsv());
+	// console.warn(newTable);
 
 
 	// table adding rows with chaining
@@ -155,6 +157,29 @@
 	Test.equals(table.cell(0,1), 1);
 	Test.equals(table.cell(1,"item"), "two");
 	Test.equals(table.cell("three", "count"), 3);
+	let rows = table.rows(true);
+	Test.equals(rows.length, 3);
+	Test.equals(rows[0][0], "one");
+	Test.equals(rows[2][1], 3);
+	rows = table.rows(2); // single
+	Test.equals(rows.length, 1);
+	Test.equals(rows[0][0], "three");
+	Test.equals(rows[0][1], 3);
+	rows = table.rows(1,2); // varargs
+	Test.equals(rows.length, 2);
+	Test.equals(rows[0][0], "two");
+	Test.equals(rows[0][1], 2);
+	rows = table.rows([0,2]); // array
+	Test.equals(rows.length, 2);
+	Test.equals(rows[0][0], "one");
+	Test.equals(rows[0][1], 1);
+	rows = table.rows([0,2], {zip: true}); // array
+	Test.equals(rows.length, 2);
+	Test.equals(rows[0][0], "one");
+	Test.equals(rows[0][1], "three");
+	Test.equals(rows[1][0], 1);
+	Test.equals(rows[1][1], 3);
+	
 	
 
 	console.info("all done.")
