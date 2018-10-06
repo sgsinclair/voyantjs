@@ -524,6 +524,14 @@ export class Table {
 		return mean(this.column(ind));
 	}
 	
+	rowCounts(ind) {
+		return counts(this.row(ind));
+	}
+	
+	columnCounts(ind) {
+		return counts(this.column(ind));
+	}
+	
 	rowRollingMean(ind, neighbors, overwrite) {
 		let means = rollingMean(this.row(ind), neighbors);
 		if (overwrite) {
