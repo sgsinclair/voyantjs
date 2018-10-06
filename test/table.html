@@ -182,6 +182,12 @@
 	Test.equals(rows[0][1], "three");
 	Test.equals(rows[1][0], 1);
 	Test.equals(rows[1][1], 3);
+	let counts = table.columnCounts(0);
+	Test.equals(counts.one, 1);
+	counts = table.columnCounts(1);
+	Test.equals(counts["1"], 1);
+	counts = table.rowCounts(0);
+	Test.equals(counts.one, 1);
 	
 	
 	Table.fetch("https://raw.githubusercontent.com/piperandrew/enumerations/master/01_Punctuation/Punctuation_Novel_19C_20C_ByYear.csv").then(table => {
