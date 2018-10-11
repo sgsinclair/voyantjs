@@ -1,4 +1,4 @@
-//import Chart from "./chart";
+import * as Chart from "./chart.js";
 
 // this seems like a good balance between a built-in flexible parser and a heavier external parser
 // https://lowrey.me/parsing-a-csv-file-in-es6-javascript/
@@ -468,20 +468,29 @@ export class Table {
 		return keys[keys.findIndex(k => i==this._headers[k])]
 	}
 	
-	headers(start, length) {
-		if (start) {
-			let headers = [];
-			for (let k in this._headers) {
-				headers[this._headers[k]] = k;
-			}
-			if (typeof start === "boolean" && start) {
-				return headers;
-			}
-			if (typeof start === "number") {
-				return headers.slice(start, length && typeof length === "number" ? start+length : undefined);
-			}
+	headers(inds, ...other) {
+		
+		// return length
+		if (inds==undefined) {
+			return this._headers.length;
 		}
-		return Object.keys(this._headers).length;
+
+		let headers = [];
+		
+		// return all
+		if (typeof inds == "boolean" && inds) {
+			inds = Array(Object.keys(this._headers).length).fill().map((_,i) => i);
+		}
+		
+		// return specified rows
+		if (Array.isArray(inds)) {
+			return inds.map(i => this.header(i));
+		}
+		
+		// return specified rows as varargs
+		else if (typeof inds == "number" || typeof inds == "string") {
+			return [inds, ...other].map(i => this.header(i));
+		}
 	}
 
 	hasColumn(ind) {
@@ -724,6 +733,50 @@ export class Table {
 			((config && "noHeaders" in config && config.noHeaders) ? "" : ("<tr>"+this.headers(true).map(c => "<th>"+c+"</th>")+"</tr>"))+
 			this._rows.map(row => "<tr>"+row.map(c => "<td>"+c+"</td>")+"</tr>") +
 			"</table>";
+	}
+	
+	chart(target, config) {
+		
+		if (!target) {
+			target = document.createElement("div");
+			document.body.appendChild(target);
+		}
+
+		config = config || {};
+		config.chart = config.chart || {};
+		
+		let columnsCount = this.columns();
+		let rowsCount = this.rows();
+		let headers = this.headers(config.columns ? config.columns : true);
+		let isHeadersCategories = headers.every(h => isNaN(h));
+		
+		if (!("series" in config)) {
+			
+			// we have headers and one row, so we'll show a simple bar line or bar graph
+			if (rowsCount==1) {
+				Chart.setDefaultChartType(config, "column");
+
+				// categories
+				if (isHeadersCategories) {
+					config.xAxis = config.xAxis || {};
+					config.xAxis.categories = config.xAxis.categories || headers;
+					config.series = [{
+						data: headers.map(c => this.cell(0,c)),
+						showInLegend: false
+					}]
+				} else {
+					let data = headers.map(c => this.cell(0,c));
+					config.series = zip(headers, data);
+				}
+				
+			} else {
+				
+			}
+				
+			
+		}
+		
+		return Chart.chart(target, config);
 	}
 	
 	static create(config, data) {

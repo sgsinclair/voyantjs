@@ -1,0 +1,20 @@
+<html>
+	<head>
+		<link rel="stylesheet" href="../node_modules/highcharts/css/highcharts.css">
+	</head>
+<body>
+	<div id="chart1"></div>
+<script type="module">
+	import * as Table from '../src/table.js';
+	import * as Chart from '../src/chart.js';
+	
+	let words = ["one","two","two","three","three","three"];
+	let table = Table.create(words, {count: true});
+	table.chart(undefined, {title: "3 columns"});
+	table.chart(undefined, {columns: [0,1], title: "2 columns"});
+	table = Table.create(words.join("").split(""), {count: "vertical"});
+	console.warn(table)
+	table.chart();
+</script>
+</body>
+</html>
