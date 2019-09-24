@@ -1,6 +1,6 @@
 {
   "name": "voyant",
-  "version": "1.0.7",
+  "version": "0.0.0-development",
   "description": "Simple library for interacting with Voyant Tools",
   "main": "index.js",
   "unpkg": "index.js",
@@ -11,7 +11,7 @@
     "test": "jest",
     "report-coverage": "cat ./coverage/coverage-final.json | codecov",
     "semantic-release": "semantic-release",
-    "setup": "semantic-release-cli setup"
+    "travis-deploy-once": "travis-deploy-once"
   },
   "repository": {
     "type": "git",
@@ -41,11 +41,11 @@
     "jest": "^24.9.0",
     "mkdirp": "^0.5.1",
     "semantic-release": "^15.13.24",
+    "travis-deploy-once": "^5.0.11",
     "watchify": "^3.11.1"
   },
   "dependencies": {
-    "highcharts": "^7.2.0",
-    "semantic-release-cli": "^5.2.1"
+    "highcharts": "^7.2.0"
   },
   "directories": {
     "test": "test"
@@ -56,21 +56,20 @@
     }
   },
   "husky": {
-    "hooks": {
-    }
+    "hooks": {}
   },
   "jest": {
     "collectCoverage": true,
     "collectCoverageFrom": [
-      "./src/index.js"
+      "./src/**"
     ],
     "coverageDirectory": "./coverage",
     "coverageThreshold": {
       "global": {
-        "branches": 10,
-        "functions": 10,
-        "lines": 10,
-        "statements": 10
+        "branches": 0,
+        "functions": 0,
+        "lines": 0,
+        "statements": 0
       }
     },
     "testMatch": [
