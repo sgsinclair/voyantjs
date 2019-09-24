@@ -1,4 +1,4 @@
-import "../node_modules/highcharts/js/highcharts.js"
+import "../node_modules/highcharts/highcharts.js"
 
 export function chart(target, config) {
 	
