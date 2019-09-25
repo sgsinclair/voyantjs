@@ -57,7 +57,9 @@
     }
   },
   "husky": {
-    "hooks": {}
+    "hooks": {
+      "pre-commit": "npm run test"
+    }
   },
   "jest": {
     "collectCoverage": true,
