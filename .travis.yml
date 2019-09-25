@@ -9,11 +9,8 @@ node_js:
 branches:
   only:
   - master
-jobs:
-  include:
-    - stage: test
-      script: npm run test
-    - stage: coverage
-      script: npm run report-coverage
-    - stage: release
-      script: npm run semantic-release
+script:
+  - npm run test
+after_success:
+  - npm run report-coverage
+  - npm run semantic-release
