@@ -9,9 +9,8 @@
     "build": "mkdirp dist && browserify index.js -o ./dist/app.js --debug -t babelify",
     "watch": "mkdirp dist && watchify index.js -o ./dist/development.js --debug --verbose -t babelify",
     "test": "jest",
-    "report-coverage": "cat ./coverage/coverage-final.json | codecov",
-    "semantic-release": "semantic-release",
-    "travis-deploy-once": "travis-deploy-once"
+    "report-coverage": "codecov",
+    "semantic-release": "semantic-release"
   },
   "repository": {
     "type": "git",
@@ -42,7 +41,6 @@
     "jest-fetch-mock": "^2.1.2",
     "mkdirp": "^0.5.1",
     "semantic-release": "^15.13.24",
-    "travis-deploy-once": "^5.0.11",
     "watchify": "^3.11.1"
   },
   "dependencies": {

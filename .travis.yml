@@ -5,12 +5,15 @@ cache:
 notifications:
   email: false
 node_js:
-  - '9'
-script:
-  - npm run test
-after_success:
-  - npm run report-coverage
-  - npm run travis-deploy-once "npm run semantic-release"
+  - '10'
 branches:
   only:
   - master
+jobs:
+  include:
+    - stage: test
+      script: npm run test
+    - stage: coverage
+      script: npm run report-coverage
+    - stage: release
+      script: npm run semantic-release
