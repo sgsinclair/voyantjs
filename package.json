@@ -39,6 +39,7 @@
     "cz-conventional-changelog": "^3.0.2",
     "husky": "^3.0.5",
     "jest": "^24.9.0",
+    "jest-fetch-mock": "^2.1.2",
     "mkdirp": "^0.5.1",
     "semantic-release": "^15.13.24",
     "travis-deploy-once": "^5.0.11",
@@ -66,14 +67,17 @@
     "coverageDirectory": "./coverage",
     "coverageThreshold": {
       "global": {
-        "branches": 0,
-        "functions": 0,
-        "lines": 0,
-        "statements": 0
+        "branches": 2,
+        "functions": 10,
+        "lines": 4,
+        "statements": 5
       }
     },
+    "setupFiles": [
+      "./setupJest.js"
+    ],
     "testMatch": [
-      "**/test/**/*.[jt]s?(x)"
+      "**/test/*.js"
     ]
   }
 }
