@@ -6,8 +6,9 @@
   "unpkg": "index.js",
   "scripts": {
     "cm": "git-cz",
-    "build": "mkdirp dist && browserify index.js -o ./dist/app.js --debug -t babelify",
-    "watch": "mkdirp dist && watchify index.js -o ./dist/development.js --debug --verbose -t babelify",
+    "build": "mkdirp dist && browserify index.js -o ./dist/voyantjs.js --debug -t babelify",
+    "watch": "mkdirp dist && watchify index.js -o ./dist/voyantjs.js --debug --verbose -t babelify",
+    "copy": "copy .\\dist\\voyantjs.js D:\\Git\\Voyant\\src\\main\\webapp\\resources\\spyral\\voyantjs.js",
     "test": "jest",
     "report-coverage": "codecov",
     "semantic-release": "semantic-release"
@@ -31,6 +32,7 @@
   "homepage": "https://github.com/sgsinclair/voyantjs",
   "devDependencies": {
     "@babel/core": "^7.6.2",
+    "@babel/plugin-proposal-class-properties": "^7.5.5",
     "@babel/preset-env": "^7.6.2",
     "babelify": "^10.0.0",
     "browserify": "^16.5.0",
@@ -68,10 +70,10 @@
     "coverageDirectory": "./coverage",
     "coverageThreshold": {
       "global": {
-        "branches": 6,
-        "functions": 17,
-        "lines": 8,
-        "statements": 8
+        "branches": 11,
+        "functions": 28,
+        "lines": 11,
+        "statements": 13
       }
     },
     "setupFiles": [

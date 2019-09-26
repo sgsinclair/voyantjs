@@ -1,6 +1,17 @@
 <html>
 <head>
 </head>
-	<script type="text/javascript" src ="./dist/development.js"></script>
+<script src ="./dist/voyantjs.js"></script>
+<script type="text/javascript">
+const VoyantJS = window.VoyantJS;
+VoyantJS.Corpus.setBaseUrl('http://localhost:8080/voyant/');
+
+VoyantJS.Corpus.load('austen').then(corpus => {
+	corpus.terms({limit: 10}).then(data => {
+		console.log(data);
+	})
+})
+
+</script>
 </body>
 </html>
