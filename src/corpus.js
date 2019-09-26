@@ -73,7 +73,7 @@ export function setBaseUrl(baseUrl) {
 }
 
 function isDocumentsMode(config) {
-	return config && ((config.mode && config.mode=="documents") || config.documents);
+	return config && ((config.mode && config.mode === "documents") || config.documents);
 }
 
 export class Corpus {
@@ -204,20 +204,20 @@ export class Corpus {
 			
 			// add API values from config (some may be ignored)
 			Object.keys(config || {}).forEach(key => {
-				if (key!="input" && !(key in defaultAttributes)) {
+				if (key !=="input" && !(key in defaultAttributes)) {
 					url.searchParams.append(key, config[key])
 				}
 			});
 			
 			out+=' src="'+url+'"></iframe>'
 			
-			if (typeof target == "function") {
+			if (typeof target === "function") {
 				resolve(target(out));
 			} else {
-				if (typeof target == "string") {
+				if (typeof target === "string") {
 					target = document.querySelector(target);
 				}
-				if (typeof target == "object" && "innerHTML" in target) {
+				if (typeof target === "object" && "innerHTML" in target) {
 					target.innerHTML = out;
 					resolve(out);
 				}
