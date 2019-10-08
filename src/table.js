@@ -1,33 +1,5 @@
 import * as Chart from "./chart.js";
 
-// this seems like a good balance between a built-in flexible parser and a heavier external parser
-// https://lowrey.me/parsing-a-csv-file-in-es6-javascript/
-const regex = /(?!\s*$)\s*(?:'([^'\\]*(?:\\[\S\s][^'\\]*)*)'|"([^"\\]*(?:\\[\S\s][^"\\]*)*)"|([^,'"\s\\]*(?:\s+[^,'"\s\\]+)*))\s*(?:,|$)/g;
-function parseCsvLine(line) {
-	let arr = [];
-	line.replace(regex, (m0, m1, m2, m3) => {
-		if (m1 !== undefined) {
-			arr.push(m1.replace(/\\'/g, "'"));
-		} else if (m2 !== undefined) {
-			arr.push(m2.replace(/\\"/g, "\""));
-		} else if (m3 !== undefined) {
-			arr.push(m3);
-		}
-		return "";
-	});
-	if (/,\s*$/.test(line)) {arr.push("");}
-	return arr;
-	
-}
-
-export function create(data, config, ...other) {
-	return new Table(data, config, ...other);
-}
-
-export function fetch(input, api, config) {
-	return Table.fetch(input, api, config);
-}
-
 export class Table {
 
 	constructor(data, config, ...other) {
@@ -38,16 +10,21 @@ export class Table {
 		
 		// we have a configuration object followed by values: create({headers: []}, 1,2,3) …
 		if (data && typeof data == "object" && (typeof config == "string" || typeof config == "number" || Array.isArray(config))) {
-			data.rows = [config].concat(other);
+			data.rows = [config].concat(other).filter(v => v!==undefined)
 			config = undefined;
 		}
 		
 		// we have a simple variable set of arguments: create(1,2,3) …
-		if (Array.from(arguments).every(a => a!==undefined && !Array.isArray(a) && typeof a != "object")) {
-			data = [data,config].concat(other);
+		if (arguments.length>0 && Array.from(arguments).every(a => a!==undefined && !Array.isArray(a) && typeof a != "object")) {
+			data = [data,config].concat(other).filter(v => v!==undefined)
 			config = undefined;
 		}
 		
+		// could be CSV or TSV
+		if (Array.isArray(data) && data.length==1 && typeof data[0] == "string"  && (data[0].indexOf(",")>-1 || data[0].indexOf("\t")>-1)) {
+			data = data[0];
+		}
+
 		// first check if we have a string that might be delimited data
 		if (data && (typeof data == "string" || typeof data =="number")) {
 			if (typeof data == "number") {data = String(data)} // convert to string for split
@@ -90,14 +67,16 @@ export class Table {
 				}
 			}
 			if (config && "count" in config && config.count) {
-				let freqs = counts(data);
-				if (config.count=="vertical") {
+				let freqs = Table.counts(data);
+				if (config.count=="vertical" || ("orientation" in config && config.orientation=="vertical")) {
 					for (let item in freqs) {
 						this.addRow(item, freqs[item])
 					}
+					this.rowSort((a,b) => Table.cmp(b[1],a[1]))
 				} else {
 					this._headers = []; // reset and use the terms as headers
 					this.addRow(freqs)
+					this.columnSort((a,b) => Table.cmp(this.cell(0,b),this.cell(0,a)))
 				}
 			} else {
 				this.addRows(data);
@@ -372,7 +351,7 @@ export class Table {
 		// zip if requested
 		if (config && typeof config == "object" && "zip" in config && config.zip) {
 			if (rows.length<2) {throw new Error("Only one row available, can't zip")}
-			return zip(rows);
+			return Table.zip(rows);
 		}
 		else {
 			return rows;
@@ -518,11 +497,11 @@ export class Table {
 	}
 	
 	rowSum(ind) {
-		return sum(this.row(ind));
+		return Table.sum(this.row(ind));
 	}
 	
 	columnSum(ind) {
-		return sum(this.column(ind));
+		return Table.sum(this.column(ind));
 	}
 
 	rowMean(ind) {
@@ -534,15 +513,15 @@ export class Table {
 	}
 	
 	rowCounts(ind) {
-		return counts(this.row(ind));
+		return Table.counts(this.row(ind));
 	}
 	
 	columnCounts(ind) {
-		return counts(this.column(ind));
+		return Table.counts(this.column(ind));
 	}
 	
 	rowRollingMean(ind, neighbors, overwrite) {
-		let means = rollingMean(this.row(ind), neighbors);
+		let means = Table.rollingMean(this.row(ind), neighbors);
 		if (overwrite) {
 			this.setRow(ind, means);
 		}
@@ -550,7 +529,7 @@ export class Table {
 	}
 	
 	columnRollingMean(ind, neighbors, overwrite) {
-		let means = rollingMean(this.column(ind), neighbors);
+		let means = Table.rollingMean(this.column(ind), neighbors);
 		if (overwrite) {
 			this.setColumn(ind, means);
 		}
@@ -621,9 +600,9 @@ export class Table {
 					for (let k in this._headers) {
 						d[k] = b[this._headers[k]]
 					}
-					return inds(c,d);
+					return inds.apply(this, [c,d]);
 				} else {
-					return inds(a,b);
+					return inds.apply(this, [a,b]);
 				}
 			});
 			if (config && "reverse" in config && config.reverse) {
@@ -674,7 +653,7 @@ export class Table {
 				})
 			}
 			headers.sort((a,b) => {
-				return inds(a,b);
+				return inds.apply(this, [a,b]);
 			})
 			headers = headers.map(h => typeof h == "object" ? h.header : h); // convert back to string
 			
@@ -709,7 +688,7 @@ export class Table {
 	}
 	
 	html(target, config) {
-		let html = this.toHtml();
+		let html = this.toString();
 		if (typeof target == "function") {
 			target(html)
 		} else {
@@ -726,61 +705,68 @@ export class Table {
 		return this;
 	}
 	
-	toHtml(config) {
+	toString(config) {
 		return "<table class='voyantTable'>" +
 			((config && "caption" in config && typeof config.caption == "string") ?
 					"<caption>"+config.caption+"</caption>" : "") +
-			((config && "noHeaders" in config && config.noHeaders) ? "" : ("<tr>"+this.headers(true).map(c => "<th>"+c+"</th>")+"</tr>"))+
-			this._rows.map(row => "<tr>"+row.map(c => "<td>"+c+"</td>")+"</tr>") +
-			"</table>";
+			((config && "noHeaders" in config && config.noHeaders) ? "" : ("<thead><tr>"+this.headers(true).map(c => "<th>"+c+"</th>").join("")+"</tr></thead>"))+
+			"<tbody>"+
+			this._rows.map(row => "<tr>"+row.map(c => "<td>"+(typeof c === "number" ? c.toLocaleString() : c)+"</td>").join("")+"</tr>").join("") +
+			"</tbody></table>";
 	}
 	
-	chart(target, config) {
+	chart(config = {}) {
 		
-		if (!target) {
-			target = document.createElement("div");
-			document.body.appendChild(target);
+		let target = config.target;
+		if (target === undefined) {
+			if (Spyral && Spyral.Notebook) {
+				target = Spyral.Notebook.getTarget().results.el.dom;
+			} else {
+				target = document.createElement("div");
+				document.body.appendChild(target);
+			}
 		}
 
-		config = config || {};
 		config.chart = config.chart || {};
 		
 		let columnsCount = this.columns();
 		let rowsCount = this.rows();
 		let headers = this.headers(config.columns ? config.columns : true);
 		let isHeadersCategories = headers.every(h => isNaN(h));
-		
-		if (!("series" in config)) {
-			
-			// we have headers and one row, so we'll show a simple bar line or bar graph
-			if (rowsCount==1) {
-				Chart.setDefaultChartType(config, "column");
 
-				// categories
-				if (isHeadersCategories) {
-					config.xAxis = config.xAxis || {};
-					config.xAxis.categories = config.xAxis.categories || headers;
-					config.series = [{
-						data: headers.map(c => this.cell(0,c)),
-						showInLegend: false
-					}]
-				} else {
-					let data = headers.map(c => this.cell(0,c));
-					config.series = zip(headers, data);
-				}
-				
-			} else {
-				
-			}
-				
-			
+		if (isHeadersCategories) {
+			Chart.setDefaultChartType(config, "column");
+		}
+
+		// set categories if not set
+		config.xAxis = config.xAxis || {};
+		config.xAxis.categories = config.xAxis.categories || headers;
+		
+		// start filling in series
+		config.series = config.series || [];
+		
+		// one row, so let's take series from rows
+		if (rowsCount==1) {
+			config.seriesFrom = config.seriesFrom || "rows";
+		}
+		
+		if (config.seriesFrom=="rows") {
+			this.rows(config.rows ? config.rows : true).forEach((row, i) => {
+				config.series[i] = config.series[i] || {};
+				config.series[i].data = headers.map(h => this.cell(i, h));
+			})
+		} else {
+			this.columns(config.columns ? config.columns : true).forEach((col, i) => {
+				config.series[i] = config.series[i] || {};
+				config.series[i].data = headers.map(h => this.cell(i, h));
+			})
 		}
 		
 		return Chart.chart(target, config);
 	}
 	
-	static create(config, data) {
-		return new Table(config, data);
+	static create(data, config) {
+		return new Table(data, config);
 	}
 	
 	static fetch(input, api, config) {
@@ -793,55 +779,87 @@ export class Table {
 			})
 		})
 	}
-}
 
-function sum(data) {
-	return data.reduce((a,b) => a+b, 0);
-}
-
-function mean(data) {
-	return sum(data) / data.length;
-}
-
-function rollingMean(data, neighbors) {
-	// https://stackoverflow.com/questions/41386083/plot-rolling-moving-average-in-d3-js-v4/41388581#41387286
-	return data.map((val, idx, arr) => {
-		let start = Math.max(0, idx - neighbors), end = idx + neighbors
-		let subset = arr.slice(start, end + 1)
-		let sum = subset.reduce((a,b) => a + b)
-		return sum / subset.length
-	});
-}
-
-function variance(data) {
-	let m = mean(data);
-	return mean(data.map(num => Math.pow(num-m, 2)));
-}
-
-function standardDeviation(data) {
-	return Math.sqrt(variance(data));
-}
-
-function zScores(data) {
-	let m = mean(data);
-	let s = standardDeviation(data);
-	return data.map(num => (num-m) / s);
-}
-
-function counts(data) {
-	let vals = {};
-	data.forEach(v => v in vals ? vals[v]++ : vals[v]=1);
-	return vals;
-}
-
-function zip(...data) {
-
-	// we have a single nested array, so let's recall with flattened arguments
-	if (data.length==1 && Array.isArray(data) && data.every(d => Array.isArray(d))) {
-		return zip.apply(null, ...data);
+	static counts(data) {
+		let vals = {};
+		data.forEach(v => v in vals ? vals[v]++ : vals[v]=1);
+		return vals;
 	}
 	
-	// allow arrays to be of different lengths
-	let len = Math.max.apply(null, data.map(d => d.length));
-	return new Array(len).fill().map((_,i) => data.map(d => d[i]));
+	static cmp(a, b) {
+		return typeof a == "string" && typeof b == "string" ? a.localeCompare(b) : a-b;
+	}
+
+	static sum(data) {
+		return data.reduce((a,b) => a+b, 0);
+	}
+	
+	static mean(data) {
+		return Table.sum(data) / data.length;
+	}
+	
+	static rollingMean(data, neighbors) {
+		// https://stackoverflow.com/questions/41386083/plot-rolling-moving-average-in-d3-js-v4/41388581#41387286
+		return data.map((val, idx, arr) => {
+			let start = Math.max(0, idx - neighbors), end = idx + neighbors
+			let subset = arr.slice(start, end + 1)
+			let sum = subset.reduce((a,b) => a + b)
+			return sum / subset.length
+		});
+	}
+	
+	static variance(data) {
+		let m = Table.mean(data);
+		return Table.mean(data.map(num => Math.pow(num-m, 2)));
+	}
+	
+	static standardDeviation(data) {
+		return Math.sqrt(Table.variance(data));
+	}
+	
+	static zScores(data) {
+		let m = Table.mean(data);
+		let s = Table.standardDeviation(data);
+		return data.map(num => (num-m) / s);
+	}
+	
+	static zip(...data) {
+	
+		// we have a single nested array, so let's recall with flattened arguments
+		if (data.length==1 && Array.isArray(data) && data.every(d => Array.isArray(d))) {
+			return Table.zip.apply(null, ...data);
+		}
+		
+		// allow arrays to be of different lengths
+		let len = Math.max.apply(null, data.map(d => d.length));
+		return new Array(len).fill().map((_,i) => data.map(d => d[i]));
+	}
+}
+
+// this seems like a good balance between a built-in flexible parser and a heavier external parser
+// https://lowrey.me/parsing-a-csv-file-in-es6-javascript/
+const regex = /(?!\s*$)\s*(?:'([^'\\]*(?:\\[\S\s][^'\\]*)*)'|"([^"\\]*(?:\\[\S\s][^"\\]*)*)"|([^,'"\s\\]*(?:\s+[^,'"\s\\]+)*))\s*(?:,|$)/g;
+function parseCsvLine(line) {
+	let arr = [];
+	line.replace(regex, (m0, m1, m2, m3) => {
+		if (m1 !== undefined) {
+			arr.push(m1.replace(/\\'/g, "'"));
+		} else if (m2 !== undefined) {
+			arr.push(m2.replace(/\\"/g, "\""));
+		} else if (m3 !== undefined) {
+			arr.push(m3);
+		}
+		return "";
+	});
+	if (/,\s*$/.test(line)) {arr.push("");}
+	return arr;
+	
+}
+
+export function create(data, config, ...other) {
+	return new Table(data, config, ...other);
+}
+
+export function fetch(input, api, config) {
+	return Table.fetch(input, api, config);
 }
