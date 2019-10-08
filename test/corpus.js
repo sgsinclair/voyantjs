@@ -30,7 +30,7 @@ test('metadata', () => {
 test('summary', () => {
 	fetch.once(JSON.stringify(Mocks.CorpusMetadata));
 	return Corpus.summary({corpus}).then(data => {
-		expect(data).toBe('This corpus (austen) has 8 documents with 810710 total words and 15834 unique word forms.')
+		expect(data).toBe('This corpus (austen) has 8 documents with 810,710 total words and 15,834 unique word forms.')
 	})
 })
 

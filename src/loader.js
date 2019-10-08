@@ -4,8 +4,8 @@ export default class Loader {
 		this.baseUrl = baseUrl;
 	}
 
-	static trombone(config, params) {
-		let url = new URL(config && config.trombone ? config.trombone : this.baseUrl + "trombone");
+	static trombone(config = {}, params) {
+		let url = new URL(config.trombone ? config.trombone : this.baseUrl + "trombone");
 		let all = { ...config, ...params };
 		for (var key in all) {
 			if (all[key] === undefined) { delete all[key] }

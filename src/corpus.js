@@ -69,7 +69,7 @@ export function htmltool(html, tool, config, api) {
 }
 
 export function setBaseUrl(baseUrl) {
-	Corpus.Loader.setBaseUrl(baseUrl);
+	Loader.setBaseUrl(baseUrl);
 }
 
 function isDocumentsMode(config) {
@@ -88,7 +88,7 @@ export class Corpus {
 		return new Promise(resolve => resolve(me.corpusid));
 	}
 	metadata(config, params) {
-		return Corpus.Loader.trombone(config, {
+		return Loader.trombone(config, {
 			tool: isDocumentsMode(config) ? "corpus.DocumentsMetadata" : "corpus.CorpusMetadata",
 			corpus: this.corpusid
 		})
@@ -98,12 +98,12 @@ export class Corpus {
 	summary(config) {
 		return this.metadata().then(data => {
 			// TODO: make this a template
-			return `This corpus (${data.alias ? data.alias : data.id}) has ${data.documentsCount} documents with ${data.lexicalTokensCount} total words and ${data.lexicalTypesCount} unique word forms.`
+			return `This corpus (${data.alias ? data.alias : data.id}) has ${data.documentsCount.toLocaleString()} documents with ${data.lexicalTokensCount.toLocaleString()} total words and ${data.lexicalTypesCount.toLocaleString()} unique word forms.`
 		})
 	}
 	
 	titles(config) {
-		return Corpus.Loader.trombone(config, {
+		return Loader.trombone(config, {
 			tool: "corpus.DocumentsMetadata",
 			corpus: this.corpusid
 		})
@@ -115,28 +115,30 @@ export class Corpus {
 	}
 	
 	texts(config) {
-		return Corpus.Loader.trombone(config, {
+		return Loader.trombone(config, {
 			tool: "corpus.CorpusTexts",
 			corpus: this.corpusid
 		}).then(data => data.texts.texts)
 	}
 	
 	terms(config) {
-		return Corpus.Loader.trombone(config, {
+		return Loader.trombone(config, {
 			tool: isDocumentsMode(config) ? "corpus.DocumentTerms" : "corpus.CorpusTerms",
 			corpus: this.corpusid
 		}).then(data => isDocumentsMode(config) ? data.documentTerms.terms : data.corpusTerms.terms)
 	}
 	
 	tokens(config) {
-		return Corpus.Loader.trombone(config, {
+		return Loader.trombone(config, {
 			tool: "corpus.DocumentTokens",
 			corpus: this.corpusid
 		}).then(data => data.documentTokens.tokens)
 	}
 
-	words(config) {
-		return Corpus.Loader.trombone(config, {
+	words(config = {}) {
+		// by default DocumentTokens limits to 50 which probably isn't expected
+		if (!("limit" in config)) {config.limit=0;}
+		return Loader.trombone(config, {
 			tool: "corpus.DocumentTokens",
 			noOthers: true,
 			corpus: this.corpusid
@@ -145,7 +147,7 @@ export class Corpus {
 	
 	contexts(config) {
 		if ((!config || !config.query) && console) {console.warn("No query provided for contexts request.")}
-		return Corpus.Loader.trombone(config, {
+		return Loader.trombone(config, {
 			tool: "corpus.DocumentContexts",
 			corpus: this.corpusid
 		}).then(data => data.documentContexts.contexts)
@@ -153,14 +155,14 @@ export class Corpus {
 	
 	collocates(config) {
 		if ((!config || !config.query) && console) {console.warn("No query provided for collocates request.")}
-		return Corpus.Loader.trombone(config, {
+		return Loader.trombone(config, {
 			tool: "corpus.CorpusCollocates",
 			corpus: this.corpusid
 		}).then(data => data.corpusCollocates.collocates)
 	}
 
 	phrases(config) {
-		return Corpus.Loader.trombone(config, {
+		return Loader.trombone(config, {
 			tool: isDocumentsMode(config) ? "corpus.DocumentNgrams" : "corpus.CorpusNgrams",
 			corpus: this.corpusid
 		}).then(data => isDocumentsMode(config) ? data.documentNgrams.ngrams : data.corpusNgrams.ngrams)
@@ -173,13 +175,13 @@ export class Corpus {
 				throw new Error("Unable to run correlations for a corpus without a query.")
 			}
 		}
-		return Corpus.Loader.trombone(config, {
+		return Loader.trombone(config, {
 			tool: isDocumentsMode(config) ? "corpus.DocumentTermCorrelations" : "corpus.CorpusTermCorrelations",
 			corpus: this.corpusid
 		}).then(data => data.termCorrelations.correlations)
 	}
 	
-	tool(target, tool, config) {
+	tool(target, tool, config = {}) {
 		let me = this;
 		return new Promise((resolve, reject) => {
 
@@ -199,7 +201,7 @@ export class Corpus {
 			}
 
 			// construct src URL
-			var url = new URL((config && config.voyantUrl ? config.voyantUrl : Corpus.Loader.baseUrl) + "tool/"+tool+"/");
+			var url = new URL((config && config.voyantUrl ? config.voyantUrl : Loader.baseUrl) + "tool/"+tool+"/");
 			url.searchParams.append("corpus", me.corpusid);
 			
 			// add API values from config (some may be ignored)
@@ -231,9 +233,13 @@ export class Corpus {
 			this.tool(undefined, tool, config).then(out => resolve(html`${out}`));
 		});
 	}
+
+	toString() {
+		return this.summary()
+	}
 	
 	static load(config) {
-		return new Promise(function(resolve, reject) {
+		const promise = new Promise(function(resolve, reject) {
 			if (config instanceof Corpus) {
 				resolve(config);
 			} else if (typeof config === "string" && config.length>0 && /\W/.test(config)===false) {
@@ -243,10 +249,22 @@ export class Corpus {
 			} else {
 				if (typeof config === "string") {config = {input: config}}
 				if (config && config.input) {
-					Corpus.Loader.trombone(config, {tool: "corpus.CorpusMetadata"})
+					Loader.trombone(config, {tool: "corpus.CorpusMetadata"})
 					.then(data => resolve(new Corpus(data.corpus.metadata.id)))
 				}
 			}
 		});
+
+		["id","metadata","summary","titles","text","texts","terms","tokens","words","contexts","collocates","phrases","correlations","tool"].forEach(name => {
+			promise[name] = function() {
+				var args = arguments
+				return promise.then(corpus => {return corpus[name].apply(corpus, args)})
+			}
+		})
+		promise.assign = function(name) {
+			this.then(corpus => {window[name] = corpus; return corpus})
+		}
+
+		return promise;
 	}
 }
