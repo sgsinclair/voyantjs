@@ -70,10 +70,10 @@
     "coverageDirectory": "./coverage",
     "coverageThreshold": {
       "global": {
-        "branches": 11,
-        "functions": 28,
-        "lines": 11,
-        "statements": 13
+        "statements": 60,
+        "branches": 52,
+        "functions": 67,
+        "lines": 59
       }
     },
     "setupFiles": [
@@ -82,5 +82,20 @@
     "testMatch": [
       "**/test/*.js"
     ]
-  }
+  },
+  "browserify": {
+		"transform": [
+			[
+				"babelify",
+				{
+					"presets": [
+						"@babel/preset-env"
+					],
+					"plugins": [
+						"@babel/plugin-proposal-class-properties"
+					]
+				}
+			]
+		]
+	}
 }
