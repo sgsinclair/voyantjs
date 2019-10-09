@@ -3,6 +3,7 @@ import * as Table from '../src/table';
 import * as Mocks from './mocks/table';
 
 const words = ["one", "two", "two", "three", "three", "three"];
+const numbers = [[0, 1, 2, 3, 4, 5, 6, 7, 8, 9], [10, 11, 12, 13, 14, 15, 16, 17, 18, 19]];
 
 beforeAll(() => {
 })
@@ -160,6 +161,24 @@ test('single array to be vertically counted', () => {
 	expect(newTable.rows()).toBe(3);
 	expect(newTable.columns()).toBe(2);
 	expect(newTable.header(0)).toBe("count");
+})
+
+test('calculations', () => {
+	const table = Table.create(numbers);
+	expect(table.rowMin(0)).toBe(0);
+	expect(table.rowMax(0)).toBe(9);
+	expect(table.columnMin(0)).toBe(0);
+	expect(table.columnMax(0)).toBe(10);
+	expect(table.rowSum(0)).toBe(45);
+	expect(table.columnSum(0)).toBe(10);
+	expect(table.rowMean(0)).toBe(4.5);
+	expect(table.columnMean(0)).toBe(5);
+	expect(table.rowVariance(0)).toBe(8.25);
+	expect(table.columnVariance(0)).toBe(25);
+	expect(table.rowStandardDeviation(0)).toBe(2.8722813232690143);
+	expect(table.columnStandardDeviation(0)).toBe(5);
+	expect(table.rowZScores(0)).toStrictEqual([-1.5666989036012806, -1.2185435916898848, -0.8703882797784892, -0.5222329678670935, -0.17407765595569785, 0.17407765595569785, 0.5222329678670935, 0.8703882797784892, 1.2185435916898848, 1.5666989036012806]);
+	expect(table.columnZScores(0)).toStrictEqual([-1, 1]);
 })
 
 test('adding rows with chaining', () => {

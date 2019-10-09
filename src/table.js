@@ -373,9 +373,9 @@ export class Table {
 	
 	/**
 	 * This function returns different values depending on the arguments provided.
-	 * When there are no arguments, it returns the number of rows in this table.
-	 * When the first argument is the boolean value `true` all rows are returned.
-	 * When the first argument is a number a slice of the rows is returned and if
+	 * When there are no arguments, it returns the number of columns in this table.
+	 * When the first argument is the boolean value `true` all columns are returned.
+	 * When the first argument is a number a slice of the columns is returned and if
 	 * the second argument is a number it is treated as the length of the slice to
 	 * return (note that it isn't the `end` index like with Array.slice()).
 	 */
@@ -420,7 +420,7 @@ export class Table {
 		
 		if (config && typeof config == "object" && "zip" in config && config.zip) {
 			if (columns.length<2) {throw new Error("Only one column available, can't zip")}
-			return zip(columns);
+			return Table.zip(columns);
 		}
 		else {
 			return columns;
@@ -505,11 +505,11 @@ export class Table {
 	}
 
 	rowMean(ind) {
-		return mean(this.row(ind));
+		return Table.mean(this.row(ind));
 	}
 	
 	columnMean(ind) {
-		return mean(this.column(ind));
+		return Table.mean(this.column(ind));
 	}
 	
 	rowCounts(ind) {
@@ -537,27 +537,27 @@ export class Table {
 	}
 	
 	rowVariance(ind) {
-		return variance(this.row(ind));
+		return Table.variance(this.row(ind));
 	}
 	
 	columnVariance(ind) {
-		return variance(this.column(ind));
+		return Table.variance(this.column(ind));
 	}
 	
 	rowStandardDeviation(ind) {
-		return standardDeviation(this.row(ind));
+		return Table.standardDeviation(this.row(ind));
 	}
 	
 	columnStandardDeviation(ind) {
-		return standardDeviation(this.column(ind));
+		return Table.standardDeviation(this.column(ind));
 	}
 	
 	rowZScores(ind) {
-		return zScores(this.row(ind));
+		return Table.zScores(this.row(ind));
 	}
 	
 	columnZScores(ind) {
-		return zScores(this.column(ind));
+		return Table.zScores(this.column(ind));
 	}
 	
 	rowSort(inds, config) {
@@ -670,7 +670,7 @@ export class Table {
 	}
 	
 	chart(target, config) {
-		Chart.chart(target, this, config);
+		Chart.chart(target, config);
 	}
 	
 	toCsv(config) {
@@ -750,16 +750,21 @@ export class Table {
 			config.seriesFrom = config.seriesFrom || "rows";
 		}
 		
-		if (config.seriesFrom=="rows") {
+		if (config.seriesFrom === "rows") {
 			this.rows(config.rows ? config.rows : true).forEach((row, i) => {
 				config.series[i] = config.series[i] || {};
 				config.series[i].data = headers.map(h => this.cell(i, h));
 			})
-		} else {
+		} else if (config.seriesFrom === "columns") {
 			this.columns(config.columns ? config.columns : true).forEach((col, i) => {
 				config.series[i] = config.series[i] || {};
-				config.series[i].data = headers.map(h => this.cell(i, h));
+				config.series[i].data = [];
+				for (let r = 0; r < rowsCount; r++) {
+					config.series[i].data.push(this.cell(r, i));
+				}
 			})
+		} else {
+			
 		}
 		
 		return Chart.chart(target, config);
