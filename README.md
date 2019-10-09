@@ -1,6 +1,7 @@
+[![Version](https://img.shields.io/npm/v/voyant.svg)](https://www.npmjs.com/package/voyant)
+[![CodeCov](https://codecov.io/gh/sgsinclair/voyantjs/graph/badge.svg)](https://codecov.io/gh/sgsinclair/voyantjs)
 [![Travis](https://img.shields.io/travis/sgsinclair/voyantjs.svg)](https://travis-ci.org/sgsinclair/voyantjs)
-[![Codecov](https://img.shields.io/codecov/c/github/sgsinclair/voyantjs.svg)](https://codecov.io/gh/sgsinclair/voyantjs)
-[![version](https://img.shields.io/npm/v/voyant.svg)](http://npm.im/voyant)
+[![License](https://img.shields.io/npm/l/voyant.svg)](https://github.com/sgsinclair/voyantjs/blob/master/LICENSE)
 
 # Voyant
 
