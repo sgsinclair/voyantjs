@@ -1,4 +1,4 @@
-import "../node_modules/highcharts/highcharts.js"
+import * as Highcharts from 'highcharts';
 
 export function chart(target, config) {
 	
@@ -37,7 +37,6 @@ export function chart(target, config) {
 		config.yAxis.title = false;
 	}
 	
-	console.warn(config)
 	return Highcharts.chart(target, config);
 }
 

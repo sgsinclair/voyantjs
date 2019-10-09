@@ -70,10 +70,10 @@
     "coverageDirectory": "./coverage",
     "coverageThreshold": {
       "global": {
-        "statements": 60,
-        "branches": 52,
-        "functions": 67,
-        "lines": 59
+        "statements": 65,
+        "branches": 53,
+        "functions": 77,
+        "lines": 64
       }
     },
     "setupFiles": [
