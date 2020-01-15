@@ -1,4 +1,4 @@
-import * as Table from '../src/table';
+import Table from '../src/table';
 
 import * as Mocks from './mocks/table';
 

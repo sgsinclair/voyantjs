@@ -1,4 +1,4 @@
-import * as Corpus from '../src/corpus';
+import Corpus from '../src/corpus';
 
 import * as Mocks from './mocks/corpus';
 
