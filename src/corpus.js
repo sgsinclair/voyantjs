@@ -1,92 +1,53 @@
 import Loader from './loader';
 
-export function load(config) {
-	return Corpus.load(config);
-}
-
-export function create(config) {
-	return Corpus.load(config);
-}
-
-export function id(config, api) {
-	return Corpus.load(config).then(corpus => corpus.id(api || config));
-}
-
-export function metadata(config, api) {
-	return Corpus.load(config).then(corpus => corpus.metadata(api || config));
-}
-
-export function summary(config, api) {
-	return Corpus.load(config).then(corpus => corpus.summary(api || config));
-}
-
-export function titles(config, api) {
-	return Corpus.load(config).then(corpus => corpus.titles(api || config));
-}
-
-export function text(config, api) {
-	return Corpus.load(config).then(corpus => corpus.text(api || config));	
-}
-
-export function texts(config, api) {
-	return Corpus.load(config).then(corpus => corpus.texts(api || config));	
-}
-
-export function terms(config, api) {
-	return Corpus.load(config).then(corpus => corpus.terms(api || config));
-}
-
-export function tokens(config, api) {
-	return Corpus.load(config).then(corpus => corpus.tokens(api || config));
-}
-
-export function words(config, api) {
-	return Corpus.load(config).then(corpus => corpus.words(api || config));
-}
-
-export function contexts(config, api) {
-	return Corpus.load(config).then(corpus => corpus.contexts(api || config));
-}
-
-export function collocates(config, api) {
-	return Corpus.load(config).then(corpus => corpus.collocates(api || config));
-}
-
-export function phrases(config, api) {
-	return Corpus.load(config).then(corpus => corpus.phrases(api || config));
-}
-
-export function correlations(config, api) {
-	return Corpus.load(config).then(corpus => corpus.correlations(api || config));
-}
-
-export function tool(target, tool, config, api) {
-	return Corpus.load(config).then(corpus => corpus.tool(target, tool, api || config));
-}
-
-export function htmltool(html, tool, config, api) {
-	return Corpus.load(config).then(corpus => corpus.htmltool(html, tool, api || config));
-}
-
-export function setBaseUrl(baseUrl) {
-	Loader.setBaseUrl(baseUrl);
-}
-
 function isDocumentsMode(config) {
 	return config && ((config.mode && config.mode === "documents") || config.documents);
 }
 
-export class Corpus {
+/**
+ * Class representing a Corpus.
+ * @memberof Spyral
+ * @class
+ */
+class Corpus {
+	/**
+	 * Create a new Corpus using the specified Corpus ID
+	 * @constructor
+	 * @param {string} id The Corpus ID
+	 */
 	constructor(id) {
 		this.corpusid = id;
 	}
 
 	static Loader = Loader;
 
+	static setBaseUrl(baseUrl) {
+		Loader.setBaseUrl(baseUrl);
+	}
+
+	/**
+	 * Get the ID
+	 * @return {string} The ID
+	 */
 	id() {
 		let me = this
 		return new Promise(resolve => resolve(me.corpusid));
 	}
+
+	/**
+	 * Create a Corpus and return the ID
+	 * @param {object} config 
+	 * @param {object} api 
+	 */
+	static id(config, api) {
+		return Corpus.load(config).then(corpus => corpus.id(api || config));
+	}
+
+	/**
+	 * Load the metadata
+	 * @param {*} config 
+	 * @param {*} params 
+	 */
 	metadata(config, params) {
 		return Loader.trombone(config, {
 			tool: isDocumentsMode(config) ? "corpus.DocumentsMetadata" : "corpus.CorpusMetadata",
@@ -94,12 +55,30 @@ export class Corpus {
 		})
 		.then(data => isDocumentsMode(config) ? data.documentsMetadata.documents : data.corpus.metadata)
 	}
+
+	/**
+	 * Create a Corpus and return the metadata
+	 * @param {*} config 
+	 * @param {*} api 
+	 */
+	static metadata(config, api) {
+		return Corpus.load(config).then(corpus => corpus.metadata(api || config));
+	}
 	
 	summary(config) {
 		return this.metadata().then(data => {
 			// TODO: make this a template
 			return `This corpus (${data.alias ? data.alias : data.id}) has ${data.documentsCount.toLocaleString()} documents with ${data.lexicalTokensCount.toLocaleString()} total words and ${data.lexicalTypesCount.toLocaleString()} unique word forms.`
 		})
+	}
+
+	/**
+	 * Create a Corpus and return the summary
+	 * @param {*} config 
+	 * @param {*} api 
+	 */
+	static summary(config, api) {
+		return Corpus.load(config).then(corpus => corpus.summary(api || config));
 	}
 	
 	titles(config) {
@@ -109,9 +88,31 @@ export class Corpus {
 		})
 		.then(data => data.documentsMetadata.documents.map(doc => doc.title))
 	}
+
+	/**
+	 * Create a Corpus and return the titles
+	 * @param {*} config 
+	 * @param {*} api 
+	 */
+	static titles(config, api) {
+		return Corpus.load(config).then(corpus => corpus.titles(api || config));
+	}
 	
+	/**
+	 * Get the text
+	 * @param {*} config 
+	 */
 	text(config) {
 		return this.texts(config).then(data => data.join("\n"))
+	}
+
+	/**
+	 * Create a Corpus and return the text
+	 * @param {*} config 
+	 * @param {*} api 
+	 */
+	static text(config, api) {
+		return Corpus.load(config).then(corpus => corpus.text(api || config));	
 	}
 	
 	texts(config) {
@@ -120,6 +121,15 @@ export class Corpus {
 			corpus: this.corpusid
 		}).then(data => data.texts.texts)
 	}
+
+	/**
+	 * Create a Corpus and return the texts
+	 * @param {*} config 
+	 * @param {*} api 
+	 */
+	static texts(config, api) {
+		return Corpus.load(config).then(corpus => corpus.texts(api || config));	
+	}
 	
 	terms(config) {
 		return Loader.trombone(config, {
@@ -127,12 +137,30 @@ export class Corpus {
 			corpus: this.corpusid
 		}).then(data => isDocumentsMode(config) ? data.documentTerms.terms : data.corpusTerms.terms)
 	}
+
+	/**
+	 * Create a Corpus and return the terms
+	 * @param {*} config 
+	 * @param {*} api 
+	 */
+	static terms(config, api) {
+		return Corpus.load(config).then(corpus => corpus.terms(api || config));
+	}
 	
 	tokens(config) {
 		return Loader.trombone(config, {
 			tool: "corpus.DocumentTokens",
 			corpus: this.corpusid
 		}).then(data => data.documentTokens.tokens)
+	}
+
+	/**
+	 * Create a Corpus and return the tokens
+	 * @param {*} config 
+	 * @param {*} api 
+	 */
+	static tokens(config, api) {
+		return Corpus.load(config).then(corpus => corpus.tokens(api || config));
 	}
 
 	words(config = {}) {
@@ -144,6 +172,15 @@ export class Corpus {
 			corpus: this.corpusid
 		}).then(data => data.documentTokens.tokens)
 	}
+
+	/**
+	 * Create a Corpus and return the words
+	 * @param {object} config 
+	 * @param {object} api 
+	 */
+	static words(config, api) {
+		return Corpus.load(config).then(corpus => corpus.words(api || config));
+	}
 	
 	contexts(config) {
 		if ((!config || !config.query) && console) {console.warn("No query provided for contexts request.")}
@@ -153,6 +190,15 @@ export class Corpus {
 		}).then(data => data.documentContexts.contexts)
 	}
 	
+	/**
+	 * Create a Corpus and return the contexts
+	 * @param {object} config 
+	 * @param {object} api 
+	 */
+	static contexts(config, api) {
+		return Corpus.load(config).then(corpus => corpus.contexts(api || config));
+	}
+	
 	collocates(config) {
 		if ((!config || !config.query) && console) {console.warn("No query provided for collocates request.")}
 		return Loader.trombone(config, {
@@ -160,12 +206,30 @@ export class Corpus {
 			corpus: this.corpusid
 		}).then(data => data.corpusCollocates.collocates)
 	}
+	
+	/**
+	 * Create a Corpus and return the collocates
+	 * @param {object} config 
+	 * @param {object} api 
+	 */
+	static collocates(config, api) {
+		return Corpus.load(config).then(corpus => corpus.collocates(api || config));
+	}
 
 	phrases(config) {
 		return Loader.trombone(config, {
 			tool: isDocumentsMode(config) ? "corpus.DocumentNgrams" : "corpus.CorpusNgrams",
 			corpus: this.corpusid
 		}).then(data => isDocumentsMode(config) ? data.documentNgrams.ngrams : data.corpusNgrams.ngrams)
+	}
+	
+	/**
+	 * Create a Corpus and return the phrases
+	 * @param {object} config 
+	 * @param {object} api 
+	 */
+	static phrases(config, api) {
+		return Corpus.load(config).then(corpus => corpus.phrases(api || config));
 	}
 	
 	correlations(config) {
@@ -179,6 +243,15 @@ export class Corpus {
 			tool: isDocumentsMode(config) ? "corpus.DocumentTermCorrelations" : "corpus.CorpusTermCorrelations",
 			corpus: this.corpusid
 		}).then(data => data.termCorrelations.correlations)
+	}
+	
+	/**
+	 * Create a Corpus and return the correlations
+	 * @param {object} config 
+	 * @param {object} api 
+	 */
+	static correlations(config, api) {
+		return Corpus.load(config).then(corpus => corpus.correlations(api || config));
 	}
 	
 	tool(target, tool, config = {}) {
@@ -228,16 +301,50 @@ export class Corpus {
 		})
 	}
 
+	/**
+	 * Create a Corpus and return the tool
+	 * @param {*} target 
+	 * @param {*} tool 
+	 * @param {*} config 
+	 * @param {*} api 
+	 */
+	static tool(target, tool, config, api) {
+		return Corpus.load(config).then(corpus => corpus.tool(target, tool, api || config));
+	}
+
 	htmltool(html, tool, config) {
 		return new Promise((resolve,reject) => {
 			this.tool(undefined, tool, config).then(out => resolve(html`${out}`));
 		});
 	}
 
+	/**
+	 * Create a Corpus and return the html tool
+	 * @param {*} html 
+	 * @param {*} tool 
+	 * @param {*} config 
+	 * @param {*} api 
+	 */
+	static htmltool(html, tool, config, api) {
+		return Corpus.load(config).then(corpus => corpus.htmltool(html, tool, api || config));
+	}
+
 	toString() {
 		return this.summary()
 	}
-	
+		
+	/**
+	 * Create a new Corpus using the provided config
+	 * @param {object} config 
+	 */
+	static create(config) {
+		return Corpus.load(config);
+	}
+
+	/**
+	 * Load a Corpus using the provided config
+	 * @param {object} config The Corpus config
+	 */
 	static load(config) {
 		const promise = new Promise(function(resolve, reject) {
 			if (config instanceof Corpus) {
@@ -268,3 +375,5 @@ export class Corpus {
 		return promise;
 	}
 }
+
+export default Corpus

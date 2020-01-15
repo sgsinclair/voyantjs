@@ -1,4 +1,9 @@
-export default class Loader {
+/**
+ * Class representing the Loader.
+ * @memberof Spyral
+ * @class
+ */
+class Loader {
 	static baseUrl;
 	static setBaseUrl(baseUrl) {
 		this.baseUrl = baseUrl;
@@ -82,3 +87,5 @@ export default class Loader {
 		return this.load(url).then(response => response.text());
 	}
 }
+
+export default Loader

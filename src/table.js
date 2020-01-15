@@ -1,6 +1,11 @@
 import * as Chart from "./chart.js";
 
-export class Table {
+/**
+ * Class representing a Table.
+ * @memberof Spyral
+ * @class
+ */
+class Table {
 
 	constructor(data, config, ...other) {
 
@@ -769,9 +774,9 @@ export class Table {
 		
 		return Chart.chart(target, config);
 	}
-	
-	static create(data, config) {
-		return new Table(data, config);
+
+	static create(data, config, ...other) {
+		return new Table(data, config, ...other);
 	}
 	
 	static fetch(input, api, config) {
@@ -861,10 +866,4 @@ function parseCsvLine(line) {
 	
 }
 
-export function create(data, config, ...other) {
-	return new Table(data, config, ...other);
-}
-
-export function fetch(input, api, config) {
-	return Table.fetch(input, api, config);
-}
+export default Table
