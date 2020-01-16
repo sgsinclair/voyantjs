@@ -1,4 +1,4 @@
-import Loader from './loader';
+import Load from './load';
 
 function isDocumentsMode(config) {
 	return config && ((config.mode && config.mode === "documents") || config.documents);
@@ -19,10 +19,10 @@ class Corpus {
 		this.corpusid = id;
 	}
 
-	static Loader = Loader;
+	static Load = Load;
 
 	static setBaseUrl(baseUrl) {
-		Loader.setBaseUrl(baseUrl);
+		Load.setBaseUrl(baseUrl);
 	}
 
 	/**
@@ -49,7 +49,7 @@ class Corpus {
 	 * @param {*} params 
 	 */
 	metadata(config, params) {
-		return Loader.trombone(config, {
+		return Load.trombone(config, {
 			tool: isDocumentsMode(config) ? "corpus.DocumentsMetadata" : "corpus.CorpusMetadata",
 			corpus: this.corpusid
 		})
@@ -82,7 +82,7 @@ class Corpus {
 	}
 	
 	titles(config) {
-		return Loader.trombone(config, {
+		return Load.trombone(config, {
 			tool: "corpus.DocumentsMetadata",
 			corpus: this.corpusid
 		})
@@ -116,7 +116,7 @@ class Corpus {
 	}
 	
 	texts(config) {
-		return Loader.trombone(config, {
+		return Load.trombone(config, {
 			tool: "corpus.CorpusTexts",
 			corpus: this.corpusid
 		}).then(data => data.texts.texts)
@@ -132,7 +132,7 @@ class Corpus {
 	}
 	
 	terms(config) {
-		return Loader.trombone(config, {
+		return Load.trombone(config, {
 			tool: isDocumentsMode(config) ? "corpus.DocumentTerms" : "corpus.CorpusTerms",
 			corpus: this.corpusid
 		}).then(data => isDocumentsMode(config) ? data.documentTerms.terms : data.corpusTerms.terms)
@@ -148,7 +148,7 @@ class Corpus {
 	}
 	
 	tokens(config) {
-		return Loader.trombone(config, {
+		return Load.trombone(config, {
 			tool: "corpus.DocumentTokens",
 			corpus: this.corpusid
 		}).then(data => data.documentTokens.tokens)
@@ -166,7 +166,7 @@ class Corpus {
 	words(config = {}) {
 		// by default DocumentTokens limits to 50 which probably isn't expected
 		if (!("limit" in config)) {config.limit=0;}
-		return Loader.trombone(config, {
+		return Load.trombone(config, {
 			tool: "corpus.DocumentTokens",
 			noOthers: true,
 			corpus: this.corpusid
@@ -184,7 +184,7 @@ class Corpus {
 	
 	contexts(config) {
 		if ((!config || !config.query) && console) {console.warn("No query provided for contexts request.")}
-		return Loader.trombone(config, {
+		return Load.trombone(config, {
 			tool: "corpus.DocumentContexts",
 			corpus: this.corpusid
 		}).then(data => data.documentContexts.contexts)
@@ -201,7 +201,7 @@ class Corpus {
 	
 	collocates(config) {
 		if ((!config || !config.query) && console) {console.warn("No query provided for collocates request.")}
-		return Loader.trombone(config, {
+		return Load.trombone(config, {
 			tool: "corpus.CorpusCollocates",
 			corpus: this.corpusid
 		}).then(data => data.corpusCollocates.collocates)
@@ -217,7 +217,7 @@ class Corpus {
 	}
 
 	phrases(config) {
-		return Loader.trombone(config, {
+		return Load.trombone(config, {
 			tool: isDocumentsMode(config) ? "corpus.DocumentNgrams" : "corpus.CorpusNgrams",
 			corpus: this.corpusid
 		}).then(data => isDocumentsMode(config) ? data.documentNgrams.ngrams : data.corpusNgrams.ngrams)
@@ -239,7 +239,7 @@ class Corpus {
 				throw new Error("Unable to run correlations for a corpus without a query.")
 			}
 		}
-		return Loader.trombone(config, {
+		return Load.trombone(config, {
 			tool: isDocumentsMode(config) ? "corpus.DocumentTermCorrelations" : "corpus.CorpusTermCorrelations",
 			corpus: this.corpusid
 		}).then(data => data.termCorrelations.correlations)
@@ -274,7 +274,7 @@ class Corpus {
 			}
 
 			// construct src URL
-			var url = new URL((config && config.voyantUrl ? config.voyantUrl : Loader.baseUrl) + "tool/"+tool+"/");
+			var url = new URL((config && config.voyantUrl ? config.voyantUrl : Load.baseUrl) + "tool/"+tool+"/");
 			url.searchParams.append("corpus", me.corpusid);
 			
 			// add API values from config (some may be ignored)
@@ -356,7 +356,7 @@ class Corpus {
 			} else {
 				if (typeof config === "string") {config = {input: config}}
 				if (config && config.input) {
-					Loader.trombone(config, {tool: "corpus.CorpusMetadata"})
+					Load.trombone(config, {tool: "corpus.CorpusMetadata"})
 					.then(data => resolve(new Corpus(data.corpus.metadata.id)))
 				}
 			}

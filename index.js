@@ -1,5 +1,5 @@
 import Corpus from "./src/corpus";
 import Table from "./src/table";
-import Loader from "./src/loader";
+import Load from "./src/load";
 
-export {Corpus, Table, Loader};
+export {Corpus, Table, Load};

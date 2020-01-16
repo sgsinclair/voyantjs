@@ -1,9 +1,9 @@
 /**
- * Class representing the Loader.
+ * Class embodying Load functionality.
  * @memberof Spyral
  * @class
  */
-class Loader {
+class Load {
 	static baseUrl;
 	static setBaseUrl(baseUrl) {
 		this.baseUrl = baseUrl;
@@ -88,4 +88,4 @@ class Loader {
 	}
 }
 
-export default Loader
+export default Load
