@@ -254,79 +254,82 @@ class Corpus {
 		return Corpus.load(config).then(corpus => corpus.correlations(api || config));
 	}
 	
-	tool(target, tool, config = {}) {
+	tool(tool, config = {}) {
 		let me = this;
 		return new Promise((resolve, reject) => {
-
-			let out='<iframe ';
-
-			// construct attributes of iframe
+			
+			config = config || {};
+			
+			// determine if we're calling one tool or multiple
+			let tools = Array.isArray(tool) ? tool : [tool];
+			if (typeof config === "string") {
+				tools.push({forTool: config});
+				config = {};
+			} else if ("forTool" in config) {
+				tools.push(config);
+				config = {};
+			}
+			if (arguments.length>2) {
+				for (let i=2; i<arguments.length; i++) {
+					if (typeof arguments[i]=="string") {
+						tools.push({forTool: arguments[i]})
+					} else if (typeof arguments[i] == "object") {
+						if ("forTool" in arguments[i]) {
+							tools.push(arguments[i]);
+							config = {};
+						} else {
+							config = arguments[i]
+						}
+					}
+				}
+			}
 			let defaultAttributes = {
 				width: undefined,
 				height: undefined,
-				style: "width: 90%; height: 400px"
+				style: "width: 400px; height: 400px",
+				float: "right"
 			}
-			for (let attr in defaultAttributes) {
-				var val = config[attr] || defaultAttributes[attr];
-				if (val) {
-					out+=' '+attr+'="'+val+'"';
+			
+			let out = "";
+			tools.forEach(t => {
+				t = typeof t === "string" ? {forTool: t} : t;
+				out += "<iframe ";
+				
+				// add attributes
+				for (let attr in defaultAttributes) {
+					var val = (attr in t ? t[attr] : undefined) || (attr in config ? config[attr] : undefined) || (attr in defaultAttributes ? defaultAttributes[attr] : undefined);
+					if (val!==undefined) {
+						out+=' '+attr+'="'+val+'"';
+					}
 				}
-			}
+				
+				// construct src URL
+				var url = new URL((config && config.voyantUrl ? config.voyantUrl : Load.baseUrl) + "tool/"+t.forTool+"/");
+				url.searchParams.append("corpus", me.corpusid);			
+				// add API values from config (some may be ignored)
+				let all = Object.assign(t,config);
+				Object.keys(all).forEach(key => {
+					if (key !=="input" && !(key in defaultAttributes)) {
+						url.searchParams.append(key, all[key])
+					}
+				});
+				// add url
+				out+=' src="'+url+'"></iframe>'
+			})
+			
+			resolve(out);
 
-			// construct src URL
-			var url = new URL((config && config.voyantUrl ? config.voyantUrl : Load.baseUrl) + "tool/"+tool+"/");
-			url.searchParams.append("corpus", me.corpusid);
-			
-			// add API values from config (some may be ignored)
-			Object.keys(config || {}).forEach(key => {
-				if (key !=="input" && !(key in defaultAttributes)) {
-					url.searchParams.append(key, config[key])
-				}
-			});
-			
-			out+=' src="'+url+'"></iframe>'
-			
-			if (typeof target === "function") {
-				resolve(target(out));
-			} else {
-				if (typeof target === "string") {
-					target = document.querySelector(target);
-				}
-				if (typeof target === "object" && "innerHTML" in target) {
-					target.innerHTML = out;
-					resolve(out);
-				}
-			}
-			resolve(out); // just return the tag
 		})
 	}
 
 	/**
 	 * Create a Corpus and return the tool
-	 * @param {*} target 
 	 * @param {*} tool 
 	 * @param {*} config 
 	 * @param {*} api 
 	 */
-	static tool(target, tool, config, api) {
-		return Corpus.load(config).then(corpus => corpus.tool(target, tool, api || config));
-	}
-
-	htmltool(html, tool, config) {
-		return new Promise((resolve,reject) => {
-			this.tool(undefined, tool, config).then(out => resolve(html`${out}`));
-		});
-	}
-
-	/**
-	 * Create a Corpus and return the html tool
-	 * @param {*} html 
-	 * @param {*} tool 
-	 * @param {*} config 
-	 * @param {*} api 
-	 */
-	static htmltool(html, tool, config, api) {
-		return Corpus.load(config).then(corpus => corpus.htmltool(html, tool, api || config));
+	static tool(tool, config, api) {
+		return Corpus.load(config).then(corpus => corpus.tool(tool, config, api));
 	}
 
 	toString() {
