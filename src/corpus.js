@@ -254,71 +254,85 @@ class Corpus {
 		return Corpus.load(config).then(corpus => corpus.correlations(api || config));
 	}
 	
-	tool(tool, config = {}) {
+	tool(_tool, config = {}) {
 		let me = this;
 		return new Promise((resolve, reject) => {
 			
-			config = config || {};
+			let isTool = function(obj) {return obj && (typeof obj=="string" && /\W/.test(obj)==false) || (typeof obj == "object" && "forTool" in obj)}
+			let isConfig = function(obj) {return obj && typeof obj == "object" && !("forTool" in obj)}
+			let lastArg = arguments[arguments.length-1];
+			config = isConfig(lastArg) ? lastArg : {};
 			
-			// determine if we're calling one tool or multiple
-			let tools = Array.isArray(tool) ? tool : [tool];
-			if (typeof config === "string") {
-				tools.push({forTool: config});
-				config = {};
-			} else if ("forTool" in config) {
-				tools.push(config);
-				config = {};
-			}
-			if (arguments.length>2) {
-				for (let i=2; i<arguments.length; i++) {
-					if (typeof arguments[i]=="string") {
-						tools.push({forTool: arguments[i]})
-					} else if (typeof arguments[i] == "object") {
-						if ("forTool" in arguments[i]) {
-							tools.push(arguments[i]);
-							config = {};
-						} else {
-							config = arguments[i]
+			// we have all tools and we'll show them individually
+			if (isTool(_tool) && (isTool(lastArg) || isConfig(lastArg))) {
+				let defaultAttributes = {
+					width: undefined,
+					height: undefined,
+					style: "width: 350px; height: 350px",
+					float: "right"
+				}
+				let out = "";
+				for (let i=0; i<arguments.length; i++) {
+					let t = arguments[i];
+					if (isTool(t)) {
+						if (typeof t == "string") {t = {forTool: t}} // make sure we have object
+						
+						// build iframe tag
+						out+="<iframe ";
+						for (let attr in defaultAttributes) {
+							var val = (attr in t ? t[attr] : undefined) || (attr in config ? config[attr] : undefined) || (attr in defaultAttributes ? defaultAttributes[attr] : undefined);
+							if (val!==undefined) {
+								out+=' '+attr+'="'+val+'"';
+							}
 						}
+						
+						// build url
+						var url = new URL((config && config.voyantUrl ? config.voyantUrl : Load.baseUrl) + "tool/"+t.forTool+"/");
+						url.searchParams.append("corpus", me.corpusid);			
+						// add API values from config (some may be ignored)
+						let all = Object.assign(t,config);
+						Object.keys(all).forEach(key => {
+							if (key !=="input" && !(key in defaultAttributes)) {
+								url.searchParams.append(key, all[key])
+							}
+						});
+						
+						// finish tag
+						out+=' src="'+url+'"></iframe>'
 					}
 				}
-			}
-			let defaultAttributes = {
-				width: undefined,
-				height: undefined,
-				style: "width: 400px; height: 400px",
-				float: "right"
-			}
-			
-			let out = "";
-			tools.forEach(t => {
-				t = typeof t === "string" ? {forTool: t} : t;
-				out += "<iframe ";
+				return resolve(out);
+			} else {
+				if (Array.isArray(_tool)) {
+					_tool = tool.join(";")
+				}
 				
-				// add attributes
+				let defaultAttributes = {
+					width: undefined,
+					height: undefined,
+					style: "width: 90%; height: "+(350*_tool.split(";").length)+"px"
+				}
+				
+				// build iframe tag
+				let out ="<iframe ";
 				for (let attr in defaultAttributes) {
-					var val = (attr in t ? t[attr] : undefined) || (attr in config ? config[attr] : undefined) || (attr in defaultAttributes ? defaultAttributes[attr] : undefined);
+					var val = (attr in config ? config[attr] : undefined) || (attr in defaultAttributes ? defaultAttributes[attr] : undefined);
 					if (val!==undefined) {
 						out+=' '+attr+'="'+val+'"';
 					}
 				}
-				
-				// construct src URL
-				var url = new URL((config && config.voyantUrl ? config.voyantUrl : Load.baseUrl) + "tool/"+t.forTool+"/");
+
+				// build url
+				var url = new URL((config && config.voyantUrl ? config.voyantUrl : Load.baseUrl) + "?view=customset&tableLayout="+_tool);
 				url.searchParams.append("corpus", me.corpusid);			
 				// add API values from config (some may be ignored)
-				let all = Object.assign(t,config);
-				Object.keys(all).forEach(key => {
+				Object.keys(config).forEach(key => {
 					if (key !=="input" && !(key in defaultAttributes)) {
-						url.searchParams.append(key, all[key])
+						url.searchParams.append(key, config[key])
 					}
 				});
-				// add url
-				out+=' src="'+url+'"></iframe>'
-			})
-			
-			resolve(out);
-
+				resolve(out+" src='"+url+"'></iframe");
+			}
 		})
 	}
 
