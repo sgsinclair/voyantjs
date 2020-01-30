@@ -304,13 +304,13 @@ class Corpus {
 				return resolve(out);
 			} else {
 				if (Array.isArray(_tool)) {
-					_tool = tool.join(";")
+					_tool = _tool.join(";")
 				}
 				
 				let defaultAttributes = {
 					width: undefined,
 					height: undefined,
-					style: "width: 90%; height: "+(350*_tool.split(";").length)+"px"
+					style: "width: 90%; height: "+(350*(_tool ? _tool : "").split(";").length)+"px"
 				}
 				
 				// build iframe tag
@@ -323,7 +323,7 @@ class Corpus {
 				}
 
 				// build url
-				var url = new URL((config && config.voyantUrl ? config.voyantUrl : Load.baseUrl) + "?view=customset&tableLayout="+_tool);
+				var url = new URL((config && config.voyantUrl ? config.voyantUrl : Load.baseUrl)+(_tool ? ("?view=customset&tableLayout="+_tool) : ""));
 				url.searchParams.append("corpus", me.corpusid);			
 				// add API values from config (some may be ignored)
 				Object.keys(config).forEach(key => {
