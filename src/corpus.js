@@ -254,79 +254,96 @@ class Corpus {
 		return Corpus.load(config).then(corpus => corpus.correlations(api || config));
 	}
 	
-	tool(target, tool, config = {}) {
+	tool(_tool, config = {}) {
 		let me = this;
 		return new Promise((resolve, reject) => {
-
-			let out='<iframe ';
-
-			// construct attributes of iframe
-			let defaultAttributes = {
-				width: undefined,
-				height: undefined,
-				style: "width: 90%; height: 400px"
-			}
-			for (let attr in defaultAttributes) {
-				var val = config[attr] || defaultAttributes[attr];
-				if (val) {
-					out+=' '+attr+'="'+val+'"';
+			
+			let isTool = function(obj) {return obj && (typeof obj=="string" && /\W/.test(obj)==false) || (typeof obj == "object" && "forTool" in obj)}
+			let isConfig = function(obj) {return obj && typeof obj == "object" && !("forTool" in obj)}
+			let lastArg = arguments[arguments.length-1];
+			config = isConfig(lastArg) ? lastArg : {};
+			
+			// we have all tools and we'll show them individually
+			if (isTool(_tool) && (isTool(lastArg) || isConfig(lastArg))) {
+				let defaultAttributes = {
+					width: undefined,
+					height: undefined,
+					style: "width: 350px; height: 350px",
+					float: "right"
 				}
-			}
-
-			// construct src URL
-			var url = new URL((config && config.voyantUrl ? config.voyantUrl : Load.baseUrl) + "tool/"+tool+"/");
-			url.searchParams.append("corpus", me.corpusid);
-			
-			// add API values from config (some may be ignored)
-			Object.keys(config || {}).forEach(key => {
-				if (key !=="input" && !(key in defaultAttributes)) {
-					url.searchParams.append(key, config[key])
+				let out = "";
+				for (let i=0; i<arguments.length; i++) {
+					let t = arguments[i];
+					if (isTool(t)) {
+						if (typeof t == "string") {t = {forTool: t}} // make sure we have object
+						
+						// build iframe tag
+						out+="<iframe ";
+						for (let attr in defaultAttributes) {
+							var val = (attr in t ? t[attr] : undefined) || (attr in config ? config[attr] : undefined) || (attr in defaultAttributes ? defaultAttributes[attr] : undefined);
+							if (val!==undefined) {
+								out+=' '+attr+'="'+val+'"';
+							}
+						}
+						
+						// build url
+						var url = new URL((config && config.voyantUrl ? config.voyantUrl : Load.baseUrl) + "tool/"+t.forTool+"/");
+						url.searchParams.append("corpus", me.corpusid);			
+						// add API values from config (some may be ignored)
+						let all = Object.assign(t,config);
+						Object.keys(all).forEach(key => {
+							if (key !=="input" && !(key in defaultAttributes)) {
+								url.searchParams.append(key, all[key])
+							}
+						});
+						
+						// finish tag
+						out+=' src="'+url+'"></iframe>'
+					}
 				}
-			});
-			
-			out+=' src="'+url+'"></iframe>'
-			
-			if (typeof target === "function") {
-				resolve(target(out));
+				return resolve(out);
 			} else {
-				if (typeof target === "string") {
-					target = document.querySelector(target);
+				if (Array.isArray(_tool)) {
+					_tool = _tool.join(";")
 				}
-				if (typeof target === "object" && "innerHTML" in target) {
-					target.innerHTML = out;
-					resolve(out);
+				
+				let defaultAttributes = {
+					width: undefined,
+					height: undefined,
+					style: "width: 90%; height: "+(350*(_tool ? _tool : "").split(";").length)+"px"
 				}
+				
+				// build iframe tag
+				let out ="<iframe ";
+				for (let attr in defaultAttributes) {
+					var val = (attr in config ? config[attr] : undefined) || (attr in defaultAttributes ? defaultAttributes[attr] : undefined);
+					if (val!==undefined) {
+						out+=' '+attr+'="'+val+'"';
+					}
+				}
+
+				// build url
+				var url = new URL((config && config.voyantUrl ? config.voyantUrl : Load.baseUrl)+(_tool ? ("?view=customset&tableLayout="+_tool) : ""));
+				url.searchParams.append("corpus", me.corpusid);			
+				// add API values from config (some may be ignored)
+				Object.keys(config).forEach(key => {
+					if (key !=="input" && !(key in defaultAttributes)) {
+						url.searchParams.append(key, config[key])
+					}
+				});
+				resolve(out+" src='"+url+"'></iframe");
 			}
-			resolve(out); // just return the tag
 		})
 	}
 
 	/**
 	 * Create a Corpus and return the tool
-	 * @param {*} target 
 	 * @param {*} tool 
 	 * @param {*} config 
 	 * @param {*} api 
 	 */
-	static tool(target, tool, config, api) {
-		return Corpus.load(config).then(corpus => corpus.tool(target, tool, api || config));
-	}
-
-	htmltool(html, tool, config) {
-		return new Promise((resolve,reject) => {
-			this.tool(undefined, tool, config).then(out => resolve(html`${out}`));
-		});
-	}
-
-	/**
-	 * Create a Corpus and return the html tool
-	 * @param {*} html 
-	 * @param {*} tool 
-	 * @param {*} config 
-	 * @param {*} api 
-	 */
-	static htmltool(html, tool, config, api) {
-		return Corpus.load(config).then(corpus => corpus.htmltool(html, tool, api || config));
+	static tool(tool, config, api) {
+		return Corpus.load(config).then(corpus => corpus.tool(tool, config, api));
 	}
 
 	toString() {
