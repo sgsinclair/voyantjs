@@ -1,9 +1,9 @@
-import * as Chart from '../src/chart';
+import Chart from '../src/chart';
 
 test('chart', () => {
 	document.body.innerHTML = '<div id="target"></div>';
 
-	const chart = Chart.chart(document.getElementById('target'), {
+	const chart = Chart.create(document.getElementById('target'), {
 		series: [{
 			data: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]
 		}]
