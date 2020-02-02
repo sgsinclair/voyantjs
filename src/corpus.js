@@ -170,11 +170,11 @@ class Corpus {
 			tool: "corpus.DocumentTokens",
 			noOthers: true,
 			corpus: this.corpusid
-		}).then(data => data.documentTokens.tokens)
+		}).then(data => data.documentTokens.tokens.map(t => t.term))
 	}
 
 	/**
-	 * Create a Corpus and return the words
+	 * Create a Corpus and return an array of lexical forms (words) in document order.
 	 * @param {object} config 
 	 * @param {object} api 
 	 */
