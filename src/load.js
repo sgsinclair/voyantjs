@@ -5,10 +5,21 @@
  */
 class Load {
 	static baseUrl;
+
+	/**
+	 * Set the base URL for use with the Load class
+	 * @param {string} baseUrl 
+	 */
 	static setBaseUrl(baseUrl) {
 		this.baseUrl = baseUrl;
 	}
 
+	/**
+	 * Make a call to trombone
+	 * @param {object} config 
+	 * @param {object} params
+	 * @returns {JSON}
+	 */
 	static trombone(config = {}, params) {
 		let url = new URL(config.trombone ? config.trombone : this.baseUrl + "trombone");
 		let all = { ...config, ...params };
@@ -46,10 +57,14 @@ class Load {
 				});
 			}
 		})
-
-
 	}
 
+	/**
+	 * Fetch content from a URL, often resolving cross-domain data constraints
+	 * @param {string} urlToFetch 
+	 * @param {object} config
+	 * @returns {Response}
+	 */
 	static load(urlToFetch, config) {
 		let url = new URL(config && config.trombone ? config.trombone : this.baseUrl + "trombone");
 		url.searchParams.set("fetchData", urlToFetch);
@@ -74,15 +89,38 @@ class Load {
 		}).catch(err => { throw err })
 	}
 
+	/**
+	 * Fetch HTML content from a URL
+	 * @param {string} url 
+	 * @returns {Document}
+	 */
 	static html(url) {
 		return this.text(url).then(text => new DOMParser().parseFromString(text, 'text/html'));
 	}
+
+	/**
+	 * Fetch XML content from a URL
+	 * @param {string} url 
+	 * @returns {XMLDocument}
+	 */
 	static xml(url) {
 		return this.text(url).then(text => new DOMParser().parseFromString(text, 'text/xml'));
 	}
+
+	/**
+	 * Fetch JSON content from a URL
+	 * @param {string} url 
+	 * @returns {JSON}
+	 */
 	static json(url) {
 		return this.load(url).then(response => response.json());
 	}
+
+	/**
+	 * Fetch text content from a URL
+	 * @param {string} url 
+	 * @returns {string}
+	 */
 	static text(url) {
 		return this.load(url).then(response => response.text());
 	}

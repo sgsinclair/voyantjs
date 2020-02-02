@@ -1,4 +1,4 @@
-import * as Chart from "./chart.js";
+import Chart from "./chart.js";
 
 /**
  * Class representing a Table.
@@ -7,6 +7,12 @@ import * as Chart from "./chart.js";
  */
 class Table {
 
+	/**
+	 * Create a new Table
+	 * @constructor
+	 * @param {(object|array|string|number)} data
+	 * @param {object} config
+	 */
 	constructor(data, config, ...other) {
 
 		this._rows = [];
@@ -113,6 +119,11 @@ class Table {
 		}
 	}
 	
+	/**
+	 * Set the headers for the Table
+	 * @param {(object|array)} data
+	 * @returns {Table}
+	 */
 	setHeaders(data) {
 		if (data && Array.isArray(data)) {
 			data.forEach(h => this.addColumn(h), this);
@@ -128,11 +139,21 @@ class Table {
 		return this;
 	}
 	
+	/**
+	 * Add rows to the Table
+	 * @param {array} data
+	 * @returns {Table}
+	 */
 	addRows(data) {
 		data.forEach(row => this.addRow(row), this);
 		return this;
 	}
 	
+	/**
+	 * Add a row to the Table
+	 * @param {(array|object)} data
+	 * @returns {Table}
+	 */
 	addRow(data, ...other) {
 		
 		// we have multiple arguments, so call again as an array
@@ -144,6 +165,13 @@ class Table {
 		return this;
 	}
 	
+	/**
+	 * Set a row
+	 * @param {(number|string)} ind The row index
+	 * @param {(object|array)} data
+	 * @param {boolean} create
+	 * @returns {Table}
+	 */
 	setRow(ind, data, create) {
 
 		let rowIndex = this.getRowIndex(ind, create);
@@ -187,6 +215,13 @@ class Table {
 
 	}
 	
+	/**
+	 * Set a column
+	 * @param {(number|string)} ind The column index
+	 * @param {(object|array)} data
+	 * @param {boolean} create
+	 * @returns {Table}
+	 */
 	setColumn(ind, data, create) {
 
 		let columnIndex = this.getColumnIndex(ind, create);
@@ -215,8 +250,13 @@ class Table {
 
 	}
 
-	
-	
+	/**
+	 * Add to or set a cell value
+	 * @param {(number|string)} row The row index
+	 * @param {(number|string)} column The column index
+	 * @param {number} value The value to set/add
+	 * @param {boolean} overwrite True to set, false to add to current value
+	 */
 	updateCell(row, column, value, overwrite) {
 		let rowIndex = this.getRowIndex(row, true);
 		let columnIndex = this.getColumnIndex(column, true);
@@ -225,15 +265,34 @@ class Table {
 		return this;
 	}
 	
+	/**
+	 * Get the value of a cell
+	 * @param {(number|string)} rowInd The row index
+	 * @param {(number|string)} colInd The column index
+	 * @returns {number}
+	 */
 	cell(rowInd, colInd) {
 		return this._rows[this.getRowIndex(rowInd)][this.getColumnIndex(colInd)];
 	}
 
+	/**
+	 * Set the value of a cell
+	 * @param {(number|string)} row The row index
+	 * @param {(number|string)} column The column index
+	 * @param {number} value The value to set
+	 * @returns {Table}
+	 */
 	setCell(row, column, value) {
 		this.updateCell(row,column,value,true);
 		return this;
 	}
-		
+	
+	/**
+	 * Get (and create) the row index
+	 * @param {(number|string)} ind The index
+	 * @param {boolean} create
+	 * @returns {number}
+	 */
 	getRowIndex(ind, create) {
 		if (typeof ind == "number") {
 			if (ind < this._rows.length) {
@@ -259,6 +318,12 @@ class Table {
 		throw new Error("Please provide a valid row (number or named row)");
 	}
 	
+	/**
+	 * Get (and create) the column index
+	 * @param {(number|string)} ind The index
+	 * @param {boolean} create
+	 * @returns {number}
+	 */
 	getColumnIndex(ind, create) {
 		if (typeof ind == "number") {
 			if (ind < this.columns()) {
@@ -280,8 +345,12 @@ class Table {
 		throw new Error("Please provide a valid column (number or named column)");
 	}
 	
+	/**
+	 * Add a column (at the specified index)
+	 * @param {(object|string)} config
+	 * @param {(number|string)} ind
+	 */
 	addColumn(config, ind) {
-	
 		// determine col
 		let col = this.columns(); // default
 		if (config && typeof config == "string") {col=config}
@@ -313,7 +382,10 @@ class Table {
 	 * When the first argument is the boolean value `true` all rows are returned.
 	 * When the first argument is a an array then the rows corresponding to the row
 	 * indices or names are returned. When all arguments except are numbers or strings
-	 * then each of those is returned. 
+	 * then each of those is returned.
+	 * @param {(boolean|array|number|string)} [inds]
+	 * @param {(object|number|string)} [config]
+	 * @returns {number|array}
 	 */
 	rows(inds, config, ...other) {
 	
@@ -363,6 +435,12 @@ class Table {
 		}
 	}
 	
+	/**
+	 * Get the specified row
+	 * @param {(number|string)} ind
+	 * @param {boolean} [asObj]
+	 * @returns {(number|string|object)}
+	 */
 	row(ind, asObj) {
 		let row = this._rows[this.getRowIndex(ind)];
 		if (asObj) {
@@ -383,6 +461,9 @@ class Table {
 	 * When the first argument is a number a slice of the columns is returned and if
 	 * the second argument is a number it is treated as the length of the slice to
 	 * return (note that it isn't the `end` index like with Array.slice()).
+	 * @param {(boolean|array|number|string)} [inds]
+	 * @param {(object|number|string)} [config]
+	 * @returns {number|array}
 	 */
 	columns(inds, config, ...other) {
 	
@@ -432,9 +513,15 @@ class Table {
 		}
 	}
 	
+	/**
+	 * Get the specified column
+	 * @param {(number|string)} ind
+	 * @param {boolean} [asObj]
+	 * @returns {(number|string|object)}
+	 */
 	column(ind, asObj) {
 		let column = this.getColumnIndex(ind);
-		let data = this._rows.forEach(r => r[column]);
+		let data = this._rows.forEach(r => r[column]); // TODO
 		if (asObj) {
 			let obj = {};
 			this._rows.forEach(r => {
@@ -446,12 +533,22 @@ class Table {
 		}
 	}
 	
+	/**
+	 * Get the specified header
+	 * @param {(number|string)} ind
+	 * @returns {(number|string)}
+	 */
 	header(ind) {
 		let keys = Object.keys(this._headers);
 		let i = this.getColumnIndex(ind);
 		return keys[keys.findIndex(k => i==this._headers[k])]
 	}
 	
+	/**
+	 * Get the specified headers
+	 * @param {(boolean|array|number|string)} inds
+	 * @returns {(number|array)}
+	 */
 	headers(inds, ...other) {
 		
 		// return length
@@ -477,54 +574,121 @@ class Table {
 		}
 	}
 
+	/**
+	 * Does the specified column exist
+	 * @param {(number|string)} ind
+	 * @returns {(number|string)}
+	 */
 	hasColumn(ind) {
 		return ind in this._headers;
 	}
 	
+	/**
+	 * Runs the specified function on each row.
+	 * The function is passed the row and the row index.
+	 * @param {function} fn
+	 */
 	forEach(fn) {
 		this._rows.forEach((r,i) => fn(r,i));
 	}
 	
+	/**
+	 * Get the minimum value in the specified row
+	 * @param {(number|string)} ind
+	 * @returns {number}
+	 */
 	rowMin(ind) {
 		return Math.min.apply(null, this.row(ind));
 	}
 	
+	/**
+	 * Get the maximum value in the specified row
+	 * @param {(number|string)} ind
+	 * @returns {number}
+	 */
 	rowMax(ind) {
 		return Math.max.apply(null, this.row(ind));
 	}
 	
+	/**
+	 * Get the minimum value in the specified column
+	 * @param {(number|string)} ind
+	 * @returns {number}
+	 */
 	columnMin(ind) {
 		return Math.min.apply(null, this.column(ind));
 	}
 	
+	/**
+	 * Get the maximum value in the specified column
+	 * @param {(number|string)} ind
+	 * @returns {number}
+	 */
 	columnMax(ind) {
 		return Math.max.apply(null, this.column(ind));
 	}
 	
+	/**
+	 * Get the sum of the values in the specified row
+	 * @param {(number|string)} ind
+	 * @returns {number}
+	 */
 	rowSum(ind) {
 		return Table.sum(this.row(ind));
 	}
 	
+	/**
+	 * Get the sum of the values in the specified column
+	 * @param {(number|string)} ind
+	 * @returns {number}
+	 */
 	columnSum(ind) {
 		return Table.sum(this.column(ind));
 	}
 
+	/**
+	 * Get the mean of the values in the specified row
+	 * @param {(number|string)} ind
+	 * @returns {number}
+	 */
 	rowMean(ind) {
 		return Table.mean(this.row(ind));
 	}
 	
+	/**
+	 * Get the mean of the values in the specified column
+	 * @param {(number|string)} ind
+	 * @returns {number}
+	 */
 	columnMean(ind) {
 		return Table.mean(this.column(ind));
 	}
 	
+	/**
+	 * Get the count of each unique value in the specified row
+	 * @param {(number|string)} ind
+	 * @returns {number}
+	 */
 	rowCounts(ind) {
 		return Table.counts(this.row(ind));
 	}
 	
+	/**
+	 * Get the count of each unique value in the specified column
+	 * @param {(number|string)} ind
+	 * @returns {number}
+	 */
 	columnCounts(ind) {
 		return Table.counts(this.column(ind));
 	}
 	
+	/**
+	 * Get the rolling mean for the specified row
+	 * @param {(number|string)} ind
+	 * @param {number} neighbors
+	 * @param {boolean} overwrite
+	 * @returns {array}
+	 */
 	rowRollingMean(ind, neighbors, overwrite) {
 		let means = Table.rollingMean(this.row(ind), neighbors);
 		if (overwrite) {
@@ -533,6 +697,13 @@ class Table {
 		return means;
 	}
 	
+	/**
+	 * Get the rolling mean for the specified column
+	 * @param {(number|string)} ind
+	 * @param {number} neighbors
+	 * @param {boolean} overwrite
+	 * @returns {array}
+	 */
 	columnRollingMean(ind, neighbors, overwrite) {
 		let means = Table.rollingMean(this.column(ind), neighbors);
 		if (overwrite) {
@@ -541,32 +712,66 @@ class Table {
 		return means;
 	}
 	
+	/**
+	 * Get the variance for the specified row
+	 * @param {(number|string)} ind
+	 * @returns {number}
+	 */
 	rowVariance(ind) {
 		return Table.variance(this.row(ind));
 	}
 	
+	/**
+	 * Get the variance for the specified column
+	 * @param {(number|string)} ind
+	 * @returns {number}
+	 */
 	columnVariance(ind) {
 		return Table.variance(this.column(ind));
 	}
 	
+	/**
+	 * Get the standard deviation for the specified row
+	 * @param {(number|string)} ind
+	 * @returns {number}
+	 */
 	rowStandardDeviation(ind) {
 		return Table.standardDeviation(this.row(ind));
 	}
 	
+	/**
+	 * Get the standard deviation for the specified column
+	 * @param {(number|string)} ind
+	 * @returns {number}
+	 */
 	columnStandardDeviation(ind) {
 		return Table.standardDeviation(this.column(ind));
 	}
 	
+	/**
+	 * Get the z scores for the specified row
+	 * @param {(number|string)} ind
+	 * @returns {array}
+	 */
 	rowZScores(ind) {
 		return Table.zScores(this.row(ind));
 	}
 	
+	/**
+	 * Get the z scores for the specified column
+	 * @param {(number|string)} ind
+	 * @returns {array}
+	 */
 	columnZScores(ind) {
 		return Table.zScores(this.column(ind));
 	}
 	
+	/**
+	 * TODO
+	 * Sort the specified rows
+	 * @returns {Table}
+	 */
 	rowSort(inds, config) {
-
 		// no inds, use all columns
 		if (inds===undefined) {
 			inds = Array(this.columns()).fill().map((_,i) => i)
@@ -618,8 +823,12 @@ class Table {
 		return this;
 	}
 	
+	/**
+	 * TODO
+	 * Sort the specified columns
+	 * @returns {Table}
+	 */
 	columnSort(inds, config) {
-		
 		// no inds, use all columns
 		if (inds===undefined) {
 			inds = Array(this.columns()).fill().map((_,i) => i);
@@ -671,13 +880,21 @@ class Table {
 			this._headers = {};
 			headers.forEach((h,i) => this._headers[h]=i)
 		}
-		
 	}
 	
+	/**
+	 * TODO
+	 * Create a chart
+	 */
 	chart(target, config) {
-		Chart.chart(target, config);
+		Chart.create(target, config);
 	}
 	
+	/**
+	 * Get a CSV representation of the Table
+	 * @param {object} [config]
+	 * @returns {string}
+	 */
 	toCsv(config) {
 		const cell = function(c) {
 			let quote = /"/g;
@@ -687,11 +904,22 @@ class Table {
 			this._rows.map(row => row.map(c => cell(c)).join(",")).join("\n")
 	}
 	
+	/**
+	 * Get a TSV representation of the Table
+	 * @param {object} [config]
+	 * @returns {string}
+	 */
 	toTsv(config) {
 		return config && "noHeaders" in config && config.noHeaders ? "" : this.headers(true).join("\t") + "\n" +
 			this._rows.map(row => row.join("\t")).join("\n");
 	}
 	
+	/**
+	 * Set the target's contents to an HTML representation of the Table
+	 * @param {(function|string|object)} target
+	 * @param {object} [config]
+	 * @returns {Table}
+	 */
 	html(target, config) {
 		let html = this.toString();
 		if (typeof target == "function") {
@@ -710,6 +938,11 @@ class Table {
 		return this;
 	}
 	
+	/**
+	 * Get an HTML representation of the Table
+	 * @param {object} [config]
+	 * @returns {string}
+	 */
 	toString(config) {
 		return "<table class='voyantTable'>" +
 			((config && "caption" in config && typeof config.caption == "string") ?
@@ -720,6 +953,10 @@ class Table {
 			"</tbody></table>";
 	}
 	
+	/**
+	 * Show a chart representing the Table
+	 * @param {object} [config]
+	 */
 	chart(config = {}) {
 		
 		let target = config.target;
@@ -772,13 +1009,26 @@ class Table {
 			
 		}
 		
-		return Chart.chart(target, config);
+		return Chart.create(target, config);
 	}
 
+	/**
+	 * Create a new Table
+	 * @param {(object|array|string|number)} data
+	 * @param {object} config
+	 * @returns {Table}
+	 */
 	static create(data, config, ...other) {
 		return new Table(data, config, ...other);
 	}
 	
+	/**
+	 * Fetch a Table from a source
+	 * @param {string|Request} input
+	 * @param {object} api
+	 * @param {object} config
+	 * @returns {Promise}
+	 */
 	static fetch(input, api, config) {
 		return new Promise((resolve, reject) => {
 			window.fetch(input, api).then(response => {
@@ -790,24 +1040,51 @@ class Table {
 		})
 	}
 
+	/**
+	 * Get the count of each unique value in the data
+	 * @param {array} data
+	 * @returns {object}
+	 */
 	static counts(data) {
 		let vals = {};
 		data.forEach(v => v in vals ? vals[v]++ : vals[v]=1);
 		return vals;
 	}
 	
+	/**
+	 * Compare two values
+	 * @param {(number|string)} a
+	 * @param {(number|string)} b
+	 * @returns {number}
+	 */
 	static cmp(a, b) {
 		return typeof a == "string" && typeof b == "string" ? a.localeCompare(b) : a-b;
 	}
 
+	/**
+	 * Get the sum of the provided values
+	 * @param {array} data
+	 * @returns {number}
+	 */
 	static sum(data) {
 		return data.reduce((a,b) => a+b, 0);
 	}
 	
+	/**
+	 * Get the mean of the provided values
+	 * @param {array} data
+	 * @returns {number}
+	 */
 	static mean(data) {
 		return Table.sum(data) / data.length;
 	}
 	
+	/**
+	 * Get rolling mean for the provided values
+	 * @param {array} data
+	 * @param {number} neighbors
+	 * @returns {array}
+	 */
 	static rollingMean(data, neighbors) {
 		// https://stackoverflow.com/questions/41386083/plot-rolling-moving-average-in-d3-js-v4/41388581#41387286
 		return data.map((val, idx, arr) => {
@@ -818,21 +1095,41 @@ class Table {
 		});
 	}
 	
+	/**
+	 * Get the variance for the provided values
+	 * @param {array} data
+	 * @returns {number}
+	 */
 	static variance(data) {
 		let m = Table.mean(data);
 		return Table.mean(data.map(num => Math.pow(num-m, 2)));
 	}
 	
+	/**
+	 * Get the standard deviation for the provided values
+	 * @param {array} data
+	 * @returns {number}
+	 */
 	static standardDeviation(data) {
 		return Math.sqrt(Table.variance(data));
 	}
 	
+	/**
+	 * Get the z scores for the provided values
+	 * @param {array} data
+	 * @returns {array}
+	 */
 	static zScores(data) {
 		let m = Table.mean(data);
 		let s = Table.standardDeviation(data);
 		return data.map(num => (num-m) / s);
 	}
 	
+	/**
+	 * Perform a zip operation of the provided arrays {@link https://en.wikipedia.org/wiki/Convolution_(computer_science)}
+	 * @param {array} data
+	 * @returns {array}
+	 */
 	static zip(...data) {
 	
 		// we have a single nested array, so let's recall with flattened arguments

@@ -137,3 +137,11 @@ test('correlations', () => {
 		expect(data[0].significance).toBe(0.6003425);
 	})
 })
+
+test('tool', () => {
+	return Corpus.load({corpus}).then((c) => {
+		return c.tool('scatterplot').then((url) => {
+			expect(url).toContain('scatterplot');
+		})
+	})
+})
