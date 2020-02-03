@@ -885,9 +885,13 @@ class Table {
 	/**
 	 * TODO
 	 * Create a chart
+	 * @param {(string|element)} target
+	 * @param {HighchartsConfig} config 
+	 * @returns {Highcharts.Chart}
 	 */
 	chart(target, config) {
-		Chart.create(target, config);
+		config.target = target;
+		return this.chart(config);
 	}
 	
 	/**
@@ -955,14 +959,15 @@ class Table {
 	
 	/**
 	 * Show a chart representing the Table
-	 * @param {object} [config]
+	 * @param {HighchartsConfig} [config]
+	 * @returns {Highcharts.Chart}
 	 */
 	chart(config = {}) {
 		
 		let target = config.target;
 		if (target === undefined) {
-			if (Spyral && Spyral.Notebook) {
-				target = Spyral.Notebook.getTarget().results.el.dom;
+			if (Voyant && Voyant.notebook) {
+				target = Voyant.notebook.util.Show.TARGET.dom;
 			} else {
 				target = document.createElement("div");
 				document.body.appendChild(target);
