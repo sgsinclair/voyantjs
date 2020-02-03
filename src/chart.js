@@ -1,6 +1,22 @@
 import * as Highcharts from 'highcharts';
 
+/**
+ * Class representing a Chart.
+ * @memberof Spyral
+ * @class
+ */
 class Chart {
+	/**
+	 * The Highcharts config object
+	 * @typedef {object} HighchartsConfig
+	 * @property {(string|object)} title
+	 * @property {(string|object)} subtitle
+	 * @property {object} credits
+	 * @property {object} xAxis
+	 * @property {object} yAxis
+	 * @property {object} chart
+	 */
+
 	/**
 	 * Construct a new Chart class
 	 * @constructor
@@ -13,18 +29,22 @@ class Chart {
 	}
 
 	/**
-	 * Create a new chart
-	 * @param {*} target 
-	 * @param {*} config 
+	 * Create a new chart.
+	 * See {@link https://api.highcharts.com/highcharts/} for full set of config options.
+	 * @param {(string|element)} target 
+	 * @param {HighchartsConfig} config 
+	 * @returns {Highcharts.Chart}
 	 */
 	create(target, config) {
-		Highcharts.chart(target, config);
+		return Highcharts.chart(target, config);
 	}
 	
 	/**
 	 * Create a new chart
-	 * @param {*} target 
-	 * @param {*} config 
+	 * See {@link https://api.highcharts.com/highcharts/} for full set of config options.
+	 * @param {(string|element)} target 
+	 * @param {HighchartsConfig} config 
+	 * @returns {Highcharts.Chart}
 	 */
 	static create(target, config) {
 		// convert title and suppress if not provided
