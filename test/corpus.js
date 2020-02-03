@@ -80,8 +80,7 @@ test('words', () => {
 	fetch.once(JSON.stringify(Mocks.DocumentTokensLimit10NoOthers));
 	return Corpus.words({corpus}).then(data => {
 		expect(data.length).toBe(10);
-		expect(data[6].term).toBe('Abbey');
-		expect(data[6].rawFreq).toBe(44);
+		expect(data[6]).toBe('Abbey');
 	})
 })
 
