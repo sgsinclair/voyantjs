@@ -6,12 +6,21 @@ import Chart from "./chart.js";
  * @class
  */
 class Table {
+	/**
+	 * The Table config object
+	 * @typedef {object} TableConfig
+	 * @property {string} format The format of the provided data, either "tsv" or "csv"
+	 * @property {(object|array)} headers The table headers
+	 * @property {boolean} hasHeaders True if the headers are the first item in the data
+	 * @property {string} count Specify "vertical" or "horizontal" to create a table of unique item counts in the provided data
+	 */
+
 
 	/**
 	 * Create a new Table
 	 * @constructor
 	 * @param {(object|array|string|number)} data
-	 * @param {object} config
+	 * @param {TableConfig} config
 	 */
 	constructor(data, config, ...other) {
 
@@ -545,7 +554,11 @@ class Table {
 	}
 	
 	/**
-	 * Get the specified headers
+	 * This function returns different values depending on the arguments provided.
+	 * When there are no arguments, it returns the number of headers in this table.
+	 * When the first argument is the boolean value `true` all headers are returned.
+	 * When the first argument is a number a slice of the headers is returned.
+	 * When the first argument is an array the slices specified in the array are returned.
 	 * @param {(boolean|array|number|string)} inds
 	 * @returns {(number|array)}
 	 */
@@ -1020,7 +1033,7 @@ class Table {
 	/**
 	 * Create a new Table
 	 * @param {(object|array|string|number)} data
-	 * @param {object} config
+	 * @param {TableConfig} config
 	 * @returns {Table}
 	 */
 	static create(data, config, ...other) {
