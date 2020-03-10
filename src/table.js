@@ -896,18 +896,6 @@ class Table {
 	}
 	
 	/**
-	 * TODO
-	 * Create a chart
-	 * @param {(string|element)} target
-	 * @param {HighchartsConfig} config 
-	 * @returns {Highcharts.Chart}
-	 */
-	chart(target, config) {
-		config.target = target;
-		return this.chart(config);
-	}
-	
-	/**
 	 * Get a CSV representation of the Table
 	 * @param {object} [config]
 	 * @returns {string}
@@ -972,15 +960,19 @@ class Table {
 	
 	/**
 	 * Show a chart representing the Table
+	 * @param {(string|element)} [target]
 	 * @param {HighchartsConfig} [config]
 	 * @returns {Highcharts.Chart}
 	 */
-	chart(config = {}) {
+	chart(target, config = {}) {
+		if (typeof target === 'object') {
+			config = target;
+			target = undefined;
+		}
 		
-		let target = config.target;
 		if (target === undefined) {
-			if (Voyant && Voyant.notebook) {
-				target = Voyant.notebook.util.Show.TARGET.dom;
+			if (Spyral.Notebook) {
+				target = Spyral.Notebook.getTarget();
 			} else {
 				target = document.createElement("div");
 				document.body.appendChild(target);
