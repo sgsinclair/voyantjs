@@ -31,23 +31,23 @@
   },
   "homepage": "https://github.com/sgsinclair/voyantjs",
   "devDependencies": {
-    "@babel/core": "^7.6.2",
-    "@babel/plugin-proposal-class-properties": "^7.5.5",
-    "@babel/preset-env": "^7.6.2",
+    "@babel/core": "^7.8.7",
+    "@babel/plugin-proposal-class-properties": "^7.8.3",
+    "@babel/preset-env": "^7.8.7",
     "babelify": "^10.0.0",
     "browserify": "^16.5.0",
-    "codecov": "^3.6.1",
+    "codecov": "^3.6.5",
     "commitizen": "^4.0.3",
-    "cz-conventional-changelog": "^3.0.2",
-    "husky": "^3.0.5",
-    "jest": "^24.9.0",
-    "jest-fetch-mock": "^2.1.2",
-    "mkdirp": "^0.5.1",
-    "semantic-release": "^15.13.24",
+    "cz-conventional-changelog": "^3.1.0",
+    "husky": "^4.2.3",
+    "jest": "^25.1.0",
+    "jest-fetch-mock": "^3.0.3",
+    "mkdirp": "^1.0.3",
+    "semantic-release": "^17.0.4",
     "watchify": "^3.11.1"
   },
   "dependencies": {
-    "highcharts": "^7.2.0"
+    "highcharts": "^8.0.4"
   },
   "directories": {
     "test": "test"
