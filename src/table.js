@@ -491,7 +491,7 @@ class Table {
 		else if (typeof inds == "number" || typeof inds == "string") {
 			[inds, config, ...other].every(i => {
 				if (typeof i == "number" || typeof i == "string") {
-					columns.push(column(ind, asObj));
+					columns.push(this.column(i, asObj));
 					return true
 				} else {
 					return false
@@ -553,7 +553,7 @@ class Table {
 		
 		// return length
 		if (inds==undefined) {
-			return this._headers.length;
+			return Object.keys(this._headers).length;
 		}
 
 		let headers = [];
