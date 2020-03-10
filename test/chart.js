@@ -1,8 +1,12 @@
 import Chart from '../src/chart';
 
-test('create chart static', () => {
-	document.body.innerHTML = '<div id="target"></div>';
+const seriesData = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9];
 
+beforeEach(() => {
+	document.body.innerHTML = '<div id="target"></div>';
+})
+
+test('create chart static', () => {
 	const chart = Chart.create(document.getElementById('target'), {
 		title: 'Foo',
 		subtitle: 'Bar',
@@ -10,7 +14,7 @@ test('create chart static', () => {
 		xAxis: {},
 		yAxis: {},
 		series: [{
-			data: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]
+			data: seriesData
 		}]
 	});
 
@@ -18,9 +22,7 @@ test('create chart static', () => {
 })
 
 test('create chart', () => {
-	document.body.innerHTML = '<div id="target"></div>';
-
-	const chart = new Chart(document.getElementById('target'), [0, 1, 2, 3, 4, 5, 6, 7, 8, 9])
+	const chart = new Chart(document.getElementById('target'), seriesData)
 
 	expect(chart.data.length).toBe(10);
 })
@@ -34,22 +36,29 @@ test('setDefaultChartType', () => {
 })
 
 test('bar', () => {
-	const chart = new Chart();
-	chart.bar();
+	const chart = new Chart(document.getElementById('target'), seriesData);
+	const bar = chart.bar();
 
-	expect(chart).toHaveProperty('bar');
+	expect(bar.series[0].type).toBe('bar');
 })
 
 test('line', () => {
-	const chart = new Chart();
-	chart.line();
+	const chart = new Chart(document.getElementById('target'), seriesData);
+	const line = chart.line();
 	
-	expect(chart).toHaveProperty('line');
+	expect(line.series[0].type).toBe('line');
 })
 
-test('scatter', () => {
-	const chart = new Chart();
-	chart.scatter();
+test.only('scatter', () => {
+	const chart = new Chart(document.getElementById('target'), seriesData);
+	const scatter = chart.scatter();
+
+	expect(scatter.series[0].type).toBe('scatter');
+})
+
+test('networkgraph', () => {
+	const chart = new Chart(document.getElementById('target'), seriesData);
+	const networkgraph = chart.networkgraph();
 	
-	expect(chart).toHaveProperty('scatter');
+	expect(networkgraph.series[0].type).toBe('networkgraph');
 })

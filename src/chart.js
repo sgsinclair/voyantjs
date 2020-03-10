@@ -20,8 +20,8 @@ class Chart {
 	/**
 	 * Construct a new Chart class
 	 * @constructor
-	 * @param {*} target 
-	 * @param {*} data 
+	 * @param {element} target 
+	 * @param {array} data 
 	 */
     constructor(target, data) {
 	    this.target = target;
@@ -29,7 +29,7 @@ class Chart {
 	}
 
 	/**
-	 * Create a new chart.
+	 * Create a new chart
 	 * See {@link https://api.highcharts.com/highcharts/} for full set of config options.
 	 * @param {(string|element)} target 
 	 * @param {HighchartsConfig} config 
@@ -85,24 +85,89 @@ class Chart {
 		return Highcharts.chart(target, config);
 	}
 
+	/**
+	 * Sets the default chart type
+	 * @param {object} config The chart config object
+	 * @param {string} type The type of chart
+	 */
 	static setDefaultChartType(config, type) {
 		if ("type" in config) {
 			config.chart.type = config.type;
 			delete config.type;
 			return
 		}
+		
 		// TODO: check plot options and series?
-		if ("chart" in config && "type" in config.chart) {return} // already set
+
+		if ("chart" in config) {
+			if ("type" in config.chart) {return} // already set
+		} else {
+			config.chart = {}
+		}
+
 		config.chart.type = type;
-		return;
+		return config;
 	}
 
-    bar(config) {
-    }
-    line(config) {
-    }
-    scatter(config) {
-    }
+	/**
+	 * Add the provided data to the config as a series
+	 * @param {object} config 
+	 * @param {array} data 
+	 */
+	static setSeriesData(config, data) {
+		if (Array.isArray(data)) {
+			if (Array.isArray(data[0])) {
+				config.series = data.map(subArray => { return {data: subArray} })
+			} else {
+				config.series = [{data: data}]
+			}
+		}
+	}
+
+	bar(config={}) {
+		Chart.setSeriesData(config, this.data);
+		return Chart.bar(this.target, config)
+	}
+    static bar(target, config) {
+		Chart.setDefaultChartType(config, 'bar')
+		return Highcharts.chart(target, config)
+	}
+
+	line(config={}) {
+		Chart.setSeriesData(config, this.data);
+		return Chart.line(this.target, config)
+	}
+    static line(target, config) {
+		Chart.setDefaultChartType(config, 'line')
+		return Highcharts.chart(target, config)
+	}
+
+	scatter(config={}) {
+		Chart.setSeriesData(config, this.data);
+		return Chart.scatter(this.target, config)
+	}
+    static scatter(target, config) {
+		Chart.setDefaultChartType(config, 'scatter')
+		return Highcharts.chart(target, config)
+	}
+
+	networkgraph(config={}) {
+		config.plotOptions = {
+			networkgraph: {
+				layoutAlgorithm: {
+					enableSimulation: true
+				},
+				keys: ['from', 'to']
+			}
+		}
+		Chart.setSeriesData(config, this.data);
+
+		return Chart.networkgraph(this.target, config)
+	}
+	static networkgraph(target, config) {
+		Chart.setDefaultChartType(config, 'networkgraph')
+		return Highcharts.chart(target, config);
+	}
 }
 
 export default Chart
