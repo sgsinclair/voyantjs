@@ -79,7 +79,7 @@ class Table {
 			}
 			if (config && "count" in config && config.count) {
 				let freqs = Table.counts(data);
-				if (config.count=="vertical" || ("orientation" in config && config.orientation=="vertical")) {
+				if (config.count=="vertical") {
 					for (let item in freqs) {
 						this.addRow(item, freqs[item])
 					}
