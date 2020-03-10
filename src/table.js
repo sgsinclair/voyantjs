@@ -925,7 +925,7 @@ class Table {
 	 * @returns {Table}
 	 */
 	html(target, config) {
-		let html = this.toString();
+		let html = this.toString(config);
 		if (typeof target == "function") {
 			target(html)
 		} else {
@@ -947,7 +947,7 @@ class Table {
 	 * @param {object} [config]
 	 * @returns {string}
 	 */
-	toString(config) {
+	toString(config={}) {
 		return "<table class='voyantTable'>" +
 			((config && "caption" in config && typeof config.caption == "string") ?
 					"<caption>"+config.caption+"</caption>" : "") +
