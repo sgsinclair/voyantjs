@@ -37,7 +37,7 @@ class Load {
 				body: searchParams
 			}
 		}
-		return fetch(url, opt).then(response => {
+		return fetch(url.toString(), opt).then(response => {
 			if (response.ok) {
 				return response.json()
 			}
@@ -68,7 +68,7 @@ class Load {
 	static load(urlToFetch, config) {
 		let url = new URL(config && config.trombone ? config.trombone : this.baseUrl + "trombone");
 		url.searchParams.set("fetchData", urlToFetch);
-		return fetch(url).then(response => {
+		return fetch(url.toString()).then(response => {
 			if (response.ok) {
 				return response;
 			}
