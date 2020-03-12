@@ -1,4 +1,6 @@
-import * as Highcharts from 'highcharts';
+import Highcharts from 'highcharts';
+import Networkgraph from 'highcharts/modules/networkgraph'
+Networkgraph(Highcharts)
 
 /**
  * Class representing a Chart.

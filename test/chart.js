@@ -1,6 +1,7 @@
 import Chart from '../src/chart';
 
 const seriesData = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9];
+const networkSeriesData = [['A','D'],['A','F'],['A','G'],['B','C'],['B','D'],['B','G'],['C','D'],['C','E'],['C','F'],['D','G'],['E','F'],['E','G']]
 
 beforeEach(() => {
 	document.body.innerHTML = '<div id="target"></div>';
@@ -13,6 +14,16 @@ test('create chart static', () => {
 		credits: '',
 		xAxis: {},
 		yAxis: {},
+		series: [{
+			data: seriesData
+		}]
+	});
+
+	expect(chart.series[0].data.length).toBe(10);
+})
+
+test('create chart static minimal config', () => {
+	const chart = Chart.create(document.getElementById('target'), {
 		series: [{
 			data: seriesData
 		}]
@@ -49,7 +60,7 @@ test('line', () => {
 	expect(line.series[0].type).toBe('line');
 })
 
-test.only('scatter', () => {
+test('scatter', () => {
 	const chart = new Chart(document.getElementById('target'), seriesData);
 	const scatter = chart.scatter();
 
@@ -57,7 +68,7 @@ test.only('scatter', () => {
 })
 
 test('networkgraph', () => {
-	const chart = new Chart(document.getElementById('target'), seriesData);
+	const chart = new Chart(document.getElementById('target'), networkSeriesData);
 	const networkgraph = chart.networkgraph();
 	
 	expect(networkgraph.series[0].type).toBe('networkgraph');
