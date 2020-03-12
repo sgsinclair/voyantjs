@@ -964,14 +964,14 @@ class Table {
 	 * @param {HighchartsConfig} [config]
 	 * @returns {Highcharts.Chart}
 	 */
-	chart(target, config = {}) {
+	chart(target = undefined, config = {}) {
 		if (typeof target === 'object') {
 			config = target;
 			target = undefined;
 		}
 		
 		if (target === undefined) {
-			if (Spyral.Notebook) {
+			if (typeof Spyral !== 'undefined' && Spyral.Notebook) {
 				target = Spyral.Notebook.getTarget();
 			} else {
 				target = document.createElement("div");
@@ -998,27 +998,46 @@ class Table {
 		config.series = config.series || [];
 		
 		// one row, so let's take series from rows
-		if (rowsCount==1) {
-			config.seriesFrom = config.seriesFrom || "rows";
+		if (rowsCount === 1) {
+			config.dataFrom = config.dataFrom || "rows";
+		} else if (columnsCount === 1) {
+			config.dataFrom = config.dataFrom || "columns";
 		}
-		
-		if (config.seriesFrom === "rows") {
-			this.rows(config.rows ? config.rows : true).forEach((row, i) => {
-				config.series[i] = config.series[i] || {};
-				config.series[i].data = headers.map(h => this.cell(i, h));
-			})
-		} else if (config.seriesFrom === "columns") {
-			this.columns(config.columns ? config.columns : true).forEach((col, i) => {
-				config.series[i] = config.series[i] || {};
-				config.series[i].data = [];
-				for (let r = 0; r < rowsCount; r++) {
-					config.series[i].data.push(this.cell(r, i));
+
+		if ("dataFrom" in config) {
+			if (config.dataFrom === "rows") {
+				config.data = {rows:[]}
+				config.data.rows.push(headers)
+				config.data.rows = config.data.rows.concat(this.rows(true))
+			} else if (config.dataFrom === "columns") {
+				config.data = {columns:[]}
+				config.data.columns = config.data.columns.concat(this.columns(true))
+				if (config.data.columns.length === headers.length) {
+					headers.forEach((h, i) => {
+						config.data.columns[i].splice(0, 0, h)
+					})
 				}
-			})
-		} else {
-			
+			}
+		} else if ("seriesFrom" in config) {
+			if (config.seriesFrom === "rows") {
+				this.rows(config.rows ? config.rows : true).forEach((row, i) => {
+					config.series[i] = config.series[i] || {};
+					config.series[i].data = headers.map(h => this.cell(i, h));
+				})
+			} else if (config.seriesFrom === "columns") {
+				this.columns(config.columns ? config.columns : true).forEach((col, i) => {
+					config.series[i] = config.series[i] || {};
+					config.series[i].data = [];
+					for (let r = 0; r < rowsCount; r++) {
+						config.series[i].data.push(this.cell(r, i));
+					}
+				})
+			}
 		}
 		
+		delete config.dataFrom;
+		delete config.seriesFrom;
+
 		return Chart.create(target, config);
 	}
 

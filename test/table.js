@@ -234,6 +234,12 @@ test('html target', () => {
 	expect(document.querySelectorAll("table").length).toBe(2);
 })
 
+test('chart', () => {
+	const table = Table.create(numbers);
+	const chart = table.chart({dataFrom: 'rows'});
+	expect(chart.series.length).toBe(9);
+})
+
 test('fetch', () => {
 	fetch.once(Mocks.PunctuationNovel);
 	return Table.fetch("https://raw.githubusercontent.com/piperandrew/enumerations/master/01_Punctuation/Punctuation_Novel_19C_20C_ByYear.csv").then(table => {
