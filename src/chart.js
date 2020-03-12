@@ -15,6 +15,8 @@ class Chart {
 	 * @property {object} xAxis
 	 * @property {object} yAxis
 	 * @property {object} chart
+	 * @property {array} series
+	 * @property {object} plotOptions
 	 */
 
 	/**
@@ -124,33 +126,71 @@ class Chart {
 		}
 	}
 
+	/**
+	 * Create a bar chart
+	 * @param {object} [config]
+	 * @returns {Highcharts.Chart}
+	 */
 	bar(config={}) {
 		Chart.setSeriesData(config, this.data);
 		return Chart.bar(this.target, config)
 	}
+	/**
+	 * Create a bar chart
+	 * @param {element} target 
+	 * @param {object} config 
+	 * @returns {Highcharts.Chart}
+	 */
     static bar(target, config) {
 		Chart.setDefaultChartType(config, 'bar')
 		return Highcharts.chart(target, config)
 	}
 
+	/**
+	 * Create a line chart
+	 * @param {object} [config]
+	 * @returns {Highcharts.Chart}
+	 */
 	line(config={}) {
 		Chart.setSeriesData(config, this.data);
 		return Chart.line(this.target, config)
 	}
+	/**
+	 * Create a line chart
+	 * @param {element} target 
+	 * @param {object} config 
+	 * @returns {Highcharts.Chart}
+	 */
     static line(target, config) {
 		Chart.setDefaultChartType(config, 'line')
 		return Highcharts.chart(target, config)
 	}
 
+	/**
+	 * Create a scatter plot
+	 * @param {object} [config]
+	 * @returns {Highcharts.Chart}
+	 */
 	scatter(config={}) {
 		Chart.setSeriesData(config, this.data);
 		return Chart.scatter(this.target, config)
 	}
+	/**
+	 * Create a scatter plot
+	 * @param {element} target 
+	 * @param {object} config 
+	 * @returns {Highcharts.Chart}
+	 */
     static scatter(target, config) {
 		Chart.setDefaultChartType(config, 'scatter')
 		return Highcharts.chart(target, config)
 	}
 
+	/**
+	 * Create a network graph
+	 * @param {object} [config]
+	 * @returns {Highcharts.Chart}
+	 */
 	networkgraph(config={}) {
 		config.plotOptions = {
 			networkgraph: {
@@ -164,6 +204,12 @@ class Chart {
 
 		return Chart.networkgraph(this.target, config)
 	}
+	/**
+	 * Create a network graph
+	 * @param {element} target 
+	 * @param {object} config 
+	 * @returns {Highcharts.Chart}
+	 */
 	static networkgraph(target, config) {
 		Chart.setDefaultChartType(config, 'networkgraph')
 		return Highcharts.chart(target, config);
