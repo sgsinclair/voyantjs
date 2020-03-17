@@ -1,9 +1,3 @@
-import Highcharts from 'highcharts'
-import Networkgraph from 'highcharts/modules/networkgraph'
-Networkgraph(Highcharts)
-import Data from 'highcharts/modules/data'
-Data(Highcharts)
-
 /**
  * Class representing a Chart.
  * @memberof Spyral
