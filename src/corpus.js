@@ -697,6 +697,43 @@ class Corpus {
 //		return Corpus.load(config).then(corpus => corpus.terms(api || config));
 //	}
 	
+	/**
+	 * Get a Promise for an Array of document tokens.
+	 * 
+	 * The promise returns an array of document token objects. A document token object can look something like this:
+	 * 
+	 *		{
+	 *			"docId": "8a61d5d851a69c03c6ba9cc446713574",
+	 *			"docIndex": 0,
+	 *			"term": "LOVE",
+	 *			"tokenType": "lexical",
+	 *			"rawFreq": 54,
+	 *			"position": 0,
+	 *			"startOffset": 3,
+	 *			"endOffset": 7
+	 *		}
+	 *
+	 * The following are valid in the config parameter:
+	 * 
+	 *  * **start**: the zero-based start index of the list (for paging)
+	 *  * **limit**: the maximum number of terms to provide per request
+	 *  * **stopList** a list of stopwords to include (see https://voyant-tools.org/docs/#!/guide/stopwords)
+	 *  * **whiteList**: a keyword list – terms will be limited to this list
+	 *  * **perDocLimit**: the `limit` parameter is for the total number of terms returned, this parameter allows you to specify a limit value per document
+	 *  * **noOthers**: only include lexical forms, no other tokens
+	 *  * **stripTags**: one of the following: `ALL`, `BLOCKSONLY`, `NONE` (`BLOCKSONLY` tries to maintain blocks for line formatting)
+	 *  * **withPosLemmas**: include part-of-speech and lemma information when available (reliability of this may vary by instance)
+	 *  * **docIndex**: the zero-based index of the documents to include (use commas to separate multiple values)
+	 *  * **docId**: the document IDs to include (use commas to separate multiple values)
+	 * 
+	 * An example:
+	 * 
+	 * 		// load the first 20 tokens (don't include tags, spaces, etc.)
+	 * 		loadCorpus("austen").tokens({limit: 20, noOthers: true})
+	 * 
+	 * @param {Object} config an Object specifying parameters (see above)
+	 * @returns {Promise/Array} a Promise for an Array of document tokens
+	 */
 	tokens(config) {
 		return Load.trombone(config, {
 			tool: "corpus.DocumentTokens",
@@ -704,15 +741,38 @@ class Corpus {
 		}).then(data => data.documentTokens.tokens)
 	}
 
-	/**
+	/*
 	 * Create a Corpus and return the tokens
 	 * @param {*} config 
 	 * @param {*} api 
 	 */
-	static tokens(config, api) {
-		return Corpus.load(config).then(corpus => corpus.tokens(api || config));
-	}
+//	static tokens(config, api) {
+//		return Corpus.load(config).then(corpus => corpus.tokens(api || config));
+//	}
 
+	/**
+	 * Get a Promise for an Array of words from the corpus.
+	 * 
+	 * The array of words are in document order, much like tokens.
+	 * 
+	 * The following are valid in the config parameter:
+	 * 
+	 *  * **start**: the zero-based start index of the list (for paging)
+	 *  * **limit**: the maximum number of terms to provide per request
+	 *  * **stopList** a list of stopwords to include (see https://voyant-tools.org/docs/#!/guide/stopwords)
+	 *  * **whiteList**: a keyword list – terms will be limited to this list
+	 *  * **perDocLimit**: the `limit` parameter is for the total number of terms returned, this parameter allows you to specify a limit value per document
+	 *  * **docIndex**: the zero-based index of the documents to include (use commas to separate multiple values)
+	 *  * **docId**: the document IDs to include (use commas to separate multiple values)
+	 * 
+	 * An example:
+	 * 
+	 * 		// load the first 20 words in the corpus
+	 * 		loadCorpus("austen").tokens({limit: 20})
+	 * 
+	 * @param {Object} config an Object specifying parameters (see above)
+	 * @returns {Promise/Array} a Promise for an Array of words
+	 */
 	words(config = {}) {
 		// by default DocumentTokens limits to 50 which probably isn't expected
 		if (!("limit" in config)) {config.limit=0;}
@@ -723,15 +783,22 @@ class Corpus {
 		}).then(data => data.documentTokens.tokens.map(t => t.term))
 	}
 
-	/**
+	/*
 	 * Create a Corpus and return an array of lexical forms (words) in document order.
 	 * @param {object} config 
 	 * @param {object} api 
 	 */
-	static words(config, api) {
-		return Corpus.load(config).then(corpus => corpus.words(api || config));
-	}
+//	static words(config, api) {
+//		return Corpus.load(config).then(corpus => corpus.words(api || config));
+//	}
 	
+	/**
+	 * Get a Promise for an Array of Objects that contain keywords in contexts (KWICs).
+	 * 
+	 * An individual KWIC Object looks something like this:
+	 * 
+	 * 
+	 */
 	contexts(config) {
 		if ((!config || !config.query) && console) {console.warn("No query provided for contexts request.")}
 		return Load.trombone(config, {
@@ -740,14 +807,14 @@ class Corpus {
 		}).then(data => data.documentContexts.contexts)
 	}
 	
-	/**
+	/*
 	 * Create a Corpus and return the contexts
 	 * @param {object} config 
 	 * @param {object} api 
 	 */
-	static contexts(config, api) {
-		return Corpus.load(config).then(corpus => corpus.contexts(api || config));
-	}
+//	static contexts(config, api) {
+//		return Corpus.load(config).then(corpus => corpus.contexts(api || config));
+//	}
 	
 	collocates(config) {
 		if ((!config || !config.query) && console) {console.warn("No query provided for collocates request.")}
