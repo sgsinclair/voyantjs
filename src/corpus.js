@@ -797,6 +797,33 @@ class Corpus {
 	 * 
 	 * An individual KWIC Object looks something like this:
 	 * 
+	 * 		{
+     *			"docIndex": 0,
+     *			"query": "love",
+     *			"term": "love",
+     *			"position": 0,
+     *			"left": "",
+     *			"middle": "LOVE",
+     *			"right": " AND FREINDSHIP AND OTHER EARLY"
+     *		}
+     *
+     * The following are some of the valid parameters:
+	 * 
+	 *  * **start**: the zero-based start index of the list (for paging)
+	 *  * **limit**: the maximum number of contexts to provide per request
+	 *  * **perDocLimit**: the `limit` parameter is for the total number of terms returned, this parameter allows you to specify a limit value per document
+	 *  * **sort**: the sort order of the results, one of the following (composed of a feature and one of **ASC**ending or **DESC**ending: `TERMASC, TERMDESC, DOCINDEXASC, DOCINDEXDESC, POSITIONASC, POSITIONDESC, LEFTASC, LEFTDESC, RIGHTASC, RIGHTDESC`
+	 *  * **overlapStrategy**: KWICs can feature overlapping words and this determines how to handle them, like the example of "to be or not to be" and searching for "be":
+	 *  		* **none**: ignore overlapping contexts (default)
+	 *  			* left: "to", middle: "be", right: "or not to be"
+	 *  			* left: "to be or not to", middle: "be", right: ""
+	 *  		* **first**: only keep the first instance (default), `first` or `merge`
+	 *  			* left: "to", middle: "be", right: "or not to be"
+	 *  		* **merge**: keep both instances by sharing words
+	 *  			* left: "to", middle: "be", right: "or"
+	 *  			* left: "not to", middle: "be", right: ""
+	 *  * **docIndex**: the zero-based index of the documents to include (use commas to separate multiple values)
+	 *  * **docId**: the document IDs to include (use commas to separate multiple values)
 	 * 
 	 */
 	contexts(config) {
@@ -816,6 +843,20 @@ class Corpus {
 //		return Corpus.load(config).then(corpus => corpus.contexts(api || config));
 //	}
 	
+	/**
+	 * Get a Promise for an Array of Objects that contain collocates.
+	 * 
+	 * An individual collocate looks something like this:
+	 * 
+	 * 		{
+     *   		"term": "love",
+     *   		"rawFreq": 568,
+     *   		"contextTerm": "mr",
+     *   		"contextTermRawFreq": 24
+     *		}
+     *
+     * The following are some of the valid parameters:
+	 */
 	collocates(config) {
 		if ((!config || !config.query) && console) {console.warn("No query provided for collocates request.")}
 		return Load.trombone(config, {
@@ -824,14 +865,14 @@ class Corpus {
 		}).then(data => data.corpusCollocates.collocates)
 	}
 	
-	/**
+	/*
 	 * Create a Corpus and return the collocates
 	 * @param {object} config 
 	 * @param {object} api 
 	 */
-	static collocates(config, api) {
-		return Corpus.load(config).then(corpus => corpus.collocates(api || config));
-	}
+//	static collocates(config, api) {
+//		return Corpus.load(config).then(corpus => corpus.collocates(api || config));
+//	}
 
 	phrases(config) {
 		return Load.trombone(config, {
