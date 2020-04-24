@@ -1,36 +1,7 @@
-/**
- * Construct an xpath for the specified element
- * @param {element} element 
- * @returns {string}
- */
-function getXPath(element) {
-	if (element == null) {
-		return null;
-	}
-	var paths = [];
-	
-	for (; element && element.nodeType == 1; element = element.parentNode)
-	{
-		var index = 0;
-		for (var sibling = element.previousSibling; sibling; sibling = sibling.previousSibling)
-		{
-			// Ignore document type declaration.
-			if (sibling.nodeType == Node.DOCUMENT_TYPE_NODE)
-				continue;
-
-			if (sibling.nodeName == element.nodeName) {
-				++index;
-			}
-		}
-
-		var tagName = element.nodeName;
-		if (tagName != null) {
-			var pathIndex = (index ? "[" + (index+1) + "]" : "");
-			paths.splice(0, 0, tagName + pathIndex);
-		}
-	}
-
-	return paths.length ? paths.join("/") : null;
+function id(len) {
+	len = len || 8;
+	// http://stackoverflow.com/questions/105034/how-to-create-a-guid-uuid-in-javascript
+	return Math.random().toString(36).substring(2, 2+len) + Math.random().toString(36).substring(2, 2+len)
 }
 
 /**
@@ -176,24 +147,27 @@ class Load {
 			}
 		}
 		return new Promise((resolve, reject) => {
-			const storageKey = 'spyal-temp-doc-'+getXPath(target);
-			const storedFile = window.sessionStorage.getItem(storageKey);
-			if (storedFile !== null) {
-				resolve(storedFile);
-			} else {
-				const fileInput = document.createElement('input');
-				fileInput.setAttribute('type', 'file');
-				fileInput.addEventListener('change', function(event) {
-					const fr = new FileReader();
-					fr.onload = (e) => {
-						const file = e.target.result;
-						resolve(file)
-						window.sessionStorage.setItem(storageKey, file);
-					}
-					fr.readAsText(this.files[0]);
-				}, false);
-				target.appendChild(fileInput);
+			if (target.hasAttribute('spyral-temp-doc')) {
+				const storedFile = window.sessionStorage.getItem(target.getAttribute('spyral-temp-doc'));
+				if (storedFile !== null) {
+					resolve(storedFile);
+					return;
+				}
 			}
+
+			const fileInput = document.createElement('input');
+			fileInput.setAttribute('type', 'file');
+			fileInput.addEventListener('change', function(event) {
+				const fr = new FileReader();
+				fr.onload = (e) => {
+					const file = e.target.result;
+					resolve(file)
+					window.sessionStorage.setItem(target.getAttribute('spyral-temp-doc'), file);
+				}
+				fr.readAsText(this.files[0]);
+			}, false);
+			target.appendChild(fileInput);
+			target.setAttribute('spyral-temp-doc', id(16));
 		})
 		
 	}
