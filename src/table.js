@@ -23,7 +23,6 @@ class Table {
 	 * @param {TableConfig} config
 	 */
 	constructor(data, config, ...other) {
-
 		this._rows = [];
 		this._headers = {};
 		this._rowKeyColumnIndex = 0;
@@ -256,7 +255,6 @@ class Table {
 		}
 		
 		return this;
-
 	}
 
 	/**
@@ -380,7 +378,12 @@ class Table {
 		if (config && typeof config == "object" && "rows" in config) {data=config.rows}
 		else if (Array.isArray(config)) {data = config;}
 		
-		// add data to each row
+		// make sure we have enough rows for the new data
+		let columns = this.columns();
+		while (this._rows.length<data.length) {
+			this._rows[this._rows.length] = new Array(columns);
+		}
+		
 		this._rows.forEach((r,i) => r[colIndex] = data[i])
 		return this;
 	}
@@ -949,12 +952,25 @@ class Table {
 	 * @returns {string}
 	 */
 	toString(config={}) {
-		return "<table class='voyantTable'>" +
+		if (typeof config == "number") {
+			config = {limit: config}
+		}
+		if ("top" in config && !("limit" in config)) {
+			config.limit = config.top;
+		}
+		if ("limit" in config && !("bottom" in config)) {
+			config.bottom = 0;
+		}
+		if ("bottom" in config && !("limit" in config)) {
+			config.limit=0;
+		}
+		return "<table "+("id" in config ? "id='"+config.id+"' " : "")+" class='voyantTable'>" +
 			((config && "caption" in config && typeof config.caption == "string") ?
 					"<caption>"+config.caption+"</caption>" : "") +
 			((config && "noHeaders" in config && config.noHeaders) ? "" : ("<thead><tr>"+this.headers(true).map(c => "<th>"+c+"</th>").join("")+"</tr></thead>"))+
 			"<tbody>"+
-			this._rows.map(row => "<tr>"+row.map(c => "<td>"+(typeof c === "number" ? c.toLocaleString() : c)+"</td>").join("")+"</tr>").join("") +
+			this._rows.filter((row,i,arr) => ((!("limit" in config) || i<config.limit) || (!("bottom" in config) || i > arr.length-1 - config.bottom)))
+				.map(row => "<tr>"+row.map(c => "<td>"+(typeof c === "number" ? c.toLocaleString() : c)+"</td>").join("")+"</tr>").join("") +
 			"</tbody></table>";
 	}
 	
