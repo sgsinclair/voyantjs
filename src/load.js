@@ -1,4 +1,39 @@
 /**
+ * Construct an xpath for the specified element
+ * @param {element} element 
+ * @returns {string}
+ */
+function getXPath(element) {
+	if (element == null) {
+		return null;
+	}
+	var paths = [];
+	
+	for (; element && element.nodeType == 1; element = element.parentNode)
+	{
+		var index = 0;
+		for (var sibling = element.previousSibling; sibling; sibling = sibling.previousSibling)
+		{
+			// Ignore document type declaration.
+			if (sibling.nodeType == Node.DOCUMENT_TYPE_NODE)
+				continue;
+
+			if (sibling.nodeName == element.nodeName) {
+				++index;
+			}
+		}
+
+		var tagName = element.nodeName;
+		if (tagName != null) {
+			var pathIndex = (index ? "[" + (index+1) + "]" : "");
+			paths.splice(0, 0, tagName + pathIndex);
+		}
+	}
+
+	return paths.length ? paths.join("/") : null;
+}
+
+/**
  * Class embodying Load functionality.
  * @memberof Spyral
  * @class
@@ -123,6 +158,44 @@ class Load {
 	 */
 	static text(url) {
 		return this.load(url).then(response => response.text());
+	}
+
+	/**
+	 * Create a file input in the target element and returns a Promise that's resolved with the file that is added to the input.
+	 * The file is also temporarily stored in the session storage for successive retrieval.
+	 * @param {element} target The target element to append the input to
+	 * @returns {Promise}
+	 */
+	static file(target = undefined) {
+		if (target === undefined) {
+			if (typeof Spyral !== 'undefined' && Spyral.Notebook) {
+				target = Spyral.Notebook.getTarget();
+			} else {
+				target = document.createElement("div");
+				document.body.appendChild(target);
+			}
+		}
+		return new Promise((resolve, reject) => {
+			const storageKey = 'spyal-temp-doc-'+getXPath(target);
+			const storedFile = window.sessionStorage.getItem(storageKey);
+			if (storedFile !== null) {
+				resolve(storedFile);
+			} else {
+				const fileInput = document.createElement('input');
+				fileInput.setAttribute('type', 'file');
+				fileInput.addEventListener('change', function(event) {
+					const fr = new FileReader();
+					fr.onload = (e) => {
+						const file = e.target.result;
+						resolve(file)
+						window.sessionStorage.setItem(storageKey, file);
+					}
+					fr.readAsText(this.files[0]);
+				}, false);
+				target.appendChild(fileInput);
+			}
+		})
+		
 	}
 }
 

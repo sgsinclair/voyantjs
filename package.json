@@ -31,9 +31,9 @@
   },
   "homepage": "https://github.com/sgsinclair/voyantjs",
   "devDependencies": {
-    "@babel/core": "^7.8.7",
+    "@babel/core": "^7.9.0",
     "@babel/plugin-proposal-class-properties": "^7.8.3",
-    "@babel/preset-env": "^7.8.7",
+    "@babel/preset-env": "^7.9.5",
     "babelify": "^10.0.0",
     "browserify": "^16.5.0",
     "codecov": "^3.6.5",
