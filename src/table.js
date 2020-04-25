@@ -947,6 +947,13 @@ class Table {
 	}
 	
 	/**
+	 * Same as {@link toString}.
+	 */
+	toHtml(config={}) {
+		return this.toString(config);
+	}
+	
+	/**
 	 * Get an HTML representation of the Table
 	 * @param {object} [config]
 	 * @returns {string}
