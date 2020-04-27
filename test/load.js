@@ -94,3 +94,8 @@ test('static text', () => {
 		expect(data).toBe('some text');
 	})
 })
+
+test('static file', () => {
+	Load.file().then(file => {});
+	expect(document.querySelector('input[type="file"]')).not.toBe(null);
+})

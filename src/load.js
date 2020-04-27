@@ -1,3 +1,5 @@
+import FileInput from './fileinput';
+
 /**
  * Class embodying Load functionality.
  * @memberof Spyral
@@ -123,6 +125,34 @@ class Load {
 	 */
 	static text(url) {
 		return this.load(url).then(response => response.text());
+	}
+
+	/**
+	 * Create a file input in the target element and returns a Promise that's resolved with the file that is added to the input.
+	 * The file is also temporarily stored in the session storage for successive retrieval.
+	 * @param {element} target The target element to append the input to
+	 * @returns {Promise}
+	 */
+	static file(target = undefined) {
+		if (target === undefined) {
+			if (typeof Spyral !== 'undefined' && Spyral.Notebook) {
+				target = Spyral.Notebook.getTarget();
+			} else {
+				target = document.createElement("div");
+				document.body.appendChild(target);
+			}
+		}
+		return new Promise((resolve, reject) => {
+			const storedFiles = FileInput.getStoredFiles(target);
+			if (storedFiles !== null) {
+				resolve(storedFiles);
+				return;
+			}
+
+			const fileInput = new FileInput(target);
+			fileInput.init(resolve);
+		})
+		
 	}
 }
 
