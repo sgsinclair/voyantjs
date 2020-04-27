@@ -1073,7 +1073,7 @@ class Corpus {
      *  
      * An example:
      * 
-     * 	// load the top 10 correlations in the corpus
+     * 	// load the first 10 phrases in the corpus
      * 	loadCorpus("austen").correlations({query: "love", limit: 10})
      * 
      * @param {Object} config an Object specifying parameters (see above)
