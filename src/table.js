@@ -971,7 +971,7 @@ class Table {
 		if ("bottom" in config && !("limit" in config)) {
 			config.limit=0;
 		}
-		return "<table "+("id" in config ? "id='"+config.id+"' " : "")+" class='voyantTable'>" +
+		return "<table"+("id" in config ? " id='"+config.id+"' " : " ")+"class='voyantTable'>" +
 			((config && "caption" in config && typeof config.caption == "string") ?
 					"<caption>"+config.caption+"</caption>" : "") +
 			((config && "noHeaders" in config && config.noHeaders) ? "" : ("<thead><tr>"+this.headers(true).map(c => "<th>"+c+"</th>").join("")+"</tr></thead>"))+
