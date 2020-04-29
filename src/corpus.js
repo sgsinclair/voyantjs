@@ -1193,14 +1193,14 @@ class Corpus {
 //		return Corpus.load(config).then(corpus => corpus.tool(tool, config, api));
 //	}
 
-	/*
+	/**
 	 * An alias for {@link #summary}.
 	 */
 	toString() {
 		return this.summary()
 	}
 		
-	/*
+	/**
 	 * Create a new Corpus using the provided config
 	 * @param {object} config 
 	 */
@@ -1208,7 +1208,7 @@ class Corpus {
 		return Corpus.load(config);
 	}
 
-	/*
+	/**
 	 * Load a Corpus using the provided config
 	 * @param {object} config The Corpus config
 	 */
