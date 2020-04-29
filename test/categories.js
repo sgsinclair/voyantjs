@@ -1,4 +1,4 @@
-import CategoriesManager from '../src/categories';
+import Categories from '../src/categories';
 
 
 beforeAll(() => {
@@ -8,33 +8,35 @@ beforeEach(() => {
 })
 
 test('categories', () => {
-	CategoriesManager.addCategory('foo');
-	expect(Object.keys(CategoriesManager.getCategories()).length).toBe(1);
-	expect(CategoriesManager.getCategoryTerms('foo')).toBeDefined();
+	const categories = new Categories();
+	categories.addCategory('foo');
+	expect(Object.keys(categories.getCategories()).length).toBe(1);
+	expect(categories.getCategoryTerms('foo')).toBeDefined();
 
-	CategoriesManager.renameCategory('foo', 'bar');
-	expect(CategoriesManager.getCategoryTerms('foo')).toBeUndefined();
-	expect(CategoriesManager.getCategoryTerms('bar')).toBeDefined();
+	categories.renameCategory('foo', 'bar');
+	expect(categories.getCategoryTerms('foo')).toBeUndefined();
+	expect(categories.getCategoryTerms('bar')).toBeDefined();
 
-	CategoriesManager.addTerm('bar', 'baz');
-	CategoriesManager.addTerm('bar', 'qux');
+	categories.addTerm('bar', 'baz');
+	categories.addTerm('bar', 'qux');
 
-	CategoriesManager.removeTerm('bar', 'baz');
-	expect(CategoriesManager.getCategoryForTerm('qux')).toBe('bar');
+	categories.removeTerm('bar', 'baz');
+	expect(categories.getCategoryForTerm('qux')).toBe('bar');
 })
 
 test('features', () => {
-	CategoriesManager.addFeature('color', '#ff6700');
-	expect(CategoriesManager.getFeatures()['color']).toBeDefined();
+	const categories = new Categories();
+	categories.addFeature('color', '#ff6700');
+	expect(categories.getFeatures()['color']).toBeDefined();
 
-	expect(CategoriesManager.getCategoryFeature('foo', 'color')).toBe('#ff6700');
+	expect(categories.getCategoryFeature('foo', 'color')).toBe('#ff6700');
 
-	CategoriesManager.addCategory('foo');
-	CategoriesManager.setCategoryFeature('foo', 'color', '#000000');
-	expect(CategoriesManager.getCategoryFeature('foo', 'color')).toBe('#000000');
+	categories.addCategory('foo');
+	categories.setCategoryFeature('foo', 'color', '#000000');
+	expect(categories.getCategoryFeature('foo', 'color')).toBe('#000000');
 
-	CategoriesManager.removeFeature('color');
+	categories.removeFeature('color');
 	
-	const data = CategoriesManager.getCategoryExportData();
+	const data = categories.getCategoryExportData();
 	expect(Object.keys(data.features).length).toBe(0);
 })
