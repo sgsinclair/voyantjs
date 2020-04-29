@@ -1,5 +1,6 @@
 import Load from './load';
 
+
 // this is essentially a private method to determine if we're in corpus or documents mode.
 // if docIndex or docId is defined, or if mode=="documents" then we're in documents mode
 function isDocumentsMode(config={}) {
@@ -1101,6 +1102,88 @@ class Corpus {
 //		return Corpus.load(config).then(corpus => corpus.correlations(api || config));
 //	}
 	
+	/**
+	 * Get a promise for the HTML snippet that will produce the specified Voyant tools to appear.
+	 * 
+	 * In its simplest form we can simply call the named tool:
+	 * 
+	 * 	loadCorpus("austen").tool("Cirrus");
+	 * 
+	 * Each tool supports some options (that are summarized below), and those can be specified as options:
+	 * 
+	 * 	loadCorpus("austen").tool("Trends", {query: "love"});
+	 * 
+	 * There are also parameters (width, height, style, float) that apply to the actual tool window:
+	 * 
+	 *  loadCorpus("austen").tool("Trends", {query: "love", style: "width: 500px; height: 500px"});
+	 * 
+	 * It's also possible to have several tools appear at once, though they won't be connected by events (clicking in a window won't modify the other windows):
+	 * 
+	 * 	loadCorpus("austen").tool("Cirrus", "Trends");
+	 * 
+	 * One easy way to get connected tools is to use the `CustomSet` tool and experiment with the layout:
+	 * 
+	 * 	loadCorpus("austen").tool("CustomSet", {tableLayout: "Cirrus,Trends", style: "width:800px; height: 500px"});
+	 * 
+	 * Here's a partial list of the tools available as well as their significant parameters:
+	 * 
+	 *  * <a href="./#!/guide/bubblelines" target="_blank">Bubblelines</a> visualizes the frequency and distribution of terms in a corpus.
+	 *  	* **bins**: number of bins to separate a document into
+	 *  	* **docIndex**: document index to restrict to (can be comma-separated list)
+	 *  	* **maxDocs**: maximum number of documents to show
+	 *  	* **query**: a query to search for in the corpus
+	 *  	* **stopList**: a named stopword list or comma-separated list of words
+	 *  * <a href="./#!/guide/bubbles" target="_blank">Bubbles</a> is a playful visualization of term frequencies by document.
+	 *  	* **audio**: whether or not to include audio
+	 *  	* **docIndex**: document index to restrict to (can be comma-separated list)
+	 *  	* **speed**: speed of the animation (0 to 60 lower is slower)
+	 *  	* **stopList**: a named stopword list or comma-separated list of words
+	 *  * <a href="./#!/guide/cirrus" target="_blank">Cirrus</a> is a word cloud that visualizes the top frequency words of a corpus or document.
+	 *  	* **background**: set the background colour of the word cloud
+	 *  	* **categories**: set the categories for the word cloud (usually an ID of an existing categories definition)
+	 *  	* **docIndex**: document index to restrict to (can be comma-separated list)
+	 *  	* **fontFamily**: the default font to use for the words (default: "Palatino Linotype", "Book Antiqua", Palatino, serif),
+	 *  	* **inlineData**: user-defined data, most easily expressed like this: love:20,like:15,dear:10
+	 *  	* **limit**: the number of terms to load (that are available, see also `visible` which determines how many are displayed),
+	 *  	* **stopList**: a named stopword list or comma-separated list of words
+	 *  	* **visible**: the number of terms to display in the word cloud (default is 50)
+	 *  	* **whiteList**: a keyword list – terms will be limited to this list
+	 *  * <a href="./#!/guide/collocatesgraph" target="_blank">CollocateGraphs</a> represents keywords and terms that occur in close proximity as a force directed network graph.
+ 	 *  	* **centralize**: the term to use for centralize mode (where things are focused on a single word)
+     *  	* **context**: the size of the context (the number of words on each size of the keyword)
+	 *  	* **limit**: the number of collocates to load for each keyword
+	 *  	* **query**: a query for the keywords (can be comma-separated list)
+	 *  	* **stopList**: a named stopword list or comma-separated list of words
+	 *  * <a href="./#!/guide/corpuscollocates" target="_blank">CorpusCollocates</a> is a table view of which terms appear more frequently in proximity to keywords across the entire corpus.
+     *  	* **context**: the size of the context (the number of words on each size of the keyword)
+	 *  	* **query**: a query for the keywords (can be comma-separated list)
+	 *  	* sort: sort order of collocates, one of `term`, `contextTermRawFreq'
+	 *  	* **stopList**: a named stopword list or comma-separated list of words
+	 *  
+    		docId: undefined,
+    		docIndex: undefined,
+    		sort: 'contextTermRawFreq'
+
+	 *  * <a href="./#!/guide/contexts" target="_blank">Contexts</a> (or Keywords in Context) tool shows each occurrence of a keyword with a bit of surrounding text (the context).
+	 *  * <a href="./#!/guide/correlations" target="_blank">Correlations</a> tool enables an exploration of the extent to which term frequencies vary in sync (terms whose frequencies rise and fall together or inversely).
+	 *  * <a href="./#!/guide/documentterms" target="_blank">DocumentTerms</a> is a table view of document term frequencies.
+	 *  * <a href="./#!/guide/corpusterms" target="_blank">CorpusTerms</a> is a table view of term frequencies in the entire corpus.
+	 *  * <a href="./#!/guide/documents" target="_blank">The</a> Documents tool shows a table of the documents in the corpus and includes functionality for modifying the corpus.
+	 *  * <a href="./#!/guide/knots" target="_blank">Knots</a> is a creative visualization that represents terms in a single document as a series of twisted lines.
+	 *  * <a href="./#!/guide/mandala" target="_blank">Mandala</a> is a conceptual visualization that shows the relationships between terms and documents.
+	 *  * <a href="./#!/guide/microsearch" target="_blank">Microsearch</a> visualizes the frequency and distribution of terms in a corpus.
+	 *  * <a href="./#!/guide/phrases" target="_blank">Phrases</a> shows repeating sequences of words organized by frequency of repetition or number of words in each repeated phrase.
+	 *  * <a href="./#!/guide/reader" target="_blank">Reader</a> provides a way of reading documents in the corpus, text is fetched on-demand as needed.
+	 *  * <a href="./#!/guide/scatterplot" target="_blank">ScatterPlot</a> is a graph visualization of how words cluster in a corpus using document similarity, correspondence analysis or principal component analysis.
+	 *  * <a href="./#!/guide/streamgraph" target="_blank">StreamGraph</a> is a visualization that depicts the change of the frequency of words in a corpus (or within a single document).
+	 *  * <a href="./#!/guide/summary" target="_blank">Summary</a> provides a simple, textual overview of the current corpus, including including information about words and documents.
+	 *  * <a href="./#!/guide/termsradio" target="_blank">TermsRadio</a> is a visualization that depicts the change of the frequency of words in a corpus (or within a single document).
+	 *  * <a href="./#!/guide/textualarc" target="_blank">TextualArc</a> is a visualization of the terms in a document that includes a weighted centroid of terms and an arc that follows the terms in document order.
+	 *  * <a href="./#!/guide/topics" target="_blank">Topics</a> provides a rudimentary way of generating term clusters from a document or corpus and then seeing how each topic (term cluster) is distributed across the document or corpus.
+	 *  * <a href="./#!/guide/trends" target="_blank">Trends</a> shows a line graph depicting the distribution of a word’s occurrence across a corpus or document.
+	 *  * <a href="./#!/guide/veliza" target="_blank">Veliza</a> is an experimental tool for having a (limited) natural language exchange (in English) based on your corpus.
+	 *  * <a href="./#!/guide/wordtree" target="_blank">WordTree</a> is a tool that allows you to explore how words are used in phrases.
+	 */
 	tool(_tool, config = {}) {
 		let me = this;
 		return new Promise((resolve, reject) => {
