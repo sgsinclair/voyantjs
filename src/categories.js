@@ -1,24 +1,53 @@
+/**
+ * Class for working with categories and features.
+ * Categories are groupings of terms.
+ * Features are arbitrary properties (font, color) that are associated with each category.
+ * @memberof Spyral
+ * @class
+ */
 class Categories {
 
+	/**
+	 * Construct a new Categories class
+	 */
 	constructor() {
 		this._categories = {};
 		this._features = {};
 		this._featureDefaults = {};
 	}
 
+	/**
+	 * Get the categories
+	 * @returns {object}
+	 */
 	getCategories() {
 		return this._categories;
 	}
 
+	/**
+	 * Get the terms for a category
+	 * @param {string} name 
+	 * @returns {array}
+	 */
 	getCategoryTerms(name) {
 		return this._categories[name];
 	}
 	
+	/**
+	 * Add a new category
+	 * @param {string} name 
+	 */
 	addCategory(name) {
 		if (this._categories[name] === undefined) {
 			this._categories[name] = [];
 		}
 	}
+
+	/**
+	 * Rename a category
+	 * @param {string} oldName 
+	 * @param {string} newName 
+	 */
 	renameCategory(oldName, newName) {
 		var terms = this.getCategoryTerms(oldName);
 		this.addTerms(newName, terms);
@@ -29,6 +58,11 @@ class Categories {
 		this.removeCategory(oldName);
 		
 	}
+
+	/**
+	 * Remove a category
+	 * @param {string} name 
+	 */
 	removeCategory(name) {
 		delete this._categories[name];
 		for (var feature in this._features) {
@@ -36,9 +70,20 @@ class Categories {
 		}
 	}
 	
+	/**
+	 * Add a term to a category
+	 * @param {string} category 
+	 * @param {string} term 
+	 */
 	addTerm(category, term) {
 		this.addTerms(category, [term]);
 	}
+
+	/**
+	 * Add multiple terms to a category
+	 * @param {string} category 
+	 * @param {array} terms 
+	 */
 	addTerms(category, terms) {
 		if (!Array.isArray(terms)) {
 			terms = [terms];
@@ -53,9 +98,21 @@ class Categories {
 			}
 		}
 	}
+
+	/**
+	 * Remove a term from a category
+	 * @param {string} category 
+	 * @param {string} term 
+	 */
 	removeTerm(category, term) {
 		this.removeTerms(category, [term]);
 	}
+
+	/**
+	 * Remove multiple terms from a category
+	 * @param {string} category 
+	 * @param {array} terms 
+	 */
 	removeTerms(category, terms) {
 		if (!Array.isArray(terms)) {
 			terms = [terms];
@@ -71,6 +128,11 @@ class Categories {
 		}
 	}
 	
+	/**
+	 * Get the category that a term belongs to
+	 * @param {string} term 
+	 * @return {object}
+	 */
 	getCategoryForTerm(term) {
 		for (var category in this._categories) {
 			if (this._categories[category].indexOf(term) != -1) {
@@ -79,14 +141,30 @@ class Categories {
 		}
 		return undefined;
 	}
+
+	/**
+	 * Get the feature for a term
+	 * @param {string} feature 
+	 * @param {string} term 
+	 * @returns {*}
+	 */
 	getFeatureForTerm(feature, term) {
 		return this.getCategoryFeature(this.getCategoryForTerm(term), feature);
 	}
 	
+	/**
+	 * Get the features
+	 * @returns {object}
+	 */
 	getFeatures() {
 		return this._features;
 	}
 
+	/**
+	 * Add a feature
+	 * @param {string} name 
+	 * @param {*} defaultValue 
+	 */
 	addFeature(name, defaultValue) {
 		if (this._features[name] === undefined) {
 			this._features[name] = {};
@@ -95,16 +173,35 @@ class Categories {
 			this._featureDefaults[name] = defaultValue;
 		}
 	}
+
+	/**
+	 * Remove a feature
+	 * @param {string} name 
+	 */
 	removeFeature(name) {
 		delete this._features[name];
 		delete this._featureDefaults[name];
 	}
+
+	/**
+	 * Set the feature for a category
+	 * @param {string} categoryName 
+	 * @param {string} featureName 
+	 * @param {*} featureValue 
+	 */
 	setCategoryFeature(categoryName, featureName, featureValue) {
 		if (this._features[featureName] === undefined) {
 			this.addFeature(featureName);
 		}
 		this._features[featureName][categoryName] = featureValue;
 	}
+
+	/**
+	 * Get the feature for a category
+	 * @param {string} categoryName 
+	 * @param {string} featureName 
+	 * @returns {*}
+	 */
 	getCategoryFeature(categoryName, featureName) {
 		var value = undefined;
 		if (this._features[featureName] !== undefined) {
@@ -119,6 +216,10 @@ class Categories {
 		return value;
 	}
 	
+	/**
+	 * Get a copy of the category and feature data
+	 * @return {object}
+	 */
 	getCategoryExportData() {
 		return {
 			categories: Object.assign({}, this._categories),
