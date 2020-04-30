@@ -241,7 +241,7 @@ class Categories {
 	/**
 	 * Save the categories (if we're in a recognized environment).
 	 * @param {Object} config for the network call (specifying if needed the location of Trombone, etc., see {@link #Load.trombone}
-	 * @return {Promise/String} a promise for a string that is the ID reference for the stored categories
+	 * @return {Promise} this returns a promise which eventually resolves to a string that is the ID reference for the stored categories
 	 */
 	save(config={},api={}) {
 		const categoriesData = JSON.stringify(this.getCategoryExportData())
@@ -260,9 +260,9 @@ class Categories {
 	 * Which is equivalent to:
 	 * 	new Spyral.Categories().load({retrieveResourceId: "categories.en.txt"});
 	 * 
-	 * @param {Object/String} config an object specifying the parameters (see above)
+	 * @param {Object|String} config an object specifying the parameters (see above)
 	 * @param {Object} api an object specifying any parameters for the trombone call
-	 * @return {Promise/Categories} a promise for this categories object with the data loaded
+	 * @return {Promise} this first returns a promise and when the promise is resolved it returns this categories object (with the loaded data included)
 	 */
 	load(config={}, api={}) {
 		let me = this;
