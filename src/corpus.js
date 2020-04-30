@@ -1157,17 +1157,29 @@ class Corpus {
 	 *  * <a href="./#!/guide/corpuscollocates" target="_blank">CorpusCollocates</a> is a table view of which terms appear more frequently in proximity to keywords across the entire corpus.
      *  	* **context**: the size of the context (the number of words on each size of the keyword)
 	 *  	* **query**: a query for the keywords (can be comma-separated list)
-	 *  	* sort: sort order of collocates, one of `term`, `contextTermRawFreq'
+	 *  	* **sort**: sort order of collocates, one of `contextTermRawFreq`, `contextTermRawFreq`, `rawFreq`, `term`
 	 *  	* **stopList**: a named stopword list or comma-separated list of words
-	 *  
-    		docId: undefined,
-    		docIndex: undefined,
-    		sort: 'contextTermRawFreq'
-
 	 *  * <a href="./#!/guide/contexts" target="_blank">Contexts</a> (or Keywords in Context) tool shows each occurrence of a keyword with a bit of surrounding text (the context).
+     *  	* **context**: the size of the context (the number of words on each size of the keyword)
+	 *  	* **expand**: the size of the extended context (when you expand a context occurrence), the number of words on each size of the keyword 
+	 *  	* **query**: a query for the keywords (can be comma-separated list)
+	 *  	* **stopList**: a named stopword list or comma-separated list of words
 	 *  * <a href="./#!/guide/correlations" target="_blank">Correlations</a> tool enables an exploration of the extent to which term frequencies vary in sync (terms whose frequencies rise and fall together or inversely).
+	 *  	* **minInDocumentsCountRatio**: the minimum percentage of documents in which the correlation must appear
+	 *  	* **query**: a query for the keywords (can be comma-separated list)
+	 *  	* **stopList**: a named stopword list or comma-separated list of words
 	 *  * <a href="./#!/guide/documentterms" target="_blank">DocumentTerms</a> is a table view of document term frequencies.
+     *  	* **bins**: for the purposes of analyzing distribution the documents are split into a specified number of segments or bins
+	 *  	* **docIndex**: document index to restrict to (can be comma-separated list)
+	 *  	* **expand**: the size of the extended context (when you expand a context occurrence), the number of words on each size of the keyword 
+	 *  	* **query**: a query for the keywords (can be comma-separated list)
+	 *  	* **stopList**: a named stopword list or comma-separated list of words
 	 *  * <a href="./#!/guide/corpusterms" target="_blank">CorpusTerms</a> is a table view of term frequencies in the entire corpus.
+     *  	* **bins**: for the purposes of analyzing distribution the documents are split into a specified number of segments or bins
+	 *  	* **docIndex**: document index to restrict to (can be comma-separated list)
+	 *  	* **expand**: the size of the extended context (when you expand a context occurrence), the number of words on each size of the keyword 
+	 *  	* **query**: a query for the keywords (can be comma-separated list)
+	 *  	* **stopList**: a named stopword list or comma-separated list of words
 	 *  * <a href="./#!/guide/documents" target="_blank">The</a> Documents tool shows a table of the documents in the corpus and includes functionality for modifying the corpus.
 	 *  * <a href="./#!/guide/knots" target="_blank">Knots</a> is a creative visualization that represents terms in a single document as a series of twisted lines.
 	 *  * <a href="./#!/guide/mandala" target="_blank">Mandala</a> is a conceptual visualization that shows the relationships between terms and documents.

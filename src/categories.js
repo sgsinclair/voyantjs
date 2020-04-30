@@ -1,3 +1,5 @@
+import Load from './load';
+
 /**
  * Class for working with categories and features.
  * Categories are groupings of terms.
@@ -22,6 +24,15 @@ class Categories {
 	 */
 	getCategories() {
 		return this._categories;
+	}
+	
+	/**
+	 * Get category names as an array.
+	 * 
+	 * @returns {Array} of category names
+	 */
+	getCategoryNames() {
+		return Object.keys(this.getCategories())
 	}
 
 	/**
@@ -225,6 +236,51 @@ class Categories {
 			categories: Object.assign({}, this._categories),
 			features: Object.assign({}, this._features)
 		};
+	}
+	
+	/**
+	 * Save the categories (if we're in a recognized environment).
+	 * @param {Object} config for the network call (specifying if needed the location of Trombone, etc., see {@link #Load.trombone}
+	 * @return {Promise/String} a promise for a string that is the ID reference for the stored categories
+	 */
+	save(config={},api={}) {
+		const categoriesData = JSON.stringify(this.getCategoryExportData())
+		return Load.trombone(api, Object.assign(config, {
+			tool: "resource.StoredCategories",
+			storeResource: categoriesData
+		})).then(data => data.storedCategories.id)
+	}
+	
+	/**
+	 * Load the categories (if we're in a recognized environment).
+	 * 
+	 * In its simplest form this can be used with a single string ID to load:
+	 * 	new Spyral.Categories().load("categories.en.txt")
+	 * 
+	 * Which is equivalent to:
+	 * 	new Spyral.Categories().load({retrieveResourceId: "categories.en.txt"});
+	 * 
+	 * @param {Object/String} config an object specifying the parameters (see above)
+	 * @param {Object} api an object specifying any parameters for the trombone call
+	 * @return {Promise/Categories} a promise for this categories object with the data loaded
+	 */
+	load(config={}, api={}) {
+		let me = this;
+		if (typeof config == "string") {
+			config =  {"retrieveResourceId": config}
+		}
+		if (!("retrieveResourceId" in config)) {
+			throw Error("You must provide a value for the retrieveResourceId parameter");
+		}
+		return Load.trombone(api, Object.assign(config, {
+			tool: "resource.StoredCategories"
+		})).then(data => {
+			const cats = JSON.parse(data.storedCategories.resource);
+			me._features = cats.features;
+			me._categories = cats.categories;
+			return me;
+		})
+		
 	}
 }
 
