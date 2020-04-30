@@ -142,6 +142,7 @@ class Load {
 				document.body.appendChild(target);
 			}
 		}
+
 		return new Promise((resolve, reject) => {
 			const storedFiles = FileInput.getStoredFiles(target);
 			if (storedFiles !== null) {
@@ -149,8 +150,7 @@ class Load {
 				return;
 			}
 
-			const fileInput = new FileInput(target);
-			fileInput.init(resolve);
+			new FileInput(target, resolve);
 		})
 		
 	}
