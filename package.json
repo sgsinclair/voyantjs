@@ -23,7 +23,7 @@
   ],
   "contributors": [
     "Stéfan Sinclair (http://stefansinclair.name)",
-    "Andrew MacDonald"
+    "Andrew MacDonald (https://github.com/ajmacdonald)"
   ],
   "license": "BSD-3-Clause",
   "bugs": {
@@ -33,6 +33,7 @@
   "devDependencies": {
     "@babel/core": "^7.8.7",
     "@babel/plugin-proposal-class-properties": "^7.8.3",
+    "@babel/plugin-transform-runtime": "^7.9.6",
     "@babel/preset-env": "^7.8.7",
     "babelify": "^10.0.0",
     "browserify": "^16.5.0",
@@ -47,7 +48,8 @@
     "watchify": "^3.11.1"
   },
   "dependencies": {
-    "highcharts": "^8.0.4"
+    "highcharts": "^8.0.4",
+    "lda-topic-model": "git+https://github.com/ajmacdonald/lda-topic-model.git"
   },
   "directories": {
     "test": "test"
@@ -81,6 +83,9 @@
     ],
     "testMatch": [
       "**/test/*.js"
+    ],
+    "transformIgnorePatterns": [
+      "/node_modules/(?!lda-topic-model).+\\.js$"
     ]
   },
   "browserify": {
@@ -92,7 +97,8 @@
             "@babel/preset-env"
           ],
           "plugins": [
-            "@babel/plugin-proposal-class-properties"
+            "@babel/plugin-proposal-class-properties",
+            "@babel/plugin-transform-runtime"
           ]
         }
       ]

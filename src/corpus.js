@@ -1,4 +1,5 @@
 import Load from './load';
+import LDA from 'lda-topic-model';
 
 
 // this is essentially a private method to determine if we're in corpus or documents mode.
@@ -520,7 +521,7 @@ class Corpus {
 	 * 	loadCorpus("austen").titles().then(titles => "The last work is: "+titles[titles.length-1])
 	 *
 	 * @param {Object} config an Object specifying parameters (see list above) 
-	 * @returns {Promise/Array} a Promise for an Array of document titles  
+	 * @returns {Promise|Array} a Promise for an Array of document titles  
 	 */
 	titles(config) {
 		return Load.trombone(config, {
@@ -677,7 +678,7 @@ class Corpus {
    	 * 	loadCorpus("austen").terms({stopList: 'auto', perDocLimit: 1, mode: 'documents'}).then(terms => terms.map(term => term.term))
    	 * 
 	 * @param {Object} config an Object specifying parameters (see list above)
-	 * @returns {Promise/Array} a Promise for a Array of Terms
+	 * @returns {Promise|Array} a Promise for a Array of Terms
 	 */
 	terms(config) {
 		return Load.trombone(config, {
@@ -730,7 +731,7 @@ class Corpus {
 	 * 	loadCorpus("austen").tokens({limit: 20, noOthers: true})
 	 *
 	 * @param {Object} config an Object specifying parameters (see above)
-	 * @returns {Promise/Array} a Promise for an Array of document tokens
+	 * @returns {Promise|Array} a Promise for an Array of document tokens
 	 */
 	tokens(config) {
 		return Load.trombone(config, {
@@ -769,7 +770,7 @@ class Corpus {
 	 * 	loadCorpus("austen").tokens({limit: 20})
 	 *
 	 * @param {Object} config an Object specifying parameters (see above)
-	 * @returns {Promise/Array} a Promise for an Array of words
+	 * @returns {Promise|Array} a Promise for an Array of words
 	 */
 	words(config = {}) {
 		// by default DocumentTokens limits to 50 which probably isn't expected
@@ -833,7 +834,7 @@ class Corpus {
      * 	loadCorpus("austen").contexts({query: "love", limit: 10})
      * 
      * @param {Object} config an Object specifying parameters (see above)
-     * @returns {Promise/Array} a Promise for an Array of KWIC Objects
+     * @returns {Promise|Array} a Promise for an Array of KWIC Objects
      */
 	contexts(config) {
 		if ((!config || !config.query) && console) {console.warn("No query provided for contexts request.")}
@@ -910,7 +911,7 @@ class Corpus {
    	 * 	loadCorpus("austen").collocates({stopList: 'auto', limit: 5}).then(terms => terms.map(term => term.term))
    	 * 
 	 * @param {Object} config an Object specifying parameters (see list above)
-	 * @returns {Promise/Array} a Promise for a Array of Terms
+	 * @returns {Promise|Array} a Promise for a Array of Terms
 	 */
 	collocates(config) {
 		if ((!config || !config.query) && console) {console.warn("No query provided for collocates request.")}
@@ -981,7 +982,7 @@ class Corpus {
      * 	loadCorpus("austen").phrases({query: "love", limit: 10})
      * 
      * @param {Object} config an Object specifying parameters (see above)
-     * @returns {Promise/Array} a Promise for an Array of phrase Objects
+     * @returns {Promise|Array} a Promise for an Array of phrase Objects
      */
 	phrases(config) {
 		return Load.trombone(config, {
@@ -1078,7 +1079,7 @@ class Corpus {
      * 	loadCorpus("austen").correlations({query: "love", limit: 10})
      * 
      * @param {Object} config an Object specifying parameters (see above)
-     * @returns {Promise/Array} a Promise for an Array of phrase Objects
+     * @returns {Promise|Array} a Promise for an Array of phrase Objects
      */
 	correlations(config) {
 		if ((!config || !config.query) && console) {
@@ -1101,6 +1102,46 @@ class Corpus {
 //	static correlations(config, api) {
 //		return Corpus.load(config).then(corpus => corpus.correlations(api || config));
 //	}
+
+	/**
+	 * config params:
+	 *  * **numberTopics**: the number of topics to get (default is 10)
+	 *  * **sweeps**: the number of sweeps to do, more sweeps = more accurate (default is 100)
+	 *  * **language**: stopwords language to use, default is corpus language
+	 * @param {Object} config 
+	 */
+	async lda(config = {numberTopics: 10, sweeps: 100}) {
+		const options = {
+			displayingStopwords: false,
+			numberTopics: config.numberTopics || 10,
+			sweeps: config.sweeps || 100
+		}
+
+		const data = await Load.trombone({
+			tool: "resource.KeywordsManager",
+			stopList: config.language || "auto",
+			corpus: this.corpusid
+		})
+		const stopwords = data.keywords.keywords;
+
+		const texts = await this.texts({
+			noMarkup: true,
+			compactSpace: true,
+			format: 'text'
+		})
+		let documents = [];
+		texts.forEach((text, index) => {
+			documents.push({
+				id: index,
+				text: text
+			})
+		})
+
+		return new Promise((resolve, reject) => {
+			const lda = new LDA(options, documents, stopwords);
+			resolve(lda.getTopicWords());
+		})
+	}
 	
 	/**
 	 * Get a promise for the HTML snippet that will produce the specified Voyant tools to appear.
