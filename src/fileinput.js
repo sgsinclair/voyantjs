@@ -1,35 +1,4 @@
-function id(len) {
-	len = len || 8;
-	// http://stackoverflow.com/questions/105034/how-to-create-a-guid-uuid-in-javascript
-	return Math.random().toString(36).substring(2, 2+len) + Math.random().toString(36).substring(2, 2+len)
-}
-
-function addStyles() {
-	const id = 'spyral-file-input-styles';
-	const head = document.querySelector('head');
-	if (head.querySelector('style[id="'+id+'"]') === null) {
-		const style = document.createElement('style');
-		style.setAttribute('id', id);
-		style.appendChild(document.createTextNode(`
-.input-parent {
-	padding: 8px;
-	background-color: #fff;
-	outline: 2px dashed #999;
-	text-align: center;
-}
-.input-parent.is-dragover {
-	background-color: #ccc;
-}
-.input-parent strong {
-	cursor: pointer;
-}
-.input-parent input {
-	display: none;
-}
-`))
-		head.appendChild(style);
-	}
-}
+import Util from './util';
 
 /**
  * A multiple file input that features drag n drop as well as temporary file storage in session storage.
@@ -40,10 +9,12 @@ class FileInput {
 	 * The FileInput constructor
 	 * @param {element} target The element to place the file input into
 	 * @param {function} resolve A function to call with the file(s)
+	 * @param {function} reject A function to call if the input is cancelled
 	 */
-	constructor(target, resolve) {
+	constructor(target, resolve, reject) {
 		this.target = target;
 		this.resolve = resolve;
+		this.reject = reject;
 		
 		this.inputParent = undefined;
 		this.fileInput = undefined;
@@ -64,7 +35,7 @@ class FileInput {
 		this.inputParent = document.createElement('div');
 		this.inputParent.setAttribute('class', 'input-parent');
 
-		const fileInputId = id(16);
+		const fileInputId = Util.id(16);
 		this.fileInput = document.createElement('input');
 		this.fileInput.setAttribute('type', 'file');
 		this.fileInput.setAttribute('multiple', 'multiple');
@@ -112,7 +83,7 @@ class FileInput {
 
 
 		this.target.appendChild(this.inputParent);
-		this.target.setAttribute('spyral-temp-doc', id(32));
+		this.target.setAttribute('spyral-temp-doc', Util.id(32));
 	}
 
 	// update label with file info
@@ -135,7 +106,7 @@ class FileInput {
 			} else {
 				// store each file in its own session storage entry
 				const childIds = readFiles.map((val, index) => {
-					const childId = id(32);
+					const childId = Util.id(32);
 					window.sessionStorage.setItem(childId, val);
 					return childId;
 					
@@ -161,6 +132,33 @@ class FileInput {
 			}
 		}
 		return null;
+	}
+}
+
+function addStyles() {
+	const id = 'spyral-file-input-styles';
+	const head = document.querySelector('head');
+	if (head.querySelector('style[id="'+id+'"]') === null) {
+		const style = document.createElement('style');
+		style.setAttribute('id', id);
+		style.appendChild(document.createTextNode(`
+.input-parent {
+	padding: 8px;
+	background-color: #fff;
+	outline: 2px dashed #999;
+	text-align: center;
+}
+.input-parent.is-dragover {
+	background-color: #ccc;
+}
+.input-parent strong {
+	cursor: pointer;
+}
+.input-parent input {
+	display: none;
+}
+`))
+		head.appendChild(style);
 	}
 }
 

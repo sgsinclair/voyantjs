@@ -135,12 +135,32 @@ class Load {
 	 */
 	static file(target = undefined) {
 		if (target === undefined) {
-			if (typeof Spyral !== 'undefined' && Spyral.Notebook) {
-				target = Spyral.Notebook.getTarget();
+			if (typeof Spyral !== 'undefined' && Spyral.Notebook && typeof Ext !== 'undefined') {
+				const spyralTarget = Spyral.Notebook.getTarget();
+
+				// check for pre-existing target
+				target = spyralTarget.parentElement.querySelector('[spyral-temp-doc]');
+
+				if (target === null) {
+					// add a component so that vbox layout will be properly calculated
+					const resultsCmp = Ext.getCmp(spyralTarget.getAttribute('id'));
+					const codeEditorCell = resultsCmp.findParentByType('panel');
+					const targetCmp = codeEditorCell.add({
+						xtype: 'component',
+						padding: '20 10',
+						html: ''
+					});
+
+					target = targetCmp.getEl().dom;
+				}
 			} else {
 				target = document.createElement("div");
 				document.body.appendChild(target);
 			}
+		}
+
+		function cleanup() {
+			target.remove();
 		}
 
 		return new Promise((resolve, reject) => {
@@ -150,7 +170,7 @@ class Load {
 				return;
 			}
 
-			new FileInput(target, resolve);
+			new FileInput(target, resolve, reject);
 		})
 		
 	}
