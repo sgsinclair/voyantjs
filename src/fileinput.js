@@ -97,19 +97,21 @@ class FileInput {
 	_triggerLoad(fileList) {
 		const files = Array.from(fileList);
 		const readFiles = [];
+		let currIndex = 0;
 
 		const target = this.target;
 		const fr = new FileReader();
 		fr.onload = (e) => {
-			const file = e.target.result;
-			readFiles.push(file);
-			if (files.length > 0) {
-				fr.readAsText(files.shift());
+			readFiles.push({filename: files[currIndex].name, data: e.target.result});
+			currIndex++;
+			if (currIndex < files.length) {
+				fr.readAsText(files[currIndex]);
 			} else {
 				// store each file in its own session storage entry
 				const childIds = readFiles.map((val, index) => {
 					const childId = Util.id(32);
-					window.sessionStorage.setItem(childId, val);
+					window.sessionStorage.setItem('filename-'+childId, val.filename);
+					window.sessionStorage.setItem('data-'+childId, val.data);
 					return childId;
 					
 				})
@@ -120,7 +122,7 @@ class FileInput {
 			}
 		}
 
-		fr.readAsText(files.shift());
+		fr.readAsText(files[currIndex]);
 	}
 
 	static getStoredFiles(target) {
@@ -128,7 +130,7 @@ class FileInput {
 			const fileIds = window.sessionStorage.getItem(target.getAttribute('spyral-temp-doc'));
 			if (fileIds !== null) {
 				const storedFiles = fileIds.split(',').map((fileId) => {
-					return window.sessionStorage.getItem(fileId);
+					return {filename: window.sessionStorage.getItem('filename-'+fileId), data: window.sessionStorage.getItem('data-'+fileId)};
 				})
 				return storedFiles;
 			}
