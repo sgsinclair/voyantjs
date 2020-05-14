@@ -20,9 +20,11 @@ class FileInput {
 		this.fileInput = undefined;
 		this.inputLabel = undefined;
 
-		const storedFiles = FileInput.getStoredFiles(target);
-		if (storedFiles !== null) {
-			resolve(storedFiles);
+		if (target.hasAttribute('spyral-temp-doc')) {
+			const storedFiles = FileInput.getStoredFiles(target);
+			if (storedFiles !== null) {
+				resolve(storedFiles);
+			}
 		} else {
 			this._init();
 		}
