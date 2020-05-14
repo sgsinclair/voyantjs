@@ -1104,11 +1104,17 @@ class Corpus {
 //	}
 
 	/**
-	 * config params:
+	 * Get a promise for an LDA object that has two primary methods of use:
+	 * 
+	 * 	* **getTopicWords**: get a list of topics (words organized into bunches of a specified size
+	 * 	* **getDocuments**: get a list of documents and the signican words
+	 *
+	 * The config object as parameter can contain the following:
 	 *  * **numberTopics**: the number of topics to get (default is 10)
 	 *  * **sweeps**: the number of sweeps to do, more sweeps = more accurate (default is 100)
 	 *  * **language**: stopwords language to use, default is corpus language
-	 * @param {Object} config 
+	 * @param {Object} config (see above)
+	 * @return {Promise} a promise for an LDA object
 	 */
 	async lda(config = {numberTopics: 10, sweeps: 100}) {
 		const options = {
@@ -1139,8 +1145,39 @@ class Corpus {
 
 		return new Promise((resolve, reject) => {
 			const lda = new LDA(options, documents, stopwords);
-			resolve(lda.getTopicWords());
+			resolve(lda);
 		})
+		
+	}
+	
+	/**
+	 * Get a promise for a list of LDA topics from the corpus.
+	 * 
+	 * The config object as parameter can contain the following:
+	 *  * **numberTopics**: the number of topics to get (default is 10)
+	 *  * **sweeps**: the number of sweeps to do, more sweeps = more accurate (default is 100)
+	 *  * **language**: stopwords language to use, default is corpus language
+	 * @param {Object} config (see above)
+	 * @return {Promise} a promise for an array of topics
+	 */
+	async ldaTopics(config = {numberTopics: 10, sweeps: 100}) {
+		const lda = await this.lda(config);
+		return lda.getTopicWords();
+	}
+	
+	/**
+	 * Get a promise for a list of documents and associated words
+	 * 
+	 * The config object as parameter can contain the following:
+	 *  * **numberTopics**: the number of topics to get (default is 10)
+	 *  * **sweeps**: the number of sweeps to do, more sweeps = more accurate (default is 100)
+	 *  * **language**: stopwords language to use, default is corpus language
+	 * @param {Object} config (see above)
+	 * @return {Promise} a promise for an array of documents
+	 */
+	async ldaDocuments(config = {numberTopics: 10, sweeps: 100}) {
+		const lda = await this.lda(config);
+		return lda.getDocuments();
 	}
 	
 	/**
