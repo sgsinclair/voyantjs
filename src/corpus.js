@@ -1120,7 +1120,8 @@ class Corpus {
 		const options = {
 			displayingStopwords: false,
 			numberTopics: config.numberTopics || 10,
-			sweeps: config.sweeps || 100
+			sweeps: config.sweeps || 100,
+			bins: parseInt(config.bins) || 10
 		}
 
 		const data = await Load.trombone({
@@ -1130,11 +1131,24 @@ class Corpus {
 		})
 		const stopwords = data.keywords.keywords;
 
-		const texts = await this.texts({
+		let texts = await this.texts({
 			noMarkup: true,
 			compactSpace: true,
 			format: 'text'
 		})
+		
+		// our corpus contains a single document, so split it into segments
+		if (texts.length==1) {
+			let words = texts[0].split(" ");
+			let wordsPerBin = Math.ceil(words.length/options.bins);
+			let ts = [];
+			for (let i=0; i<options.bins; i++) {
+				ts[i] = words.slice(i*wordsPerBin, (i*wordsPerBin)+wordsPerBin).join(" ");
+			}
+			texts = ts;
+		}
+		
+		
 		let documents = [];
 		texts.forEach((text, index) => {
 			documents.push({
