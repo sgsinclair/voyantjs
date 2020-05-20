@@ -524,11 +524,9 @@ class Corpus {
 	 * @returns {Promise|Array} a Promise for an Array of document titles  
 	 */
 	titles(config) {
-		return Load.trombone(config, {
-			tool: "corpus.DocumentsMetadata",
-			corpus: this.corpusid
-		})
-		.then(data => data.documentsMetadata.documents.map(doc => doc.title))
+		return this.metadata({
+			mode: "documents"
+		}).then(data => data.map(doc => doc.title));
 	}
 
 	/*
@@ -1387,33 +1385,37 @@ class Corpus {
 		return this.summary()
 	}
 		
-	/**
+	/*
 	 * Create a new Corpus using the provided config
 	 * @param {object} config 
 	 */
-	static create(config) {
-		return Corpus.load(config);
-	}
+//	static create(config) {
+//		return Corpus.load(config);
+//	}
 
 	/**
-	 * Load a Corpus using the provided config
-	 * @param {object} config The Corpus config
+	 * Load a Corpus using the provided config and api
+	 * @param {object} config the Corpus config
+	 * @param {object} api any additional API values
 	 */
-	static load(config) {
+	static load(config={}, api = {}) {
 		const promise = new Promise(function(resolve, reject) {
+
 			if (config instanceof Corpus) {
 				resolve(config);
-			} else if (typeof config === "string" && config.length>0 && /\W/.test(config)===false) {
-				resolve(new Corpus(config)); 
-			} else if (typeof config === "object" && config.corpus) {
-				resolve(new Corpus(config.corpus))
-			} else {
-				if (typeof config === "string") {config = {input: config}}
-				if (config && config.input) {
-					Load.trombone(config, {tool: "corpus.CorpusMetadata"})
-					.then(data => resolve(new Corpus(data.corpus.metadata.id)))
+			}
+
+			if (typeof config === "string") {
+				if (config.length>0 && /\W/.test(config)===false) {
+					config = {corpus: config};
+				} else if (typeof config === "string") {
+					config = {input: config};
 				}
 			}
+			
+			Load.trombone({...config,...api}, {tool: "corpus.CorpusMetadata"})
+				.then(data => resolve(new Corpus(data.corpus.metadata.id)))
+			
 		});
 
 		["id","metadata","summary","titles","text","texts","terms","tokens","words","contexts","collocates","phrases","correlations","tool"].forEach(name => {
