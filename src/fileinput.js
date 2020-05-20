@@ -20,25 +20,26 @@ class FileInput {
 		this.fileInput = undefined;
 		this.inputLabel = undefined;
 
-		if (target.hasAttribute('spyral-temp-doc')) {
-			const storedFiles = FileInput.getStoredFiles(target);
-			if (storedFiles !== null) {
-				resolve(storedFiles);
-			}
+		if (target.querySelector('[spyral-temp-doc]') !== null) {
+			FileInput.getStoredFiles(target).then((storedFiles) => {
+				if (storedFiles !== null) {
+					resolve(storedFiles);
+				}
+			});
 		} else {
 			this._init();
 		}
 	}
 
 	_init() {
-		addStyles();
-
 		// construct the elements
 		this.inputParent = document.createElement('div');
-		this.inputParent.setAttribute('class', 'input-parent');
+		this.inputParent.setAttribute('style', 'padding: 8px; background-color: #fff; outline: 2px dashed #999; text-align: center;');
+		this.inputParent.setAttribute('spyral-temp-doc', Util.id(32));
 
 		const fileInputId = Util.id(16);
 		this.fileInput = document.createElement('input');
+		this.fileInput.style.setProperty('display', 'none');
 		this.fileInput.setAttribute('type', 'file');
 		this.fileInput.setAttribute('multiple', 'multiple');
 		this.fileInput.setAttribute('data-multiple-caption', '{count} files selected');
@@ -54,11 +55,11 @@ class FileInput {
 		this.inputParent.appendChild(this.inputLabel);
 		
 		const labelText = document.createElement('strong');
+		labelText.style.setProperty('cursor', 'pointer');
 		labelText.appendChild(document.createTextNode('Choose a file'));
 		this.inputLabel.appendChild(labelText);
 
 		const dndSpot = document.createElement('span');
-		dndSpot.setAttribute('class', 'box__dragndrop');
 		dndSpot.appendChild(document.createTextNode(' or drag it here'));
 		this.inputLabel.appendChild(dndSpot);
 
@@ -70,12 +71,12 @@ class FileInput {
 		});
 		['dragover','dragenter'].forEach((event) => {
 			this.inputParent.addEventListener(event, (e) => {
-				this.inputParent.classList.add('is-dragover');
+				this.inputParent.style.setProperty('background-color', '#ccc');
 			})
 		});
 		['dragend','dragleave','drop'].forEach((event) => {
 			this.inputParent.addEventListener(event, (e) => {
-				this.inputParent.classList.remove('is-dragover');
+				this.inputParent.style.removeProperty('background-color');
 			})
 		});
 		this.inputParent.addEventListener('drop', (event) => {
@@ -83,14 +84,15 @@ class FileInput {
 			this._triggerLoad(event.dataTransfer.files);
 		});
 
-
 		this.target.appendChild(this.inputParent);
-		this.target.setAttribute('spyral-temp-doc', Util.id(32));
+		console.log('init done')
 	}
 
 	// update label with file info
 	_showFiles(files) {
-		this.inputLabel.textContent = files.length > 1 ? (this.fileInput.getAttribute('data-multiple-caption') || '').replace('{count}', files.length) : files[0].name;
+		if (files.length > 0) {
+			this.inputLabel.textContent = files.length > 1 ? (this.fileInput.getAttribute('data-multiple-caption') || '').replace('{count}', files.length) : files[0].name;
+		}
 	}
 
 	// file load handler
@@ -99,70 +101,89 @@ class FileInput {
 		const readFiles = [];
 		let currIndex = 0;
 
-		const target = this.target;
-		const fr = new FileReader();
-		fr.onload = (e) => {
-			readFiles.push({filename: files[currIndex].name, data: e.target.result});
-			currIndex++;
-			if (currIndex < files.length) {
-				fr.readAsText(files[currIndex]);
-			} else {
-				// store each file in its own session storage entry
-				const childIds = readFiles.map((val, index) => {
-					const childId = Util.id(32);
-					window.sessionStorage.setItem('filename-'+childId, val.filename);
-					window.sessionStorage.setItem('data-'+childId, val.data);
-					return childId;
-					
-				})
-				// store the ids for each file for later retrieval
-				window.sessionStorage.setItem(target.getAttribute('spyral-temp-doc'), childIds.join());
-				
-				this.resolve(readFiles);
-			}
-		}
+		if (files.length > 0) {
+			const fr = new FileReader();
+			fr.onload = (e) => {
+				readFiles.push({filename: files[currIndex].name, data: e.target.result});
+				currIndex++;
+				if (currIndex < files.length) {
+					fr.readAsText(files[currIndex]);
+				} else {
+					// store each file in its own session storage entry
+					const childIds = readFiles.map((val, index) => {
+						const childId = Util.id(32);
+						window.sessionStorage.setItem('filename-'+childId, val.filename);
+						window.sessionStorage.setItem('data-'+childId, val.data);
+						return childId;
+					})
+					// store the ids for each file for later retrieval
+					window.sessionStorage.setItem(this.inputParent.getAttribute('spyral-temp-doc'), childIds.join());
 
-		fr.readAsText(files[currIndex]);
+					createServerStorage();
+					if (typeof ServerStorage !== undefined) {
+						const serverStorage = new ServerStorage();
+						serverStorage.storeResource(this.inputParent.getAttribute('spyral-temp-doc'), childIds.join());
+						readFiles.map((val, index) => {
+							const childId = childIds[index];
+							serverStorage.storeResource(childId, {filename: val.filename, data: val.data});
+							return childId;
+						})
+					}
+					
+					this.resolve(readFiles);
+				}
+			}
+
+			fr.readAsText(files[currIndex]);
+		} else {
+			this.resolve(readFiles);
+		}
 	}
 
-	static getStoredFiles(target) {
-		if (target.hasAttribute('spyral-temp-doc')) {
-			const fileIds = window.sessionStorage.getItem(target.getAttribute('spyral-temp-doc'));
+	static async getStoredFiles(target) {
+		if (target.querySelector('[spyral-temp-doc]') !== null) {
+			const spyralTempDoc = target.querySelector('[spyral-temp-doc]').getAttribute('spyral-temp-doc');
+			// check local storage
+			let fileIds = window.sessionStorage.getItem(spyralTempDoc);
 			if (fileIds !== null) {
 				const storedFiles = fileIds.split(',').map((fileId) => {
 					return {filename: window.sessionStorage.getItem('filename-'+fileId), data: window.sessionStorage.getItem('data-'+fileId)};
 				})
 				return storedFiles;
+			} else {
+				// check server storage (if available)
+				createServerStorage();
+				if (typeof ServerStorage !== undefined) {
+					const serverStorage = new ServerStorage();
+					fileIds = await serverStorage.getStoredResource(spyralTempDoc);
+					if (fileIds !== undefined) {
+						let storedFiles = [];
+						fileIds = fileIds.split(',');
+						for (let i = 0; i < fileIds.length; i++) {
+							const file = await serverStorage.getStoredResource(fileIds[i]);
+							storedFiles.push(file);
+						}
+						return storedFiles;
+					} else {
+						return null;
+					}
+				}
 			}
 		}
 		return null;
 	}
 }
 
-function addStyles() {
-	const id = 'spyral-file-input-styles';
-	const head = document.querySelector('head');
-	if (head.querySelector('style[id="'+id+'"]') === null) {
-		const style = document.createElement('style');
-		style.setAttribute('id', id);
-		style.appendChild(document.createTextNode(`
-.input-parent {
-	padding: 8px;
-	background-color: #fff;
-	outline: 2px dashed #999;
-	text-align: center;
-}
-.input-parent.is-dragover {
-	background-color: #ccc;
-}
-.input-parent strong {
-	cursor: pointer;
-}
-.input-parent input {
-	display: none;
-}
-`))
-		head.appendChild(style);
+function createServerStorage() {
+	if (typeof Voyant !== 'undefined' && typeof Ext !== 'undefined') {
+		if (typeof ServerStorage === 'undefined') {
+			Ext.define('ServerStorage', {
+				extend: 'Voyant.util.Storage',
+				getTromboneUrl: function() {
+					return Voyant.application.getTromboneUrl()
+				}
+			})
+		}
 	}
 }
 

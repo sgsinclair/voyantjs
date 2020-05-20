@@ -134,6 +134,7 @@ class Load {
 	 * @returns {Promise}
 	 */
 	static file(target = undefined) {
+		let hasPreExistingTarget = false;
 		if (target === undefined) {
 			if (typeof Spyral !== 'undefined' && Spyral.Notebook && typeof Ext !== 'undefined') {
 				const spyralTarget = Spyral.Notebook.getTarget();
@@ -144,17 +145,19 @@ class Load {
 				if (target === null) {
 					// add a component so that vbox layout will be properly calculated
 					const resultsCmp = Ext.getCmp(spyralTarget.getAttribute('id'));
-					const codeEditorCell = resultsCmp.findParentByType('panel');
-					const targetCmp = codeEditorCell.add({
-						xtype: 'component',
-						padding: '20 10',
-						html: ''
-					});
+					const codeEditorCell = resultsCmp.findParentByType('notebookcodeeditorwrapper');
+					const targetConfig = codeEditorCell._getUIComponent('');
+					const targetCmp = codeEditorCell.add(targetConfig);
+					codeEditorCell.setHeight(codeEditorCell.getHeight()+80); // need to explicitly adjust height for added component to be visible
 
 					target = targetCmp.getEl().dom;
+				} else {
+					hasPreExistingTarget = true;
+					target = target.parentElement;
 				}
 			} else {
 				target = document.createElement("div");
+				target.setAttribute('class', 'target');
 				document.body.appendChild(target);
 			}
 		}
@@ -163,15 +166,21 @@ class Load {
 			target.remove();
 		}
 
-		return new Promise((resolve, reject) => {
-			const storedFiles = FileInput.getStoredFiles(target);
-			if (storedFiles !== null) {
-				resolve(storedFiles);
-				return;
-			}
-
-			new FileInput(target, resolve, reject);
-		})
+		if (hasPreExistingTarget) {
+			return new Promise(async (resolve, reject) => {
+				const storedFiles = await FileInput.getStoredFiles(target);
+				if (storedFiles !== null) {
+					resolve(storedFiles);
+					return;
+				}
+	
+				new FileInput(target, resolve, reject);
+			})
+		} else {
+			return new Promise((resolve, reject) => {
+				new FileInput(target, resolve, reject);
+			})
+		}
 		
 	}
 }

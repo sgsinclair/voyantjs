@@ -96,6 +96,14 @@ test('static text', () => {
 })
 
 test('static file', () => {
-	Load.file().then(file => {});
-	expect(document.querySelector('input[type="file"]')).not.toBe(null);
+	return new Promise((resolve, reject) => {
+		Load.file().then(file => {
+			expect(document.querySelector('input[type="file"]')).not.toBe(null);
+			resolve();
+		});
+		
+		const changeEvent = document.createEvent('UIEvent');
+		changeEvent.initEvent('change', true, true);
+		document.querySelector('input[type="file"]').dispatchEvent(changeEvent);
+	});
 })
