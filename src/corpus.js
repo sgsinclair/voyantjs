@@ -1425,7 +1425,7 @@ class Corpus {
 			}
 		})
 		promise.assign = function(name) {
-			this.then(corpus => {window[name] = corpus; return corpus})
+			return this.then(corpus => {window[name] = corpus; return corpus})
 		}
 
 		return promise;

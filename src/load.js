@@ -133,7 +133,7 @@ class Load {
 	 * @param {element} target The target element to append the input to
 	 * @returns {Promise}
 	 */
-	static file(target = undefined) {
+	static files(target = undefined) {
 		let hasPreExistingTarget = false;
 		if (target === undefined) {
 			if (typeof Spyral !== 'undefined' && Spyral.Notebook && typeof Ext !== 'undefined') {
@@ -166,8 +166,9 @@ class Load {
 			target.remove();
 		}
 
+		let promise;
 		if (hasPreExistingTarget) {
-			return new Promise(async (resolve, reject) => {
+			promise = new Promise(async (resolve, reject) => {
 				const storedFiles = await FileInput.getStoredFiles(target);
 				if (storedFiles !== null) {
 					resolve(storedFiles);
@@ -177,10 +178,20 @@ class Load {
 				new FileInput(target, resolve, reject);
 			})
 		} else {
-			return new Promise((resolve, reject) => {
+			promise = new Promise((resolve, reject) => {
 				new FileInput(target, resolve, reject);
 			})
 		}
+		
+		// graft this function to avoid need for then
+		promise.setNextBlockFromFiles = function() {
+			var args = arguments;
+			return this.then(files => {
+				return Spyral.Notebook.setNextBlockFromFiles.apply(Spyral.Load, [files].concat(Array.from(args)));
+			})
+		}
+		
+		return promise;
 		
 	}
 }

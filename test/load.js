@@ -97,7 +97,7 @@ test('static text', () => {
 
 test('static file', () => {
 	return new Promise((resolve, reject) => {
-		Load.file().then(file => {
+		Load.files().then(files => {
 			expect(document.querySelector('input[type="file"]')).not.toBe(null);
 			resolve();
 		});
