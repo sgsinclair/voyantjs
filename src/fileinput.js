@@ -63,6 +63,15 @@ class FileInput {
 		dndSpot.appendChild(document.createTextNode(' or drag it here'));
 		this.inputLabel.appendChild(dndSpot);
 
+		const resetButton = document.createElement('span');
+		resetButton.setAttribute('style', 'width: 16px; height: 16px; border: 1px solid #999; float: right; line-height: 12px; color: #666; cursor: pointer;');
+		resetButton.setAttribute('title', 'Remove File Input');
+		resetButton.appendChild(document.createTextNode('x'));
+		this.inputParent.appendChild(resetButton);
+		resetButton.addEventListener('click', (event) => {
+			this._destroy();
+		});
+
 		['drag','dragstart','dragend','dragover','dragenter','dragleave','drop'].forEach((event) => {
 			this.inputParent.addEventListener(event, (e) => {
 				e.preventDefault();
@@ -141,8 +150,8 @@ class FileInput {
 	}
 
 	static async getStoredFiles(target) {
-		if (target.querySelector('[spyral-temp-doc]') !== null) {
-			const spyralTempDoc = target.querySelector('[spyral-temp-doc]').getAttribute('spyral-temp-doc');
+		if (target.hasAttribute('spyral-temp-doc') || target.querySelector('[spyral-temp-doc]') !== null) {
+			const spyralTempDoc = target.getAttribute('spyral-temp-doc') || target.querySelector('[spyral-temp-doc]').getAttribute('spyral-temp-doc');
 			// check local storage
 			let fileIds = window.sessionStorage.getItem(spyralTempDoc);
 			if (fileIds !== null) {
@@ -171,6 +180,32 @@ class FileInput {
 			}
 		}
 		return null;
+	}
+
+	static clearStoredFiles(target) {
+		if (target.hasAttribute('spyral-temp-doc') || target.querySelector('[spyral-temp-doc]') !== null) {
+			const spyralTempDoc = target.getAttribute('spyral-temp-doc') || target.querySelector('[spyral-temp-doc]').getAttribute('spyral-temp-doc');
+			let fileIds = window.sessionStorage.getItem(spyralTempDoc);
+			if (fileIds !== null) {
+				fileIds.split(',').forEach((fileId) => {
+					window.sessionStorage.removeItem('filename-'+fileId);
+					window.sessionStorage.removeItem('data-'+fileId);
+				})
+				window.sessionStorage.removeItem(spyralTempDoc);
+			}
+			// TODO also clear server storage?
+		}
+	}
+
+	_destroy() {
+		FileInput.clearStoredFiles(this.inputParent);
+		
+		if (typeof Voyant !== 'undefined' && typeof Ext !== 'undefined') {
+			const compId = this.inputParent.parentElement.getAttribute('id');
+			Ext.getCmp(compId).destroy();
+		} else {
+			this.inputParent.remove();
+		}
 	}
 }
 

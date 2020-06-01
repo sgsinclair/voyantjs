@@ -99,6 +99,11 @@ test('static file', () => {
 	return new Promise((resolve, reject) => {
 		Load.files().then(files => {
 			expect(document.querySelector('input[type="file"]')).not.toBe(null);
+
+			const removeButton = document.querySelector('input[type="file"]').parentElement.children[2];
+			removeButton.click();
+			expect(document.querySelector('input[type="file"]')).toBe(null);
+
 			resolve();
 		});
 		
