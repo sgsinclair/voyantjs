@@ -42,7 +42,6 @@ class FileInput {
 		this.fileInput.style.setProperty('display', 'none');
 		this.fileInput.setAttribute('type', 'file');
 		this.fileInput.setAttribute('multiple', 'multiple');
-		this.fileInput.setAttribute('data-multiple-caption', '{count} files selected');
 		this.fileInput.setAttribute('id', fileInputId);
 		this.fileInput.addEventListener('change', (event) => {
 			this._showFiles(event.target.files);
@@ -100,7 +99,10 @@ class FileInput {
 	// update label with file info
 	_showFiles(files) {
 		if (files.length > 0) {
-			this.inputLabel.textContent = files.length > 1 ? (this.fileInput.getAttribute('data-multiple-caption') || '').replace('{count}', files.length) : files[0].name;
+			this.inputLabel.textContent = files.length > 1 ? Array.from(files).map(f => f.name).join(', ') : files[0].name;
+
+			// prevent file input from being re-used
+			this.fileInput.remove();
 		}
 	}
 
