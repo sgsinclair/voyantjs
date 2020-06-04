@@ -65,11 +65,9 @@ class FileInput {
 		const resetButton = document.createElement('span');
 		resetButton.setAttribute('style', 'width: 16px; height: 16px; border: 1px solid #999; float: right; line-height: 12px; color: #666; cursor: pointer;');
 		resetButton.setAttribute('title', 'Remove File Input');
+		resetButton.setAttribute('onclick', "if (typeof Voyant !== 'undefined' && typeof Ext !== 'undefined') { Ext.getCmp(this.parentElement.parentElement.getAttribute('id')).destroy(); } else { this.parentElement.remove(); }");
 		resetButton.appendChild(document.createTextNode('x'));
 		this.inputParent.appendChild(resetButton);
-		resetButton.addEventListener('click', (event) => {
-			this._destroy();
-		});
 
 		['drag','dragstart','dragend','dragover','dragenter','dragleave','drop'].forEach((event) => {
 			this.inputParent.addEventListener(event, (e) => {
@@ -184,6 +182,7 @@ class FileInput {
 		return null;
 	}
 
+	/* currently unused
 	static clearStoredFiles(target) {
 		if (target.hasAttribute('spyral-temp-doc') || target.querySelector('[spyral-temp-doc]') !== null) {
 			const spyralTempDoc = target.getAttribute('spyral-temp-doc') || target.querySelector('[spyral-temp-doc]').getAttribute('spyral-temp-doc');
@@ -198,16 +197,13 @@ class FileInput {
 			// TODO also clear server storage?
 		}
 	}
+	*/
 
-	_destroy() {
-		FileInput.clearStoredFiles(this.inputParent);
-		
-		if (typeof Voyant !== 'undefined' && typeof Ext !== 'undefined') {
-			const compId = this.inputParent.parentElement.getAttribute('id');
-			Ext.getCmp(compId).destroy();
-		} else {
-			this.inputParent.remove();
-		}
+	static async dataUrlToFile(dataUrl, fileName, mimeType) {
+		const res = await fetch(dataUrl);
+		const buf = await res.arrayBuffer();
+		const file = new File([buf], fileName, {type:mimeType});
+		return file;
 	}
 }
 
