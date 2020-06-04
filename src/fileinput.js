@@ -45,7 +45,7 @@ class FileInput {
 		this.fileInput.setAttribute('id', fileInputId);
 		this.fileInput.addEventListener('change', (event) => {
 			this._showFiles(event.target.files);
-			this._triggerLoad(event.target.files);
+			this._storeFiles(event.target.files);
 		});
 		this.inputParent.appendChild(this.fileInput);
 
@@ -87,7 +87,7 @@ class FileInput {
 		});
 		this.inputParent.addEventListener('drop', (event) => {
 			this._showFiles(event.dataTransfer.files);
-			this._triggerLoad(event.dataTransfer.files);
+			this._storeFiles(event.dataTransfer.files);
 		});
 
 		this.target.appendChild(this.inputParent);
@@ -104,8 +104,7 @@ class FileInput {
 		}
 	}
 
-	// file load handler
-	_triggerLoad(fileList) {
+	_storeFiles(fileList) {
 		const files = Array.from(fileList);
 		const readFiles = [];
 		let currIndex = 0;
@@ -113,16 +112,17 @@ class FileInput {
 		if (files.length > 0) {
 			const fr = new FileReader();
 			fr.onload = (e) => {
-				readFiles.push({filename: files[currIndex].name, data: e.target.result});
+				readFiles.push({filename: files[currIndex].name, type: files[currIndex].type, data: e.target.result});
 				currIndex++;
 				if (currIndex < files.length) {
-					fr.readAsText(files[currIndex]);
+					fr.readAsDataURL(files[currIndex]);
 				} else {
 					// store each file in its own session storage entry
 					const childIds = readFiles.map((val, index) => {
 						const childId = Util.id(32);
 						window.sessionStorage.setItem('filename-'+childId, val.filename);
 						window.sessionStorage.setItem('data-'+childId, val.data);
+						window.sessionStorage.setItem('type-'+childId, val.type);
 						return childId;
 					})
 					// store the ids for each file for later retrieval
@@ -134,18 +134,18 @@ class FileInput {
 						serverStorage.storeResource(this.inputParent.getAttribute('spyral-temp-doc'), childIds.join());
 						readFiles.map((val, index) => {
 							const childId = childIds[index];
-							serverStorage.storeResource(childId, {filename: val.filename, data: val.data});
+							serverStorage.storeResource(childId, {filename: val.filename, data: val.data, type: val.type});
 							return childId;
 						})
 					}
 					
-					this.resolve(readFiles);
+					this.resolve(files);
 				}
 			}
 
-			fr.readAsText(files[currIndex]);
+			fr.readAsDataURL(files[currIndex]);
 		} else {
-			this.resolve(readFiles);
+			this.resolve(files);
 		}
 	}
 
@@ -155,31 +155,61 @@ class FileInput {
 			// check local storage
 			let fileIds = window.sessionStorage.getItem(spyralTempDoc);
 			if (fileIds !== null) {
-				const storedFiles = fileIds.split(',').map((fileId) => {
-					return {filename: window.sessionStorage.getItem('filename-'+fileId), data: window.sessionStorage.getItem('data-'+fileId)};
-				})
+				let storedFiles = [];
+				fileIds = fileIds.split(',');
+				for (let i = 0; i < fileIds.length; i++) {
+					const fileId = fileIds[i];
+					const filename = window.sessionStorage.getItem('filename-'+fileId);
+					const data = window.sessionStorage.getItem('data-'+fileId);
+					const type = window.sessionStorage.getItem('type-'+fileId);
+					const file = await FileInput.dataUrlToFile(data, filename, type);
+					storedFiles.push(file);
+				}
 				return storedFiles;
 			} else {
 				// check server storage (if available)
 				createServerStorage();
 				if (typeof ServerStorage !== undefined) {
 					const serverStorage = new ServerStorage();
-					fileIds = await serverStorage.getStoredResource(spyralTempDoc);
-					if (fileIds !== undefined) {
-						let storedFiles = [];
-						fileIds = fileIds.split(',');
-						for (let i = 0; i < fileIds.length; i++) {
-							const file = await serverStorage.getStoredResource(fileIds[i]);
-							storedFiles.push(file);
+					try {
+						fileIds = await serverStorage.getStoredResource(spyralTempDoc);
+						if (fileIds !== undefined) {
+							let storedFiles = [];
+							fileIds = fileIds.split(',');
+							for (let i = 0; i < fileIds.length; i++) {
+								const storedFile = await serverStorage.getStoredResource(fileIds[i]);
+								const file = await FileInput.dataUrlToFile(storedFile.data, storedFile.filename, storedFile.type);
+								storedFiles.push(file);
+							}
+							return storedFiles;
+						} else {
+							return null;
 						}
-						return storedFiles;
-					} else {
+					} catch(error) {
 						return null;
 					}
 				}
 			}
 		}
 		return null;
+	}
+
+	static async dataUrlToFile(dataUrl, fileName, mimeType) {
+		const res = await fetch(dataUrl);
+		const buf = await res.arrayBuffer();
+		const file = new File([buf], fileName, {type:mimeType});
+		return file;
+	}
+
+	static destroy(target) {
+		if (typeof Voyant !== 'undefined' && typeof Ext !== 'undefined') {
+			if (target.hasAttribute('spyral-temp-doc')) {
+				target = target.parentElement;
+			}
+			Ext.getCmp(target.getAttribute('id')).destroy();
+		} else {
+			target.remove();
+		}
 	}
 
 	/* currently unused
@@ -191,6 +221,7 @@ class FileInput {
 				fileIds.split(',').forEach((fileId) => {
 					window.sessionStorage.removeItem('filename-'+fileId);
 					window.sessionStorage.removeItem('data-'+fileId);
+					window.sessionStorage.removeItem('type-'+fileId);
 				})
 				window.sessionStorage.removeItem(spyralTempDoc);
 			}
@@ -198,13 +229,6 @@ class FileInput {
 		}
 	}
 	*/
-
-	static async dataUrlToFile(dataUrl, fileName, mimeType) {
-		const res = await fetch(dataUrl);
-		const buf = await res.arrayBuffer();
-		const file = new File([buf], fileName, {type:mimeType});
-		return file;
-	}
 }
 
 function createServerStorage() {

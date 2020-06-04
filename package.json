@@ -72,10 +72,10 @@
     "coverageDirectory": "./coverage",
     "coverageThreshold": {
       "global": {
-        "statements": 68,
+        "statements": 67,
         "branches": 54,
         "functions": 82,
-        "lines": 67
+        "lines": 66
       }
     },
     "setupFiles": [

@@ -1411,6 +1411,20 @@ class Corpus {
 				} else if (typeof config === "string") {
 					config = {input: config};
 				}
+			} else if (config instanceof File || (config instanceof Array && config[0] instanceof File)) {
+				const formData = new FormData();
+				if (config instanceof File) {
+					formData.append('input', config);
+				} else {
+					config.forEach(file => {
+						formData.append('input', file);
+					})
+				}
+				formData.append('tool', 'corpus.CorpusMetadata');
+				config = {
+					body: formData,
+					method: 'POST'
+				};
 			}
 			
 			Load.trombone({...config,...api}, {tool: "corpus.CorpusMetadata"})

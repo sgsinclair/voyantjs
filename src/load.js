@@ -30,15 +30,34 @@ class Load {
 		}
 		let searchParams = Object.keys(all).map(key => encodeURIComponent(key) + '=' + encodeURIComponent(all[key])).join("&")
 		let opt = {};
-		if (searchParams.length < 800 || ("method" in all && all["method"] == "GET")) {
-			for (var key in all) { url.searchParams.set(key, all[key]); }
-		} else {
-			opt = {
-				method: 'POST',
-				headers: { 'Content-Type': 'application/x-www-form-urlencoded;charset=UTF-8' },
-				body: searchParams
-			}
+		if ("method" in all === false) {
+			all.method = "GET";
 		}
+
+		if (all.method === "GET") {
+			if (searchParams.length < 800) {
+				for (var key in all) { url.searchParams.set(key, all[key]); }
+			} else {
+				opt = {
+					method: 'POST',
+					headers: { 'Content-Type': 'application/x-www-form-urlencoded;charset=UTF-8' },
+					body: searchParams
+				}
+			}
+		} else if (all.method === "POST") {
+			opt = {
+				method: 'POST'
+			}
+			if ("body" in all) {
+				opt.body = all["body"];
+			} else {
+				opt.headers = { 'Content-Type': 'application/x-www-form-urlencoded;charset=UTF-8' };
+				opt.body = searchParams;
+			}
+		} else {
+			console.warn('Load.trombone: unsupported method:', all.method);
+		}
+		
 		return fetch(url.toString(), opt).then(response => {
 			if (response.ok) {
 				return response.json()
@@ -128,14 +147,15 @@ class Load {
 	}
 
 	/**
-	 * Create a file input in the target element and returns a Promise that's resolved with the file that is added to the input.
+	 * Create a file input in the target element and returns a Promise that's resolved with the file(s) that is added to the input.
 	 * The file is also temporarily stored in the session storage for successive retrieval.
 	 * @param {element} target The target element to append the input to
 	 * @returns {Promise}
 	 */
 	static files(target = undefined) {
 		let hasPreExistingTarget = false;
-		if (target === undefined) {
+
+		function createTarget() {
 			if (typeof Spyral !== 'undefined' && Spyral.Notebook && typeof Ext !== 'undefined') {
 				const spyralTarget = Spyral.Notebook.getTarget();
 
@@ -162,8 +182,8 @@ class Load {
 			}
 		}
 
-		function cleanup() {
-			target.remove();
+		if (target === undefined) {
+			createTarget();
 		}
 
 		let promise;
@@ -173,6 +193,10 @@ class Load {
 				if (storedFiles !== null) {
 					resolve(storedFiles);
 					return;
+				} else {
+					// files have been removed so re-create the input
+					FileInput.destroy(target);
+					createTarget();
 				}
 	
 				new FileInput(target, resolve, reject);
