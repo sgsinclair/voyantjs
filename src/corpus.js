@@ -1420,7 +1420,16 @@ class Corpus {
 						formData.append('input', file);
 					})
 				}
+				
+				// append any other form options that may have been included
+				if (api && typeof api == "object") {
+					for (let key in api) {
+						formData.append(key, api[key])
+					}
+				}
+
 				formData.append('tool', 'corpus.CorpusMetadata');
+				
 				config = {
 					body: formData,
 					method: 'POST'
