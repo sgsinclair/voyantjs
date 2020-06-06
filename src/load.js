@@ -215,6 +215,13 @@ class Load {
 			})
 		}
 		
+		promise.loadCorpusFromFiles = function() {
+			var args = arguments;
+			return this.then(files => {
+				return Spyral.Corpus.load.apply(Spyral.Corpus, [files].concat(Array.from(args)));
+			})
+		}
+		
 		return promise;
 		
 	}
