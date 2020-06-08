@@ -75,7 +75,7 @@
         "statements": 68,
         "branches": 55,
         "functions": 83,
-        "lines": 69
+        "lines": 68
       }
     },
     "setupFiles": [

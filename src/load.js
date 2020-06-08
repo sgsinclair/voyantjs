@@ -198,6 +198,16 @@ class Load {
 					// files have been removed so re-create the input
 					FileInput.destroy(target);
 					createTarget();
+
+					const deleteMsg = 'The previously added files have been deleted. You will need to add new files.';
+					if (typeof Voyant !== 'undefined' && typeof Ext !== 'undefined') {
+						Ext.ComponentQuery.query('notebook')[0].toastError({
+							html: deleteMsg,
+							anchor: 'tr'
+						});
+					} else {
+						alert(deleteMsg);
+					}
 				}
 	
 				new FileInput(target, resolve, reject);
