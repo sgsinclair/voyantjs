@@ -1,4 +1,5 @@
 import Load from '../src/load';
+import FileInput from '../src/fileinput';
 
 import * as Mocks from './mocks/load';
 
@@ -110,5 +111,36 @@ test('static file', () => {
 		const changeEvent = document.createEvent('UIEvent');
 		changeEvent.initEvent('change', true, true);
 		document.querySelector('input[type="file"]').dispatchEvent(changeEvent);
+	});
+})
+
+test('file promises', () => {
+	fetch.once(JSON.stringify(Mocks.CorpusMetadata))
+
+	return new Promise((resolve, reject) => {
+		Load.files().loadCorpusFromFiles().then(corpus => {
+			expect(corpus.corpusid).toBe('080469ce65fb3e40168914f4df21116e');
+			resolve();
+		})
+
+		const changeEvent = document.createEvent('UIEvent');
+		changeEvent.initEvent('change', true, true);
+		document.querySelector('input[type="file"]').dispatchEvent(changeEvent);
+	});
+})
+
+test('fileinput get/set files', () => {
+	return new Promise((resolve, reject) => {
+		const target = document.createElement('div');
+		const fileInput = new FileInput(target, (files) => {
+			expect(files[0].name).toBe('foo.txt');
+			resolve();
+		}, (error) => {
+			reject();
+		});
+		FileInput.dataUrlToFile('data:text/plain;base64,Zm9vIGJhcg==', 'foo.txt', 'text/plain').then(file => {
+			fileInput._storeFiles([file]);
+		})
+		
 	});
 })

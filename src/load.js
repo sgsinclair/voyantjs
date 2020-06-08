@@ -1,4 +1,5 @@
 import FileInput from './fileinput';
+import Corpus from './corpus';
 
 /**
  * Class embodying Load functionality.
@@ -167,7 +168,7 @@ class Load {
 					const resultsCmp = Ext.getCmp(spyralTarget.getAttribute('id'));
 					const codeEditorCell = resultsCmp.findParentByType('notebookcodeeditorwrapper');
 					const targetConfig = codeEditorCell._getUIComponent('');
-					const targetCmp = codeEditorCell.add(targetConfig);
+					const targetCmp = codeEditorCell.insert(1, targetConfig); // insert after code cell
 					codeEditorCell.setHeight(codeEditorCell.getHeight()+80); // need to explicitly adjust height for added component to be visible
 
 					target = targetCmp.getEl().dom;
@@ -211,14 +212,14 @@ class Load {
 		promise.setNextBlockFromFiles = function() {
 			var args = arguments;
 			return this.then(files => {
-				return Spyral.Notebook.setNextBlockFromFiles.apply(Spyral.Load, [files].concat(Array.from(args)));
+				return Spyral.Notebook.setNextBlockFromFiles.apply(Load, [files].concat(Array.from(args)));
 			})
 		}
 		
 		promise.loadCorpusFromFiles = function() {
 			var args = arguments;
 			return this.then(files => {
-				return Spyral.Corpus.load.apply(Spyral.Corpus, [files].concat(Array.from(args)));
+				return Corpus.load.apply(Corpus, [files].concat(Array.from(args)));
 			})
 		}
 		
