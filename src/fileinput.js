@@ -134,7 +134,7 @@ class FileInput {
 					window.sessionStorage.setItem(this.inputParent.getAttribute('spyral-temp-doc'), childIds.join());
 
 					createServerStorage();
-					if (typeof ServerStorage !== undefined) {
+					if (typeof ServerStorage !== 'undefined') {
 						const serverStorage = new ServerStorage();
 						serverStorage.storeResource(this.inputParent.getAttribute('spyral-temp-doc'), childIds.join());
 						readFiles.map((val, index) => {
