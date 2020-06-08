@@ -65,7 +65,12 @@ class FileInput {
 		const resetButton = document.createElement('span');
 		resetButton.setAttribute('style', 'width: 16px; height: 16px; border: 1px solid #999; float: right; line-height: 12px; color: #666; cursor: pointer;');
 		resetButton.setAttribute('title', 'Remove File Input');
+		// listener to remove the element, which can be called from a saved notebook
 		resetButton.setAttribute('onclick', "if (typeof Voyant !== 'undefined' && typeof Ext !== 'undefined') { Ext.getCmp(this.parentElement.parentElement.getAttribute('id')).destroy(); } else { this.parentElement.remove(); }");
+		// additional listener to reject the promise, if this input was created through run code
+		resetButton.addEventListener('click', function() {
+			this.reject();
+		}.bind(this));
 		resetButton.appendChild(document.createTextNode('x'));
 		this.inputParent.appendChild(resetButton);
 
