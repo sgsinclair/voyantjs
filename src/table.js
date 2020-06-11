@@ -996,6 +996,9 @@ class Table {
 		if (target === undefined) {
 			if (typeof Spyral !== 'undefined' && Spyral.Notebook) {
 				target = Spyral.Notebook.getTarget();
+				if (target.clientHeight === 0) {
+					target.style.height = '400px'; // 400 is the default Highcharts height
+				}
 			} else {
 				target = document.createElement("div");
 				document.body.appendChild(target);
