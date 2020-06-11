@@ -1,6 +1,11 @@
 import Load from '../src/load';
 import FileInput from '../src/fileinput';
 
+// needed to test Load.files().loadCorpusFromFiles
+import Corpus from '../src/corpus';
+window.Spyral = {};
+Spyral.Corpus = Corpus; 
+
 import * as Mocks from './mocks/load';
 
 const baseUrl = 'http://localhost:8080/voyant';

@@ -1,5 +1,4 @@
 import FileInput from './fileinput';
-import Corpus from './corpus';
 
 /**
  * Class embodying Load functionality.
@@ -229,7 +228,7 @@ class Load {
 		promise.loadCorpusFromFiles = function() {
 			var args = arguments;
 			return this.then(files => {
-				return Corpus.load.apply(Corpus, [files].concat(Array.from(args)));
+				return Spyral.Corpus.load.apply(Spyral.Corpus, [files].concat(Array.from(args)));
 			})
 		}
 		
