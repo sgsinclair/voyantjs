@@ -160,7 +160,13 @@ class Load {
 				const spyralTarget = Spyral.Notebook.getTarget();
 
 				// check for pre-existing target
-				target = spyralTarget.parentElement.querySelector('[spyral-temp-doc]');
+				const codeWrapper = spyralTarget.closest('.notebook-code-wrapper');
+				if (codeWrapper === null) {
+					console.warn("Spyral.Load.files: can't find CodeEditorWrapper parent");
+					target = null;
+				} else {
+					target = codeWrapper.querySelector('[spyral-temp-doc]');
+				}
 
 				if (target === null) {
 					// add a component so that vbox layout will be properly calculated
