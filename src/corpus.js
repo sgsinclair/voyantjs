@@ -1408,9 +1408,11 @@ class Corpus {
 			if (typeof config === "string") {
 				if (config.length>0 && /\W/.test(config)===false) {
 					config = {corpus: config};
-				} else if (typeof config === "string") {
+				} else {
 					config = {input: config};
 				}
+			} else if (config instanceof Array && config.length > 0 && typeof config[0] === 'string') {
+				config = {input: config};
 			} else if (config instanceof File || (config instanceof Array && config[0] instanceof File)) {
 				const formData = new FormData();
 				if (config instanceof File) {
