@@ -25,18 +25,35 @@ class Load {
 	static trombone(config = {}, params) {
 		let url = new URL(config.trombone ? config.trombone : this.baseUrl + "trombone");
 		let all = { ...config, ...params };
-		for (var key in all) {
+		for (let key in all) {
 			if (all[key] === undefined) { delete all[key] }
 		}
-		let searchParams = Object.keys(all).map(key => encodeURIComponent(key) + '=' + encodeURIComponent(all[key])).join("&")
-		let opt = {};
+		let searchParams = Object.keys(all).map((key) => {
+			if (all[key] instanceof Array) {
+				return all[key].map((val) => {
+					return encodeURIComponent(key) + '=' + encodeURIComponent(val)
+				}).join("&")
+			} else {
+				return encodeURIComponent(key) + '=' + encodeURIComponent(all[key])
+			}
+		}).join("&")
+		
 		if ("method" in all === false) {
 			all.method = "GET";
 		}
 
+		let opt = {};
 		if (all.method === "GET") {
 			if (searchParams.length < 800) {
-				for (var key in all) { url.searchParams.set(key, all[key]); }
+				for (let key in all) {
+					if (all[key] instanceof Array) {
+						all[key].forEach((val) => {
+							url.searchParams.append(key, val);	
+						})
+					} else {
+						url.searchParams.set(key, all[key]);
+					}
+				}
 			} else {
 				opt = {
 					method: 'POST',
