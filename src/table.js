@@ -1,9 +1,65 @@
 import Chart from "./chart.js";
 
 /**
- * Class representing a Table.
+ * The Spyral.Table class in Spyral provides convenience functions for working with tabular
+ * data.
+ * 
+ * There are several ways of initializing a Table, here are some of them:
+ * 
+ * Provide an array of data with 3 rows:
+ * 
+ *  	let table = createTable([1,2,3]);
+ *
+ *
+ * Provide a nested array of data with multiple rows:
+ * 
+ *		let table = createTable([[1,2],[3,4]]);
+ * 
+ * Same nested array, but with a second argument specifying headers
+ * 
+ *		let table = createTable([[1,2],[3,4]], {headers: ["one","two"]});
+ * 
+ * Create table with comma-separated values:
+ * 
+ *  	let table = createTable("one,two\\n1,2\\n3,4");
+ * 
+ * Create table with tab-separated values
+ * 
+ *		let table = createTable("one\\ttwo\\n1\\t2\\n3\\t4");
+ * 
+ * Create table with array of objects
+ * 
+ *  	let table = createTable([{one:1,two:2},{one:3,two:4}]);
+ * 
+ * It's also possible simple to create a sorted frequency table from an array of values:
+ * 
+ *		let table = createTable(["one","two","one"], {count: "vertical", headers: ["Term","Count"]})
+ * 
+ * Working with a Corpus is easy. For instance, we can create a table from the top terms:
+ * 
+ *		loadCorpus("austen").terms({limit:500, stopList: 'auto'}).then(terms => {
+ *			return createTable(terms);
+ *		})
+ * 
+ * Similarly, we could create a frequency table from the first 1,000 words of the corpus:
+ * 
+ *		loadCorpus("austen").words({limit:1000, docIndex: 0, stopList: 'auto'}).then(words => {
+ *			return createTable(words, {count: "vertical"});
+ *		});
+ *
+ * Some of the configuration options are as follows:
+ * 
+ * * **format**: especially for forcing csv or tsv when the data is a string
+ * * **hasHeaders**: determines if data has a header row (usually determined automatically)
+ * * **headers**: a Array of Strings that serve as headers for the table
+ * * **count**: forces Spyral to create a sorted frequency table from an Array of data, this can be set to "vertical" if the counts are shown vertically or set to true if the counts are shown horizontally
+ * 
+ * Tables are convenient in Spyral because you can simply show them to preview a version in HTML.
+ * 
  * @memberof Spyral
  * @class
+ * @param {Array|String} data an array of data or a string with CSV or TSV.
+ * @param {Object} config an Object for configuring the table initialization, see above
  */
 class Table {
 	/**
@@ -1022,11 +1078,11 @@ class Table {
 		
 		// start filling in series
 		config.series = config.series || [];
-		
+
 		// one row, so let's take series from rows
 		if (rowsCount === 1) {
 			config.dataFrom = config.dataFrom || "rows";
-		} else if (columnsCount === 1) {
+		} else if (columnsCount === 1 || (!("dataFrom" in config))) {
 			config.dataFrom = config.dataFrom || "columns";
 		}
 
