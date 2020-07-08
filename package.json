@@ -38,7 +38,7 @@
     "babelify": "^10.0.0",
     "browserify": "^16.5.0",
     "codecov": "^3.6.5",
-    "commitizen": "^4.0.4",
+    "commitizen": "^4.1.2",
     "cz-conventional-changelog": "^3.1.0",
     "husky": "^4.2.3",
     "jest": "^25.2.7",
@@ -48,7 +48,7 @@
     "watchify": "^3.11.1"
   },
   "dependencies": {
-    "highcharts": "^8.0.4",
+    "highcharts": "^8.1.2",
     "lda-topic-model": "git+https://github.com/ajmacdonald/lda-topic-model.git"
   },
   "directories": {
