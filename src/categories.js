@@ -3,6 +3,7 @@ import Load from './load';
 /**
  * Class for working with categories and features.
  * Categories are groupings of terms.
+ * A term can be present in multiple categories. Category ranking is used to determine which feature value to prioritize.
  * Features are arbitrary properties (font, color) that are associated with each category.
  * @memberof Spyral
  * @class
@@ -14,6 +15,7 @@ class Categories {
 	 */
 	constructor() {
 		this._categories = {};
+		this._categoriesRanking = [];
 		this._features = {};
 		this._featureDefaults = {};
 	}
@@ -51,6 +53,7 @@ class Categories {
 	addCategory(name) {
 		if (this._categories[name] === undefined) {
 			this._categories[name] = [];
+			this._categoriesRanking.push(name);
 		}
 	}
 
@@ -60,14 +63,17 @@ class Categories {
 	 * @param {string} newName 
 	 */
 	renameCategory(oldName, newName) {
-		var terms = this.getCategoryTerms(oldName);
-		this.addTerms(newName, terms);
-		for (var feature in this._features) {
-			var value = this._features[feature][oldName];
-			this.setCategoryFeature(newName, feature, value);
+		if (oldName !== newName) {
+			var terms = this.getCategoryTerms(oldName);
+			var ranking = this.getCategoryRanking(oldName);
+			this.addTerms(newName, terms);
+			for (var feature in this._features) {
+				var value = this._features[feature][oldName];
+				this.setCategoryFeature(newName, feature, value);
+			}
+			this.removeCategory(oldName);
+			this.setCategoryRanking(newName, ranking);
 		}
-		this.removeCategory(oldName);
-		
 	}
 
 	/**
@@ -76,11 +82,45 @@ class Categories {
 	 */
 	removeCategory(name) {
 		delete this._categories[name];
+		var index = this._categoriesRanking.indexOf(name);
+		if (index !== -1) {
+			this._categoriesRanking.splice(index, 1);
+		}
 		for (var feature in this._features) {
 			delete this._features[feature][name];
 		}
 	}
-	
+
+	/**
+	 * Gets the ranking for a category
+	 * @param {string} name 
+	 * @returns {number}
+	 */
+	getCategoryRanking(name) {
+		var ranking = this._categoriesRanking.indexOf(name);
+		if (ranking === -1) {
+			return undefined;
+		} else {
+			return ranking;
+		}
+	}
+
+	/**
+	 * Sets the ranking for a category
+	 * @param {string} name 
+	 * @param {number} ranking 
+	 */
+	setCategoryRanking(name, ranking) {
+		if (this._categories[name] !== undefined) {
+			ranking = Math.min(this._categoriesRanking.length-1, Math.max(0, ranking));
+			var index = this._categoriesRanking.indexOf(name);
+			if (index !== -1) {
+				this._categoriesRanking.splice(index, 1);
+			}
+			this._categoriesRanking.splice(ranking, 0, name);
+		}
+	}
+
 	/**
 	 * Add a term to a category
 	 * @param {string} category 
@@ -140,17 +180,35 @@ class Categories {
 	}
 	
 	/**
-	 * Get the category that a term belongs to
+	 * Get the category that a term belongs to, taking ranking into account
 	 * @param {string} term 
-	 * @return {object}
+	 * @returns {string}
 	 */
 	getCategoryForTerm(term) {
+		var ranking = Number.MAX_VALUE;
+		var cat = undefined;
 		for (var category in this._categories) {
-			if (this._categories[category].indexOf(term) != -1) {
-				return category;
+			if (this._categories[category].indexOf(term) !== -1 && this.getCategoryRanking(category) < ranking) {
+				ranking = this.getCategoryRanking(category);
+				cat = category;
 			}
 		}
-		return undefined;
+		return cat;
+	}
+
+	/**
+	 * Get all the categories a term belongs to
+	 * @param {string} term 
+	 * @returns {array}
+	 */
+	getCategoriesForTerm(term) {
+		var cats = [];
+		for (var category in this._categories) {
+			if (this._categories[category].indexOf(term) !== -1) {
+				cats.push(category);
+			}
+		}
+		return cats;
 	}
 
 	/**
@@ -229,11 +287,12 @@ class Categories {
 	
 	/**
 	 * Get a copy of the category and feature data
-	 * @return {object}
+	 * @returns {object}
 	 */
 	getCategoryExportData() {
 		return {
 			categories: Object.assign({}, this._categories),
+			categoriesRanking: this._categoriesRanking.map(x => x),
 			features: Object.assign({}, this._features)
 		};
 	}
@@ -241,7 +300,7 @@ class Categories {
 	/**
 	 * Save the categories (if we're in a recognized environment).
 	 * @param {Object} config for the network call (specifying if needed the location of Trombone, etc., see {@link #Load.trombone}
-	 * @return {Promise} this returns a promise which eventually resolves to a string that is the ID reference for the stored categories
+	 * @returns {Promise} this returns a promise which eventually resolves to a string that is the ID reference for the stored categories
 	 */
 	save(config={},api={}) {
 		const categoriesData = JSON.stringify(this.getCategoryExportData())
@@ -262,7 +321,7 @@ class Categories {
 	 * 
 	 * @param {Object|String} config an object specifying the parameters (see above)
 	 * @param {Object} api an object specifying any parameters for the trombone call
-	 * @return {Promise} this first returns a promise and when the promise is resolved it returns this categories object (with the loaded data included)
+	 * @returns {Promise} this first returns a promise and when the promise is resolved it returns this categories object (with the loaded data included)
 	 */
 	load(config={}, api={}) {
 		let me = this;
@@ -278,6 +337,12 @@ class Categories {
 			const cats = JSON.parse(data.storedCategories.resource);
 			me._features = cats.features;
 			me._categories = cats.categories;
+			me._categoriesRanking = cats.categoriesRanking;
+			if (me._categoriesRanking === undefined) {
+				for (var category in me._categories) {
+					me._categoriesRanking.push(category);
+				}
+			}
 			return me;
 		})
 		

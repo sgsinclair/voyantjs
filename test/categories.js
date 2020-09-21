@@ -22,6 +22,12 @@ test('categories', () => {
 
 	categories.removeTerm('bar', 'baz');
 	expect(categories.getCategoryForTerm('qux')).toBe('bar');
+
+	categories.addTerm('foo2', 'qux');
+	expect(categories.getCategoriesForTerm('qux').length).toBe(2);
+
+	categories.setCategoryRanking('foo2', 0);
+	expect(categories.getCategoryRanking('bar')).toBe(1);
 })
 
 test('features', () => {
