@@ -337,8 +337,8 @@ class Categories {
 			const cats = JSON.parse(data.storedCategories.resource);
 			me._features = cats.features;
 			me._categories = cats.categories;
-			me._categoriesRanking = cats.categoriesRanking;
-			if (me._categoriesRanking === undefined) {
+			me._categoriesRanking = cats.categoriesRanking || [];
+			if (me._categoriesRanking.length === 0) {
 				for (var category in me._categories) {
 					me._categoriesRanking.push(category);
 				}
