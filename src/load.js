@@ -23,7 +23,9 @@ class Load {
 	 * @returns {JSON}
 	 */
 	static trombone(config = {}, params) {
-		let url = new URL(config.trombone ? config.trombone : this.baseUrl + "trombone");
+		let url = new URL(config.trombone ? config.trombone : this.baseUrl + "trombone", window.location.origin);
+		delete config.trombone;
+		
 		let all = { ...config, ...params };
 		for (let key in all) {
 			if (all[key] === undefined) { delete all[key] }
