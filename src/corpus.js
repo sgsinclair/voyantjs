@@ -157,21 +157,6 @@ class Corpus {
  */
 
 /**
- * @cfg {String} tableContent Determine how to extract body content from the table; only used for table-based documents.
- * 
- * Columns are referred to by numbers, the first is column 1 (not 0).
- * You can specify separate columns by using a comma or you can combined the contents of columns/cells by using a plus sign.
- * 
- * Some examples:
- * 
- * - **1**: use column 1
- * - **1,2**: use columns 1 and 2 separately
- * - **1+2,3**: combine columns 1 and two and use column 3 separately
- * 
- * See also [Creating a Corpus Tokenization](#!/guide/corpuscreator-section-tables).
- */
-
-/**
  * @cfg {String} tableNoHeadersRow Determine if the table has a first row of headers; only used for table-based documents.
  * 
  * Provide a value of "true" if there is no header row, otherwise leave it blank or undefined (default).

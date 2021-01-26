@@ -1,13 +1,11 @@
 /**
  * A helper for working with the Voyant Notebook app.
  * @memberof Spyral
- * @namespace
  */
 class Util {
 
 	/**
 	 * Generates a random ID of the specified length.
-	 * @static
 	 * @param {number} len The length of the ID to generate?
 	 * @returns {string}
 	 */
@@ -23,7 +21,6 @@ class Util {
 
 	/**
 	 * 
-	 * @static
 	 * @param {array|object|string} contents 
 	 * @returns {string}
 	 */
@@ -39,7 +36,6 @@ class Util {
 
 	/**
 	 * 
-	 * @static
 	 * @param {string} before 
 	 * @param {string} more 
 	 * @param {string} after 

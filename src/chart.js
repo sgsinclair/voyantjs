@@ -29,8 +29,8 @@ class Chart {
 	}
 
 	/**
-	 * Create a new chart
-	 * See {@link https://api.highcharts.com/highcharts/} for full set of config options.
+	 * Create a new chart.
+	 * See [Highcharts API](https://api.highcharts.com/highcharts/) for full set of config options.
 	 * @param {(string|element)} target 
 	 * @param {HighchartsConfig} config 
 	 * @returns {Highcharts.Chart}
@@ -40,8 +40,8 @@ class Chart {
 	}
 	
 	/**
-	 * Create a new chart
-	 * See {@link https://api.highcharts.com/highcharts/} for full set of config options.
+	 * Create a new chart.
+	 * See [Highcharts API](https://api.highcharts.com/highcharts/) for full set of config options.
 	 * @param {(string|element)} target 
 	 * @param {HighchartsConfig} config 
 	 * @returns {Highcharts.Chart}

@@ -299,7 +299,7 @@ class Categories {
 	
 	/**
 	 * Save the categories (if we're in a recognized environment).
-	 * @param {Object} config for the network call (specifying if needed the location of Trombone, etc., see {@link #Load.trombone}
+	 * @param {Object} config for the network call (specifying if needed the location of Trombone, etc., see {@link Spyral.Load#trombone}
 	 * @returns {Promise} this returns a promise which eventually resolves to a string that is the ID reference for the stored categories
 	 */
 	save(config={},api={}) {
