@@ -7,9 +7,9 @@ class FileInput {
 
 	/**
 	 * The FileInput constructor
-	 * @param {element} target The element to place the file input into
-	 * @param {function} resolve A function to call with the file(s)
-	 * @param {function} reject A function to call if the input is cancelled
+	 * @param {HTMLElement} target The element to place the file input into
+	 * @param {Function} resolve A function to call with the file(s)
+	 * @param {Function} reject A function to call if the input is cancelled
 	 */
 	constructor(target, resolve, reject) {
 		this.target = target;

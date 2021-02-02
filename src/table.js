@@ -64,9 +64,9 @@ import Chart from "./chart.js";
 class Table {
 	/**
 	 * The Table config object
-	 * @typedef {object} TableConfig
+	 * @typedef {Object} TableConfig
 	 * @property {string} format The format of the provided data, either "tsv" or "csv"
-	 * @property {(object|array)} headers The table headers
+	 * @property {(Object|Array)} headers The table headers
 	 * @property {boolean} hasHeaders True if the headers are the first item in the data
 	 * @property {string} count Specify "vertical" or "horizontal" to create a table of unique item counts in the provided data
 	 */
@@ -75,7 +75,7 @@ class Table {
 	/**
 	 * Create a new Table
 	 * @constructor
-	 * @param {(object|array|string|number)} data
+	 * @param {(Object|Array|String|Number)} data
 	 * @param {TableConfig} config
 	 */
 	constructor(data, config, ...other) {
@@ -185,7 +185,7 @@ class Table {
 	
 	/**
 	 * Set the headers for the Table
-	 * @param {(object|array)} data
+	 * @param {(Object|Array)} data
 	 * @returns {Table}
 	 */
 	setHeaders(data) {
@@ -205,7 +205,7 @@ class Table {
 	
 	/**
 	 * Add rows to the Table
-	 * @param {array} data
+	 * @param {Array} data
 	 * @returns {Table}
 	 */
 	addRows(data) {
@@ -215,7 +215,7 @@ class Table {
 	
 	/**
 	 * Add a row to the Table
-	 * @param {(array|object)} data
+	 * @param {(Array|Object)} data
 	 * @returns {Table}
 	 */
 	addRow(data, ...other) {
@@ -232,7 +232,7 @@ class Table {
 	/**
 	 * Set a row
 	 * @param {(number|string)} ind The row index
-	 * @param {(object|array)} data
+	 * @param {(Object|Array)} data
 	 * @param {boolean} create
 	 * @returns {Table}
 	 */
@@ -282,7 +282,7 @@ class Table {
 	/**
 	 * Set a column
 	 * @param {(number|string)} ind The column index
-	 * @param {(object|array)} data
+	 * @param {(Object|Array)} data
 	 * @param {boolean} create
 	 * @returns {Table}
 	 */
@@ -410,7 +410,7 @@ class Table {
 	
 	/**
 	 * Add a column (at the specified index)
-	 * @param {(object|string)} config
+	 * @param {(Object|String)} config
 	 * @param {(number|string)} ind
 	 */
 	addColumn(config, ind) {
@@ -451,9 +451,9 @@ class Table {
 	 * When the first argument is a an array then the rows corresponding to the row
 	 * indices or names are returned. When all arguments except are numbers or strings
 	 * then each of those is returned.
-	 * @param {(boolean|array|number|string)} [inds]
-	 * @param {(object|number|string)} [config]
-	 * @returns {number|array}
+	 * @param {(Boolean|Array|Number|String)} [inds]
+	 * @param {(Object|Number|String)} [config]
+	 * @returns {(Number|Array)}
 	 */
 	rows(inds, config, ...other) {
 	
@@ -507,7 +507,7 @@ class Table {
 	 * Get the specified row
 	 * @param {(number|string)} ind
 	 * @param {boolean} [asObj]
-	 * @returns {(number|string|object)}
+	 * @returns {(Object|Number|String)}
 	 */
 	row(ind, asObj) {
 		let row = this._rows[this.getRowIndex(ind)];
@@ -529,9 +529,9 @@ class Table {
 	 * When the first argument is a number a slice of the columns is returned and if
 	 * the second argument is a number it is treated as the length of the slice to
 	 * return (note that it isn't the `end` index like with Array.slice()).
-	 * @param {(boolean|array|number|string)} [inds]
-	 * @param {(object|number|string)} [config]
-	 * @returns {number|array}
+	 * @param {(Boolean|Array|Number|String)} [inds]
+	 * @param {(Object|Number|String)} [config]
+	 * @returns {(Number|Array)}
 	 */
 	columns(inds, config, ...other) {
 	
@@ -585,7 +585,7 @@ class Table {
 	 * Get the specified column
 	 * @param {(number|string)} ind
 	 * @param {boolean} [asObj]
-	 * @returns {(number|string|object)}
+	 * @returns {(Object|Number|String)}
 	 */
 	column(ind, asObj) {
 		let column = this.getColumnIndex(ind);
@@ -618,8 +618,8 @@ class Table {
 	 * When the first argument is the boolean value `true` all headers are returned.
 	 * When the first argument is a number a slice of the headers is returned.
 	 * When the first argument is an array the slices specified in the array are returned.
-	 * @param {(boolean|array|number|string)} inds
-	 * @returns {(number|array)}
+	 * @param {(Boolean|Array|Number|String)} inds
+	 * @returns {(Number|Array)}
 	 */
 	headers(inds, ...other) {
 		
@@ -658,7 +658,7 @@ class Table {
 	/**
 	 * Runs the specified function on each row.
 	 * The function is passed the row and the row index.
-	 * @param {function} fn
+	 * @param {Function} fn
 	 */
 	forEach(fn) {
 		this._rows.forEach((r,i) => fn(r,i));
@@ -759,7 +759,7 @@ class Table {
 	 * @param {(number|string)} ind
 	 * @param {number} neighbors
 	 * @param {boolean} overwrite
-	 * @returns {array}
+	 * @returns {Array}
 	 */
 	rowRollingMean(ind, neighbors, overwrite) {
 		let means = Table.rollingMean(this.row(ind), neighbors);
@@ -774,7 +774,7 @@ class Table {
 	 * @param {(number|string)} ind
 	 * @param {number} neighbors
 	 * @param {boolean} overwrite
-	 * @returns {array}
+	 * @returns {Array}
 	 */
 	columnRollingMean(ind, neighbors, overwrite) {
 		let means = Table.rollingMean(this.column(ind), neighbors);
@@ -823,7 +823,7 @@ class Table {
 	/**
 	 * Get the z scores for the specified row
 	 * @param {(number|string)} ind
-	 * @returns {array}
+	 * @returns {Array}
 	 */
 	rowZScores(ind) {
 		return Table.zScores(this.row(ind));
@@ -832,7 +832,7 @@ class Table {
 	/**
 	 * Get the z scores for the specified column
 	 * @param {(number|string)} ind
-	 * @returns {array}
+	 * @returns {Array}
 	 */
 	columnZScores(ind) {
 		return Table.zScores(this.column(ind));
@@ -956,7 +956,7 @@ class Table {
 	
 	/**
 	 * Get a CSV representation of the Table
-	 * @param {object} [config]
+	 * @param {Object} [config]
 	 * @returns {string}
 	 */
 	toCsv(config) {
@@ -970,7 +970,7 @@ class Table {
 	
 	/**
 	 * Get a TSV representation of the Table
-	 * @param {object} [config]
+	 * @param {Object} [config]
 	 * @returns {string}
 	 */
 	toTsv(config) {
@@ -980,8 +980,8 @@ class Table {
 	
 	/**
 	 * Set the target's contents to an HTML representation of the Table
-	 * @param {(function|string|object)} target
-	 * @param {object} [config]
+	 * @param {(Function|String|Object)} target
+	 * @param {Object} [config]
 	 * @returns {Table}
 	 */
 	html(target, config) {
@@ -1011,7 +1011,7 @@ class Table {
 	
 	/**
 	 * Get an HTML representation of the Table
-	 * @param {object} [config]
+	 * @param {Object} [config]
 	 * @returns {string}
 	 */
 	toString(config={}) {
@@ -1039,7 +1039,7 @@ class Table {
 	
 	/**
 	 * Show a chart representing the Table
-	 * @param {(string|element)} [target]
+	 * @param {(String|HTMLElement)} [target]
 	 * @param {HighchartsConfig} [config]
 	 * @returns {Highcharts.Chart}
 	 */
@@ -1125,7 +1125,7 @@ class Table {
 
 	/**
 	 * Create a new Table
-	 * @param {(object|array|string|number)} data
+	 * @param {(Object|Array|String|Number)} data
 	 * @param {TableConfig} config
 	 * @returns {Table}
 	 */
@@ -1135,9 +1135,9 @@ class Table {
 	
 	/**
 	 * Fetch a Table from a source
-	 * @param {string|Request} input
-	 * @param {object} api
-	 * @param {object} config
+	 * @param {(String|Request)} input
+	 * @param {Object} api
+	 * @param {Object} config
 	 * @returns {Promise}
 	 */
 	static fetch(input, api, config) {
@@ -1153,8 +1153,8 @@ class Table {
 
 	/**
 	 * Get the count of each unique value in the data
-	 * @param {array} data
-	 * @returns {object}
+	 * @param {Array} data
+	 * @returns {Object}
 	 */
 	static counts(data) {
 		let vals = {};
@@ -1174,7 +1174,7 @@ class Table {
 
 	/**
 	 * Get the sum of the provided values
-	 * @param {array} data
+	 * @param {Array} data
 	 * @returns {number}
 	 */
 	static sum(data) {
@@ -1183,7 +1183,7 @@ class Table {
 	
 	/**
 	 * Get the mean of the provided values
-	 * @param {array} data
+	 * @param {Array} data
 	 * @returns {number}
 	 */
 	static mean(data) {
@@ -1192,9 +1192,9 @@ class Table {
 	
 	/**
 	 * Get rolling mean for the provided values
-	 * @param {array} data
+	 * @param {Array} data
 	 * @param {number} neighbors
-	 * @returns {array}
+	 * @returns {Array}
 	 */
 	static rollingMean(data, neighbors) {
 		// https://stackoverflow.com/questions/41386083/plot-rolling-moving-average-in-d3-js-v4/41388581#41387286
@@ -1208,7 +1208,7 @@ class Table {
 	
 	/**
 	 * Get the variance for the provided values
-	 * @param {array} data
+	 * @param {Array} data
 	 * @returns {number}
 	 */
 	static variance(data) {
@@ -1218,7 +1218,7 @@ class Table {
 	
 	/**
 	 * Get the standard deviation for the provided values
-	 * @param {array} data
+	 * @param {Array} data
 	 * @returns {number}
 	 */
 	static standardDeviation(data) {
@@ -1227,8 +1227,8 @@ class Table {
 	
 	/**
 	 * Get the z scores for the provided values
-	 * @param {array} data
-	 * @returns {array}
+	 * @param {Array} data
+	 * @returns {Array}
 	 */
 	static zScores(data) {
 		let m = Table.mean(data);
@@ -1238,8 +1238,8 @@ class Table {
 	
 	/**
 	 * Perform a zip operation of the provided arrays {@link https://en.wikipedia.org/wiki/Convolution_(computer_science)}
-	 * @param {array} data
-	 * @returns {array}
+	 * @param {Array} data
+	 * @returns {Array}
 	 */
 	static zip(...data) {
 	

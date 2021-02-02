@@ -359,7 +359,7 @@ class Corpus {
 	/**
 	 * Get a Promise for the ID of the corpus.
 	 * 
-	 * @return {Promise/String} a Promise for the string ID of the corpus
+	 * @return {Promise|String} a Promise for the string ID of the corpus
 	 */
 	id() {
 		let me = this
@@ -368,8 +368,8 @@ class Corpus {
 
 	/*
 	 * Create a Corpus and return the ID
-	 * @param {object} config 
-	 * @param {object} api 
+	 * @param {Object} config 
+	 * @param {Object} api 
 	 */
 //	static id(config, api) {
 //		return Corpus.load(config).then(corpus => corpus.id(api || config));
@@ -444,7 +444,7 @@ class Corpus {
 	 *  	loadCorpus("austen").metadata().then(metadata => metadata.documentsCount)
 	 *  
 	 * @param {Object} config an Object specifying parameters (see list above)
-	 * @return {Promise/Object} a Promise for an Object containing metadata
+	 * @return {Promise|Object} a Promise for an Object containing metadata
 	 */
 	metadata(config) {
 		return Load.trombone(config, {
@@ -470,7 +470,7 @@ class Corpus {
 	 * 
 	 * 	loadCorpus("austen").summary();
 	 * 
-	 * @return {Promise/String} a Promise for a string containing a brief summary of the corpus metadata
+	 * @return {Promise|String} a Promise for a string containing a brief summary of the corpus metadata
 	 */
 	summary() {
 		return this.metadata().then(data => {
@@ -541,7 +541,7 @@ class Corpus {
 	 * 	loadCorpus("austen").text({limit:1000})
 	 * 
 	 * @param {Object} config an Object specifying parameters (see list above)
-	 * @returns {Promise/String} a Promise for a string of the corpus
+	 * @returns {Promise|String} a Promise for a string of the corpus
 	 */
 	text(config) {
 		return this.texts(config).then(data => data.join("\n\n---\n\n"))
@@ -572,7 +572,7 @@ class Corpus {
 	 * 	loadCorpus("austen").texts({limit:1000})
 	 * 
 	 * @param {Object} config an Object specifying parameters (see list above)
-	 * @returns {Promise/String} a Promise for an Array of texts from the corpus
+	 * @returns {Promise|String} a Promise for an Array of texts from the corpus
 	 */
 	texts(config) {
 		return Load.trombone(config, {
@@ -767,8 +767,8 @@ class Corpus {
 
 	/*
 	 * Create a Corpus and return an array of lexical forms (words) in document order.
-	 * @param {object} config 
-	 * @param {object} api 
+	 * @param {Object} config 
+	 * @param {Object} api 
 	 */
 //	static words(config, api) {
 //		return Corpus.load(config).then(corpus => corpus.words(api || config));
@@ -829,8 +829,8 @@ class Corpus {
 	
 	/*
 	 * Create a Corpus and return the contexts
-	 * @param {object} config 
-	 * @param {object} api 
+	 * @param {Object} config 
+	 * @param {Object} api 
 	 */
 //	static contexts(config, api) {
 //		return Corpus.load(config).then(corpus => corpus.contexts(api || config));
@@ -906,8 +906,8 @@ class Corpus {
 	
 	/*
 	 * Create a Corpus and return the collocates
-	 * @param {object} config 
-	 * @param {object} api 
+	 * @param {Object} config 
+	 * @param {Object} api 
 	 */
 //	static collocates(config, api) {
 //		return Corpus.load(config).then(corpus => corpus.collocates(api || config));
@@ -976,8 +976,8 @@ class Corpus {
 	
 	/*
 	 * Create a Corpus and return the phrases
-	 * @param {object} config 
-	 * @param {object} api 
+	 * @param {Object} config 
+	 * @param {Object} api 
 	 */
 //	static phrases(config, api) {
 //		return Corpus.load(config).then(corpus => corpus.phrases(api || config));
@@ -1079,8 +1079,8 @@ class Corpus {
 	
 	/*
 	 * Create a Corpus and return the correlations
-	 * @param {object} config 
-	 * @param {object} api 
+	 * @param {Object} config 
+	 * @param {Object} api 
 	 */
 //	static correlations(config, api) {
 //		return Corpus.load(config).then(corpus => corpus.correlations(api || config));
@@ -1372,7 +1372,7 @@ class Corpus {
 		
 	/*
 	 * Create a new Corpus using the provided config
-	 * @param {object} config 
+	 * @param {Object} config 
 	 */
 //	static create(config) {
 //		return Corpus.load(config);
@@ -1380,8 +1380,8 @@ class Corpus {
 
 	/**
 	 * Load a Corpus using the provided config and api
-	 * @param {object} config the Corpus config
-	 * @param {object} api any additional API values
+	 * @param {Object} config the Corpus config
+	 * @param {Object} api any additional API values
 	 */
 	static load(config={}, api = {}) {
 		const promise = new Promise(function(resolve, reject) {

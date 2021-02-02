@@ -18,8 +18,8 @@ class Load {
 
 	/**
 	 * Make a call to trombone
-	 * @param {object} config 
-	 * @param {object} params
+	 * @param {Object} config 
+	 * @param {Object} params
 	 * @returns {JSON}
 	 */
 	static trombone(config = {}, params) {
@@ -102,7 +102,7 @@ class Load {
 	/**
 	 * Fetch content from a URL, often resolving cross-domain data constraints
 	 * @param {string} urlToFetch 
-	 * @param {object} config
+	 * @param {Object} config
 	 * @returns {Response}
 	 */
 	static load(urlToFetch, config) {
@@ -168,7 +168,7 @@ class Load {
 	/**
 	 * Create a file input in the target element and returns a Promise that's resolved with the file(s) that is added to the input.
 	 * The file is also temporarily stored in the session storage for successive retrieval.
-	 * @param {element} target The target element to append the input to
+	 * @param {HTMLElement} target The target element to append the input to
 	 * @returns {Promise}
 	 */
 	static files(target = undefined) {

@@ -6,22 +6,22 @@
 class Chart {
 	/**
 	 * The Highcharts config object
-	 * @typedef {object} HighchartsConfig
+	 * @typedef {Object} HighchartsConfig
 	 * @property {(string|object)} title
 	 * @property {(string|object)} subtitle
-	 * @property {object} credits
-	 * @property {object} xAxis
-	 * @property {object} yAxis
-	 * @property {object} chart
-	 * @property {array} series
-	 * @property {object} plotOptions
+	 * @property {Object} credits
+	 * @property {Object} xAxis
+	 * @property {Object} yAxis
+	 * @property {Object} chart
+	 * @property {Array} series
+	 * @property {Object} plotOptions
 	 */
 
 	/**
 	 * Construct a new Chart class
 	 * @constructor
-	 * @param {element} target 
-	 * @param {array} data 
+	 * @param {HTMLElement} target 
+	 * @param {Array} data 
 	 */
     constructor(target, data) {
 	    this.target = target;
@@ -31,7 +31,7 @@ class Chart {
 	/**
 	 * Create a new chart.
 	 * See [Highcharts API](https://api.highcharts.com/highcharts/) for full set of config options.
-	 * @param {(string|element)} target 
+	 * @param {(String|HTMLElement)} target 
 	 * @param {HighchartsConfig} config 
 	 * @returns {Highcharts.Chart}
 	 */
@@ -42,7 +42,7 @@ class Chart {
 	/**
 	 * Create a new chart.
 	 * See [Highcharts API](https://api.highcharts.com/highcharts/) for full set of config options.
-	 * @param {(string|element)} target 
+	 * @param {(String|HTMLElement)} target 
 	 * @param {HighchartsConfig} config 
 	 * @returns {Highcharts.Chart}
 	 */
@@ -87,7 +87,7 @@ class Chart {
 
 	/**
 	 * Sets the default chart type
-	 * @param {object} config The chart config object
+	 * @param {Object} config The chart config object
 	 * @param {string} type The type of chart
 	 */
 	static setDefaultChartType(config, type) {
@@ -111,8 +111,8 @@ class Chart {
 
 	/**
 	 * Add the provided data to the config as a series
-	 * @param {object} config 
-	 * @param {array} data 
+	 * @param {Object} config 
+	 * @param {Array} data 
 	 */
 	static setSeriesData(config, data) {
 		if (Array.isArray(data)) {
@@ -126,7 +126,7 @@ class Chart {
 
 	/**
 	 * Create a bar chart
-	 * @param {object} [config]
+	 * @param {Object} [config]
 	 * @returns {Highcharts.Chart}
 	 */
 	bar(config={}) {
@@ -135,8 +135,8 @@ class Chart {
 	}
 	/**
 	 * Create a bar chart
-	 * @param {element} target 
-	 * @param {object} config 
+	 * @param {HTMLElement} target 
+	 * @param {Object} config 
 	 * @returns {Highcharts.Chart}
 	 */
     static bar(target, config) {
@@ -146,7 +146,7 @@ class Chart {
 
 	/**
 	 * Create a line chart
-	 * @param {object} [config]
+	 * @param {Object} [config]
 	 * @returns {Highcharts.Chart}
 	 */
 	line(config={}) {
@@ -155,8 +155,8 @@ class Chart {
 	}
 	/**
 	 * Create a line chart
-	 * @param {element} target 
-	 * @param {object} config 
+	 * @param {HTMLElement} target 
+	 * @param {Object} config 
 	 * @returns {Highcharts.Chart}
 	 */
     static line(target, config) {
@@ -166,7 +166,7 @@ class Chart {
 
 	/**
 	 * Create a scatter plot
-	 * @param {object} [config]
+	 * @param {Object} [config]
 	 * @returns {Highcharts.Chart}
 	 */
 	scatter(config={}) {
@@ -175,8 +175,8 @@ class Chart {
 	}
 	/**
 	 * Create a scatter plot
-	 * @param {element} target 
-	 * @param {object} config 
+	 * @param {HTMLElement} target 
+	 * @param {Object} config 
 	 * @returns {Highcharts.Chart}
 	 */
     static scatter(target, config) {
@@ -186,7 +186,7 @@ class Chart {
 
 	/**
 	 * Create a network graph
-	 * @param {object} [config]
+	 * @param {Object} [config]
 	 * @returns {Highcharts.Chart}
 	 */
 	networkgraph(config={}) {
@@ -204,8 +204,8 @@ class Chart {
 	}
 	/**
 	 * Create a network graph
-	 * @param {element} target 
-	 * @param {object} config 
+	 * @param {HTMLElement} target 
+	 * @param {Object} config 
 	 * @returns {Highcharts.Chart}
 	 */
 	static networkgraph(target, config) {

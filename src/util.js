@@ -6,8 +6,8 @@ class Util {
 
 	/**
 	 * Generates a random ID of the specified length.
-	 * @param {number} len The length of the ID to generate?
-	 * @returns {string}
+	 * @param {Number} len The length of the ID to generate?
+	 * @returns {String}
 	 */
 	static id(len = 8) {
 		// based on https://stackoverflow.com/a/13403498
@@ -21,8 +21,8 @@ class Util {
 
 	/**
 	 * 
-	 * @param {array|object|string} contents 
-	 * @returns {string}
+	 * @param {Array|Object|String} contents 
+	 * @returns {String}
 	 */
 	static toString(contents) {
 		if (contents.constructor === Array || contents.constructor===Object) {
@@ -36,9 +36,9 @@ class Util {
 
 	/**
 	 * 
-	 * @param {string} before 
-	 * @param {string} more 
-	 * @param {string} after 
+	 * @param {String} before 
+	 * @param {String} more 
+	 * @param {String} after 
 	 */
 	static more(before, more, after) {
 		return before + '<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"><path d="M16.59 8.59L12 13.17 7.41 8.59 6 10l6 6 6-6z"/><path d="M0 0h24v24H0z" fill="none"/></svg>'+more.substring(0,500)+" <a href=''>+</a><div style='display: none'>"+more.substring(501)+"</div>" + after;

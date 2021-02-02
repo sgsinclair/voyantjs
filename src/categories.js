@@ -22,7 +22,7 @@ class Categories {
 
 	/**
 	 * Get the categories
-	 * @returns {object}
+	 * @returns {Object}
 	 */
 	getCategories() {
 		return this._categories;
@@ -40,7 +40,7 @@ class Categories {
 	/**
 	 * Get the terms for a category
 	 * @param {string} name 
-	 * @returns {array}
+	 * @returns {Array}
 	 */
 	getCategoryTerms(name) {
 		return this._categories[name];
@@ -133,7 +133,7 @@ class Categories {
 	/**
 	 * Add multiple terms to a category
 	 * @param {string} category 
-	 * @param {array} terms 
+	 * @param {Array} terms 
 	 */
 	addTerms(category, terms) {
 		if (!Array.isArray(terms)) {
@@ -162,7 +162,7 @@ class Categories {
 	/**
 	 * Remove multiple terms from a category
 	 * @param {string} category 
-	 * @param {array} terms 
+	 * @param {Array} terms 
 	 */
 	removeTerms(category, terms) {
 		if (!Array.isArray(terms)) {
@@ -199,7 +199,7 @@ class Categories {
 	/**
 	 * Get all the categories a term belongs to
 	 * @param {string} term 
-	 * @returns {array}
+	 * @returns {Array}
 	 */
 	getCategoriesForTerm(term) {
 		var cats = [];
@@ -223,7 +223,7 @@ class Categories {
 	
 	/**
 	 * Get the features
-	 * @returns {object}
+	 * @returns {Object}
 	 */
 	getFeatures() {
 		return this._features;
@@ -287,7 +287,7 @@ class Categories {
 	
 	/**
 	 * Get a copy of the category and feature data
-	 * @returns {object}
+	 * @returns {Object}
 	 */
 	getCategoryExportData() {
 		return {
