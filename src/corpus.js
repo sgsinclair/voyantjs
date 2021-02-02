@@ -1087,6 +1087,18 @@ class Corpus {
 //	}
 
 	/**
+	 * Get lemmas. This is the equivalent of calling: this.tokens({ withPosLemmas: true, noOthers: true })
+	 * @param {Object} config an Object specifying parameters (see above)
+     * @returns {Promise|Array} a Promise for an Array of lemma Objects
+	 */
+	lemmas(config) {
+		return this.tokens({
+			withPosLemmas: true,
+			noOthers: true
+		})
+	}
+
+	/**
 	 * Get a promise for an LDA object that has two primary methods of use:
 	 * 
 	 * 	* **getTopicWords**: get a list of topics (words organized into bunches of a specified size
@@ -1428,7 +1440,7 @@ class Corpus {
 			
 		});
 
-		["id","metadata","summary","titles","text","texts","terms","tokens","words","contexts","collocates","phrases","correlations","tool"].forEach(name => {
+		["id","metadata","summary","titles","text","texts","terms","tokens","words","contexts","collocates","phrases","correlations","lemmas","tool"].forEach(name => {
 			promise[name] = function() {
 				var args = arguments
 				return promise.then(corpus => {return corpus[name].apply(corpus, args)})
