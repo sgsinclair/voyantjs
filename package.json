@@ -38,14 +38,15 @@
     "babelify": "^10.0.0",
     "browserify": "^16.5.0",
     "codecov": "^3.6.5",
-    "commitizen": "^4.1.2",
+    "commitizen": "^4.2.3",
     "cz-conventional-changelog": "^3.1.0",
+    "eslint": "^7.19.0",
     "husky": "^4.2.3",
     "jest": "^25.2.7",
     "jest-fetch-mock": "^3.0.3",
     "mkdirp": "^1.0.3",
-    "semantic-release": "^17.0.4",
-    "watchify": "^3.11.1"
+    "semantic-release": "^17.3.7",
+    "watchify": "^4.0.0"
   },
   "dependencies": {
     "highcharts": "^8.1.2",
