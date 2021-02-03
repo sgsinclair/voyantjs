@@ -34,7 +34,7 @@ class Categories {
 	 * @returns {Array} of category names
 	 */
 	getCategoryNames() {
-		return Object.keys(this.getCategories())
+		return Object.keys(this.getCategories());
 	}
 
 	/**
@@ -303,11 +303,11 @@ class Categories {
 	 * @returns {Promise} this returns a promise which eventually resolves to a string that is the ID reference for the stored categories
 	 */
 	save(config={},api={}) {
-		const categoriesData = JSON.stringify(this.getCategoryExportData())
+		const categoriesData = JSON.stringify(this.getCategoryExportData());
 		return Load.trombone(api, Object.assign(config, {
-			tool: "resource.StoredCategories",
+			tool: 'resource.StoredCategories',
 			storeResource: categoriesData
-		})).then(data => data.storedCategories.id)
+		})).then(data => data.storedCategories.id);
 	}
 	
 	/**
@@ -325,14 +325,14 @@ class Categories {
 	 */
 	load(config={}, api={}) {
 		let me = this;
-		if (typeof config == "string") {
-			config =  {"retrieveResourceId": config}
+		if (typeof config === 'string') {
+			config =  {'retrieveResourceId': config};
 		}
-		if (!("retrieveResourceId" in config)) {
-			throw Error("You must provide a value for the retrieveResourceId parameter");
+		if (!('retrieveResourceId' in config)) {
+			throw Error('You must provide a value for the retrieveResourceId parameter');
 		}
 		return Load.trombone(api, Object.assign(config, {
-			tool: "resource.StoredCategories"
+			tool: 'resource.StoredCategories'
 		})).then(data => {
 			const cats = JSON.parse(data.storedCategories.resource);
 			me._features = cats.features;
@@ -344,9 +344,9 @@ class Categories {
 				}
 			}
 			return me;
-		})
+		});
 		
 	}
 }
 
-export default Categories
+export default Categories;

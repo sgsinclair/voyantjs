@@ -1,4 +1,6 @@
-import Chart from "./chart.js";
+/* global Spyral */
+
+import Chart from './chart.js';
 
 /**
  * The Spyral.Table class in Spyral provides convenience functions for working with tabular
@@ -84,48 +86,48 @@ class Table {
 		this._rowKeyColumnIndex = 0;
 		
 		// we have a configuration object followed by values: create({headers: []}, 1,2,3) …
-		if (data && typeof data == "object" && (typeof config == "string" || typeof config == "number" || Array.isArray(config))) {
-			data.rows = [config].concat(other).filter(v => v!==undefined)
+		if (data && typeof data === 'object' && (typeof config === 'string' || typeof config === 'number' || Array.isArray(config))) {
+			data.rows = [config].concat(other).filter(v => v!==undefined);
 			config = undefined;
 		}
 		
 		// we have a simple variable set of arguments: create(1,2,3) …
-		if (arguments.length>0 && Array.from(arguments).every(a => a!==undefined && !Array.isArray(a) && typeof a != "object")) {
-			data = [data,config].concat(other).filter(v => v!==undefined)
+		if (arguments.length>0 && Array.from(arguments).every(a => a!==undefined && !Array.isArray(a) && typeof a !== 'object')) {
+			data = [data,config].concat(other).filter(v => v!==undefined);
 			config = undefined;
 		}
 		
 		// could be CSV or TSV
-		if (Array.isArray(data) && data.length==1 && typeof data[0] == "string"  && (data[0].indexOf(",")>-1 || data[0].indexOf("\t")>-1)) {
+		if (Array.isArray(data) && data.length===1 && typeof data[0] === 'string'  && (data[0].indexOf(',')>-1 || data[0].indexOf('\t')>-1)) {
 			data = data[0];
 		}
 
 		// first check if we have a string that might be delimited data
-		if (data && (typeof data == "string" || typeof data =="number")) {
-			if (typeof data == "number") {data = String(data)} // convert to string for split
+		if (data && (typeof data === 'string' || typeof data ==='number')) {
+			if (typeof data === 'number') {data = String(data);} // convert to string for split
 			let rows = [];
-			let format = config && "format" in config ? config.format : undefined;
+			let format = config && 'format' in config ? config.format : undefined;
 			data.split(/(\r\n|[\n\v\f\r\x85\u2028\u2029])+/g).forEach((line,i) => {
 				if (line.trim().length>0) {
 					let values;
-					if ((format && format=="tsv") || line.indexOf("\t")>-1) {
+					if ((format && format==='tsv') || line.indexOf('\t')>-1) {
 						values = line.split(/\t/);
-					} else if ((format && format=="csv") || line.indexOf(",")>-1) {
-						values = parseCsvLine(line)
+					} else if ((format && format==='csv') || line.indexOf(',')>-1) {
+						values = parseCsvLine(line);
 					} else {
-						values = [line]
+						values = [line];
 					}
 				
 					// if we can't find any config information for headers then we try to guess
 					// if the first line doesn't have any numbers - this heuristic may be questionable
-					if (i==0 && values.every(v => isNaN(v)) && 
-						((typeof config != "object") || (typeof config == "object" && !("hasHeaders" in config) && !("headers" in config)))) {
+					if (i===0 && values.every(v => isNaN(v)) && 
+						((typeof config !== 'object') || (typeof config === 'object' && !('hasHeaders' in config) && !('headers' in config)))) {
 						this.setHeaders(values);
 					} else {
-						rows.push(values.map(v => isNaN(v) ? v : Number(v)))
+						rows.push(values.map(v => isNaN(v) ? v : Number(v)));
 					}
 				}
-			})
+			});
 			data = rows;
 		}
 		
@@ -133,50 +135,50 @@ class Table {
 			if (config) {
 				if (Array.isArray(config)) {
 					this.setHeaders(config);
-				} else if (typeof config == "object") {
-					if ("headers" in config) {
-						this.setHeaders(config.headers)
-					} else if ("hasHeaders" in config && config.hasHeaders) {
-						this.setHeaders(data.shift())
+				} else if (typeof config === 'object') {
+					if ('headers' in config) {
+						this.setHeaders(config.headers);
+					} else if ('hasHeaders' in config && config.hasHeaders) {
+						this.setHeaders(data.shift());
 					}
 				}
 			}
-			if (config && "count" in config && config.count) {
+			if (config && 'count' in config && config.count) {
 				let freqs = Table.counts(data);
-				if (config.count=="vertical") {
+				if (config.count==='vertical') {
 					for (let item in freqs) {
-						this.addRow(item, freqs[item])
+						this.addRow(item, freqs[item]);
 					}
-					this.rowSort((a,b) => Table.cmp(b[1],a[1]))
+					this.rowSort((a,b) => Table.cmp(b[1],a[1]));
 				} else {
 					this._headers = []; // reset and use the terms as headers
-					this.addRow(freqs)
-					this.columnSort((a,b) => Table.cmp(this.cell(0,b),this.cell(0,a)))
+					this.addRow(freqs);
+					this.columnSort((a,b) => Table.cmp(this.cell(0,b),this.cell(0,a)));
 				}
 			} else {
 				this.addRows(data);
 			}
-		} else if (data && typeof data == "object") {
-			if ("headers" in data && Array.isArray(data.headers)) {
+		} else if (data && typeof data === 'object') {
+			if ('headers' in data && Array.isArray(data.headers)) {
 				this.setHeaders(data.headers);
-			} else if ("hasHeaders" in data && "rows" in data) {
-				this.setHeaders(data.rows.shift())
+			} else if ('hasHeaders' in data && 'rows' in data) {
+				this.setHeaders(data.rows.shift());
 			}
-			if ("rows" in data && Array.isArray(data.rows)) {
-				this.addRows(data.rows)
+			if ('rows' in data && Array.isArray(data.rows)) {
+				this.addRows(data.rows);
 			}
-			if ("rowKeyColumn" in data) {
-				if (typeof data.rowKeyColumn == "number") {
+			if ('rowKeyColumn' in data) {
+				if (typeof data.rowKeyColumn === 'number') {
 					if (data.rowKeyColumn < this.columns()) {
 						this._rowKeyColumnIndex = data.rowKeyColumn;
 					} else {
-						throw new Error("The rowKeyColumn value is higher than the number headers designated: "+data.rowKeyColum);
+						throw new Error('The rowKeyColumn value is higher than the number headers designated: '+data.rowKeyColum);
 					}
-				} else if (typeof data.rowKeyColumn == "string") {
+				} else if (typeof data.rowKeyColumn === 'string') {
 					if (data.rowKeyColumn in this._headers) {
 						this._rowKeyColumnIndex = this._headers[data.rowKeyColumn];
 					} else {
-						throw new Error("Unable to find column designated by rowKeyColumn: "+data.rowKeyColumn);
+						throw new Error('Unable to find column designated by rowKeyColumn: '+data.rowKeyColumn);
 					}
 				}
 			}
@@ -191,14 +193,14 @@ class Table {
 	setHeaders(data) {
 		if (data && Array.isArray(data)) {
 			data.forEach(h => this.addColumn(h), this);
-		} else if (typeof data == "object") {
-			if (this.columns()==0 || Object.keys(data).length==this.columns()) {
+		} else if (typeof data === 'object') {
+			if (this.columns()===0 || Object.keys(data).length===this.columns()) {
 				this._headers = data;
 			} else {
-				throw new Error("The number of columns don't match: ");
+				throw new Error('The number of columns don\'t match: ');
 			}
 		} else {
-			throw new Error("Unrecognized argument for headers, it should be an array or an object."+data)
+			throw new Error('Unrecognized argument for headers, it should be an array or an object.'+data);
 		}
 		return this;
 	}
@@ -222,7 +224,7 @@ class Table {
 		
 		// we have multiple arguments, so call again as an array
 		if (other.length>0) {
-			return this.addRow([data].concat(other))
+			return this.addRow([data].concat(other));
 		}
 
 		this.setRow(this.rows(), data, true);
@@ -240,7 +242,7 @@ class Table {
 
 		let rowIndex = this.getRowIndex(ind, create);
 		if (rowIndex>=this.rows() && !create) {
-			throw new Error("Attempt to set row values for a row that does note exist: "+ind+". Maybe use addRow() instead?");
+			throw new Error('Attempt to set row values for a row that does note exist: '+ind+'. Maybe use addRow() instead?');
 		}
 		
 		// we have a simple array, so we'll just push to the rows
@@ -251,28 +253,29 @@ class Table {
 						this.addColumn();
 					}
 				} else {
-					throw new Error("The row that you've created contains more columns than the current table. Maybe use addColunm() first?")
+					throw new Error('The row that you\'ve created contains more columns than the current table. Maybe use addColunm() first?');
 				}
 			}
 			data.forEach((d,i) => this.setCell(rowIndex, i, d), this);
 		}
 		
 		// we have an object so we'll use the headers
-		else if (typeof data == "object") {
+		else if (typeof data === 'object') {
 			for (let column in data) {
 				if (!this.hasColumn(column)) {
+					//
 				}
 				this.setCell(rowIndex, column, data[column]);
 			}
 		}
 		
 		else if (this.columns()<2 && create) { // hopefully some scalar value
-			if (this.columns()==0) {
+			if (this.columns()===0) {
 				this.addColumn(); // create first column if it doesn't exist
 			}
 			this.setCell(rowIndex,0,data);
 		} else {
-			throw new Error("setRow() expects an array or an object, maybe setCell()?")
+			throw new Error('setRow() expects an array or an object, maybe setCell()?');
 		}
 		
 		return this;
@@ -290,7 +293,7 @@ class Table {
 
 		let columnIndex = this.getColumnIndex(ind, create);
 		if (columnIndex>=this.columns() && !create) {
-			throw new Error("Attempt to set column values for a column that does note exist: "+ind+". Maybe use addColumn() instead?");
+			throw new Error('Attempt to set column values for a column that does note exist: '+ind+'. Maybe use addColumn() instead?');
 		}
 		
 		// we have a simple array, so we'll just push to the rows
@@ -299,9 +302,9 @@ class Table {
 		}
 		
 		// we have an object so we'll use the headers
-		else if (typeof data == "object") {
+		else if (typeof data === 'object') {
 			for (let row in data) {
-				this.setCell(row, columnIndex, data[column], create);
+				this.setCell(row, columnIndex, data[row], create);
 			}
 		}
 		
@@ -357,15 +360,15 @@ class Table {
 	 * @returns {number}
 	 */
 	getRowIndex(ind, create) {
-		if (typeof ind == "number") {
+		if (typeof ind === 'number') {
 			if (ind < this._rows.length) {
 				return ind;
 			} else if (create) {
 				this._rows[ind] = Array(this.columns());
 				return ind;
 			}
-			throw new Error("The requested row does not exist: "+ind)
-		} else if (typeof ind == "string") {
+			throw new Error('The requested row does not exist: '+ind);
+		} else if (typeof ind === 'string') {
 			let row = this._rows.findIndex(r => r[this._rowKeyColumnIndex] === ind, this);
 			if (row>-1) {return row;}
 			else if (create) {
@@ -375,10 +378,10 @@ class Table {
 				return this.rows();
 			}
 			else {
-				throw new Error("Unable to find the row named "+ind);
+				throw new Error('Unable to find the row named '+ind);
 			}
 		}
-		throw new Error("Please provide a valid row (number or named row)");
+		throw new Error('Please provide a valid row (number or named row)');
 	}
 	
 	/**
@@ -388,24 +391,24 @@ class Table {
 	 * @returns {number}
 	 */
 	getColumnIndex(ind, create) {
-		if (typeof ind == "number") {
+		if (typeof ind === 'number') {
 			if (ind < this.columns()) {
 				return ind;
 			} else if (create) {
-				this.addColumn(ind)
+				this.addColumn(ind);
 				return ind;
 			}
-			throw new Error("The requested column does not exist: "+ind)
-		} else if (typeof ind == "string") {
+			throw new Error('The requested column does not exist: '+ind);
+		} else if (typeof ind === 'string') {
 			if (ind in this._headers) {
 				return this._headers[ind];
 			} else if (create) {
 				this.addColumn({header: ind});
 				return this._headers[ind];
 			}
-			throw new Error("Unable to find column named "+ind);
+			throw new Error('Unable to find column named '+ind);
 		}
-		throw new Error("Please provide a valid column (number or named column)");
+		throw new Error('Please provide a valid column (number or named column)');
 	}
 	
 	/**
@@ -416,13 +419,13 @@ class Table {
 	addColumn(config, ind) {
 		// determine col
 		let col = this.columns(); // default
-		if (config && typeof config == "string") {col=config}
-		else if (config && (typeof config == "object") && ("header" in config)) {col = config.header}
-		else if (ind!==undefined) {col=ind}
+		if (config && typeof config === 'string') {col=config;}
+		else if (config && (typeof config === 'object') && ('header' in config)) {col = config.header;}
+		else if (ind!==undefined) {col=ind;}
 
 		// check if it exists
 		if (col in this._headers) {
-			throw new Error("This column exists already: "+config.header)
+			throw new Error('This column exists already: '+config.header);
 		}
 		
 		// add column
@@ -431,7 +434,7 @@ class Table {
 		
 		// determine data
 		let data = [];
-		if (config && typeof config == "object" && "rows" in config) {data=config.rows}
+		if (config && typeof config === 'object' && 'rows' in config) {data=config.rows;}
 		else if (Array.isArray(config)) {data = config;}
 		
 		// make sure we have enough rows for the new data
@@ -440,7 +443,7 @@ class Table {
 			this._rows[this._rows.length] = new Array(columns);
 		}
 		
-		this._rows.forEach((r,i) => r[colIndex] = data[i])
+		this._rows.forEach((r,i) => r[colIndex] = data[i]);
 		return this;
 	}
 	
@@ -458,17 +461,17 @@ class Table {
 	rows(inds, config, ...other) {
 	
 		// return length
-		if (inds==undefined) {
+		if (inds===undefined) {
 			return this._rows.length;
 		}
 		
 		let rows = [];
-		let asObj = (config && typeof config == "object" && config.asObj) ||
-			(other.length>0 && typeof other[other.length-1] == "object" && other[other.length-1].asObj);
+		let asObj = (config && typeof config === 'object' && config.asObj) ||
+			(other.length>0 && typeof other[other.length-1] === 'object' && other[other.length-1].asObj);
 		
 		// return all
-		if (typeof inds == "boolean" && inds) {
-			rows = this._rows.map((r,i) => this.row(i, asObj))
+		if (typeof inds === 'boolean' && inds) {
+			rows = this._rows.map((r,i) => this.row(i, asObj));
 		}
 		
 		// return specified rows
@@ -477,25 +480,25 @@ class Table {
 		}
 		
 		// return specified rows as varargs
-		else if (typeof inds == "number" || typeof inds == "string") {
+		else if (typeof inds === 'number' || typeof inds === 'string') {
 			[inds, config, ...other].every(i => {
-				if (typeof i == "number" || typeof i == "string") {
+				if (typeof i === 'number' || typeof i === 'string') {
 					rows.push(this.row(i, asObj));
-					return true
+					return true;
 				} else {
-					return false
+					return false;
 				}
-			})
+			});
 			if (other.length>0) { // when config is in last position
-				if (typeof other[other.length-1] == "object") {
-					config = other[other.length-1]
+				if (typeof other[other.length-1] === 'object') {
+					config = other[other.length-1];
 				}
 			}
 		}
 		
 		// zip if requested
-		if (config && typeof config == "object" && "zip" in config && config.zip) {
-			if (rows.length<2) {throw new Error("Only one row available, can't zip")}
+		if (config && typeof config === 'object' && 'zip' in config && config.zip) {
+			if (rows.length<2) {throw new Error('Only one row available, can\'t zip');}
 			return Table.zip(rows);
 		}
 		else {
@@ -514,7 +517,7 @@ class Table {
 		if (asObj) {
 			let obj = {};
 			for (let key in this._headers) {
-				obj[key] = row[this._headers[key]]
+				obj[key] = row[this._headers[key]];
 			}
 			return obj;
 		} else {
@@ -536,16 +539,16 @@ class Table {
 	columns(inds, config, ...other) {
 	
 		// return length
-		if (inds==undefined) {
+		if (inds===undefined) {
 			return Object.keys(this._headers).length;
 		}
 		
 		let columns = [];
-		let asObj = (config && typeof config == "object" && config.asObj) ||
-			(other.length>0 && typeof other[other.length-1] == "object" && other[other.length-1].asObj);
+		let asObj = (config && typeof config === 'object' && config.asObj) ||
+			(other.length>0 && typeof other[other.length-1] === 'object' && other[other.length-1].asObj);
 		
 		// return all columns
-		if (typeof inds == "boolean" && inds) {
+		if (typeof inds === 'boolean' && inds) {
 			for (let i=0, len=this.columns(); i<len; i++) {
 				columns.push(this.column(i, asObj));
 			}
@@ -556,24 +559,24 @@ class Table {
 			inds.forEach(i => columns.push(this.column(i, asObj)), this);
 		}
 		
-		else if (typeof inds == "number" || typeof inds == "string") {
+		else if (typeof inds === 'number' || typeof inds === 'string') {
 			[inds, config, ...other].every(i => {
-				if (typeof i == "number" || typeof i == "string") {
+				if (typeof i === 'number' || typeof i === 'string') {
 					columns.push(this.column(i, asObj));
-					return true
+					return true;
 				} else {
-					return false
+					return false;
 				}
-			})
+			});
 			if (other.length>0) { // when config is in last position
-				if (typeof other[other.length-1] == "object") {
-					config = other[other.length-1]
+				if (typeof other[other.length-1] === 'object') {
+					config = other[other.length-1];
 				}
 			}
 		}
 		
-		if (config && typeof config == "object" && "zip" in config && config.zip) {
-			if (columns.length<2) {throw new Error("Only one column available, can't zip")}
+		if (config && typeof config === 'object' && 'zip' in config && config.zip) {
+			if (columns.length<2) {throw new Error('Only one column available, can\'t zip');}
 			return Table.zip(columns);
 		}
 		else {
@@ -594,7 +597,7 @@ class Table {
 			let obj = {};
 			this._rows.forEach(r => {
 				obj[r[this._rowKeyColumnIndex]] = r[column];
-			})
+			});
 			return obj;
 		} else {
 			return this._rows.map(r => r[column]);
@@ -609,7 +612,7 @@ class Table {
 	header(ind) {
 		let keys = Object.keys(this._headers);
 		let i = this.getColumnIndex(ind);
-		return keys[keys.findIndex(k => i==this._headers[k])]
+		return keys[keys.findIndex(k => i===this._headers[k])];
 	}
 	
 	/**
@@ -624,14 +627,14 @@ class Table {
 	headers(inds, ...other) {
 		
 		// return length
-		if (inds==undefined) {
+		if (inds===undefined) {
 			return Object.keys(this._headers).length;
 		}
 
-		let headers = [];
+		// let headers = [];
 		
 		// return all
-		if (typeof inds == "boolean" && inds) {
+		if (typeof inds === 'boolean' && inds) {
 			inds = Array(Object.keys(this._headers).length).fill().map((_,i) => i);
 		}
 		
@@ -641,7 +644,7 @@ class Table {
 		}
 		
 		// return specified rows as varargs
-		else if (typeof inds == "number" || typeof inds == "string") {
+		else if (typeof inds === 'number' || typeof inds === 'string') {
 			return [inds, ...other].map(i => this.header(i));
 		}
 	}
@@ -846,11 +849,11 @@ class Table {
 	rowSort(inds, config) {
 		// no inds, use all columns
 		if (inds===undefined) {
-			inds = Array(this.columns()).fill().map((_,i) => i)
+			inds = Array(this.columns()).fill().map((_,i) => i);
 		}
 
 		// wrap a single index as array
-		if (typeof inds == "string" || typeof inds == "number") {
+		if (typeof inds === 'string' || typeof inds === 'number') {
 			inds = [inds];
 		}
 
@@ -859,8 +862,8 @@ class Table {
 				let ind;
 				for (let i=0, len=inds.length; i<len; i++) {
 					ind = this.getColumnIndex(inds[i]);
-					if (a!=b) {
-						if (typeof a[ind] == "string" && typeof b[ind] == "string") {
+					if (a!==b) {
+						if (typeof a[ind] === 'string' && typeof b[ind] === 'string') {
 							return a[ind].localeCompare(b[ind]);
 						} else {
 							return a[ind]-b[ind];
@@ -868,26 +871,26 @@ class Table {
 					}
 				}
 				return 0;
-			}, config)
+			}, config);
 		}
 
-		if (typeof inds == "function") {
+		if (typeof inds === 'function') {
 			this._rows.sort((a,b) => {
-				if (config && "asObject" in config && config.asObject) {
+				if (config && 'asObject' in config && config.asObject) {
 					let c = {};
 					for (let k in this._headers) {
-						c[k] = a[this._headers[k]]
+						c[k] = a[this._headers[k]];
 					}
 					let d = {};
 					for (let k in this._headers) {
-						d[k] = b[this._headers[k]]
+						d[k] = b[this._headers[k]];
 					}
 					return inds.apply(this, [c,d]);
 				} else {
 					return inds.apply(this, [a,b]);
 				}
 			});
-			if (config && "reverse" in config && config.reverse) {
+			if (config && 'reverse' in config && config.reverse) {
 				this._rows.reverse(); // in place
 			}
 		}
@@ -907,7 +910,7 @@ class Table {
 		}
 
 		// wrap a single index as array
-		if (typeof inds == "string" || typeof inds == "number") {
+		if (typeof inds === 'string' || typeof inds === 'number') {
 			inds = [inds];
 		}
 		
@@ -918,39 +921,39 @@ class Table {
 			
 			// make sure we have all columns
 			Object.keys(this._headers).forEach(h => {
-				if (!headers.includes(h)) {headers.push(h)}
+				if (!headers.includes(h)) {headers.push(h);}
 			});
 			
 			// sort names alphabetically
-			headers.sort((a,b) => a.localeCompare(b))
+			headers.sort((a,b) => a.localeCompare(b));
 			
 			// reorder by columns
 			this._rows = this._rows.map((_,i) => headers.map(h => this.cell(i,h)));
 			this._headers = {};
-			headers.forEach((h,i) => this._headers[h]=i)
+			headers.forEach((h,i) => this._headers[h]=i);
 			
 		}
 		
-		if (typeof inds == "function") {
+		if (typeof inds === 'function') {
 			let headers = Object.keys(this._headers);
-			if (config && "asObject" in headers && headers.asObject) {
+			if (config && 'asObject' in headers && headers.asObject) {
 				headers = headers.map((h,i) => {
-					return {header: h, data: this._rows.map((r,j) => this.cell(i,j))}
-				})
+					return {header: h, data: this._rows.map((r,j) => this.cell(i,j))};
+				});
 			}
 			headers.sort((a,b) => {
 				return inds.apply(this, [a,b]);
-			})
-			headers = headers.map(h => typeof h == "object" ? h.header : h); // convert back to string
+			});
+			headers = headers.map(h => typeof h === 'object' ? h.header : h); // convert back to string
 			
 			// make sure we have all keys
 			Object.keys(this._headers).forEach(k => {
-				if (headers.indexOf(k)==-1) {headers.push(k)}
-			})
+				if (headers.indexOf(k)===-1) {headers.push(k);}
+			});
 			
 			this._rows = this._rows.map((_,i) => headers.map(h => this.cell(i,h)));
 			this._headers = {};
-			headers.forEach((h,i) => this._headers[h]=i)
+			headers.forEach((h,i) => this._headers[h]=i);
 		}
 	}
 	
@@ -962,10 +965,10 @@ class Table {
 	toCsv(config) {
 		const cell = function(c) {
 			let quote = /"/g;
-			return typeof c == "string" && (c.indexOf(",")>-1 || c.indexOf('"')>-1) ? '"'+c.replace(quote,'\"')+'"' : c;
-		}
-		return (config && "noHeaders" in config && config.noHeaders ? "" : this.headers(true).map(h => cell(h)).join(",") + "\n") +
-			this._rows.map(row => row.map(c => cell(c)).join(",")).join("\n")
+			return typeof c === 'string' && (c.indexOf(',')>-1 || c.indexOf('"')>-1) ? '"'+c.replace(quote,'"')+'"' : c;
+		};
+		return (config && 'noHeaders' in config && config.noHeaders ? '' : this.headers(true).map(h => cell(h)).join(',') + '\n') +
+			this._rows.map(row => row.map(c => cell(c)).join(',')).join('\n');
 	}
 	
 	/**
@@ -974,8 +977,8 @@ class Table {
 	 * @returns {string}
 	 */
 	toTsv(config) {
-		return config && "noHeaders" in config && config.noHeaders ? "" : this.headers(true).join("\t") + "\n" +
-			this._rows.map(row => row.join("\t")).join("\n");
+		return config && 'noHeaders' in config && config.noHeaders ? '' : this.headers(true).join('\t') + '\n' +
+			this._rows.map(row => row.join('\t')).join('\n');
 	}
 	
 	/**
@@ -986,16 +989,16 @@ class Table {
 	 */
 	html(target, config) {
 		let html = this.toString(config);
-		if (typeof target == "function") {
-			target(html)
+		if (typeof target === 'function') {
+			target(html);
 		} else {
-			if (typeof target == "string") {
+			if (typeof target === 'string') {
 				target = document.querySelector(target);
 				if (!target) {
-					throw "Unable to find specified target: "+target;
+					throw 'Unable to find specified target: '+target;
 				}
 			}
-			if (typeof target == "object" && "innerHTML" in target) {
+			if (typeof target === 'object' && 'innerHTML' in target) {
 				target.innerHTML = html;
 			}
 		}
@@ -1015,26 +1018,26 @@ class Table {
 	 * @returns {string}
 	 */
 	toString(config={}) {
-		if (typeof config == "number") {
-			config = {limit: config}
+		if (typeof config === 'number') {
+			config = {limit: config};
 		}
-		if ("top" in config && !("limit" in config)) {
+		if ('top' in config && !('limit' in config)) {
 			config.limit = config.top;
 		}
-		if ("limit" in config && !("bottom" in config)) {
+		if ('limit' in config && !('bottom' in config)) {
 			config.bottom = 0;
 		}
-		if ("bottom" in config && !("limit" in config)) {
+		if ('bottom' in config && !('limit' in config)) {
 			config.limit=0;
 		}
-		return "<table"+("id" in config ? " id='"+config.id+"' " : " ")+"class='voyantTable'>" +
-			((config && "caption" in config && typeof config.caption == "string") ?
-					"<caption>"+config.caption+"</caption>" : "") +
-			((config && "noHeaders" in config && config.noHeaders) ? "" : ("<thead><tr>"+this.headers(true).map(c => "<th>"+c+"</th>").join("")+"</tr></thead>"))+
-			"<tbody>"+
-			this._rows.filter((row,i,arr) => ((!("limit" in config) || i<config.limit) || (!("bottom" in config) || i > arr.length-1 - config.bottom)))
-				.map(row => "<tr>"+row.map(c => "<td>"+(typeof c === "number" ? c.toLocaleString() : c)+"</td>").join("")+"</tr>").join("") +
-			"</tbody></table>";
+		return '<table'+('id' in config ? ' id="'+config.id+'" ' : ' ')+'class="voyantTable">' +
+			((config && 'caption' in config && typeof config.caption === 'string') ?
+				'<caption>'+config.caption+'</caption>' : '') +
+			((config && 'noHeaders' in config && config.noHeaders) ? '' : ('<thead><tr>'+this.headers(true).map(c => '<th>'+c+'</th>').join('')+'</tr></thead>'))+
+			'<tbody>'+
+			this._rows.filter((row,i,arr) => ((!('limit' in config) || i<config.limit) || (!('bottom' in config) || i > arr.length-1 - config.bottom)))
+				.map(row => '<tr>'+row.map(c => '<td>'+(typeof c === 'number' ? c.toLocaleString() : c)+'</td>').join('')+'</tr>').join('') +
+			'</tbody></table>';
 	}
 	
 	/**
@@ -1056,7 +1059,7 @@ class Table {
 					target.style.height = '400px'; // 400 is the default Highcharts height
 				}
 			} else {
-				target = document.createElement("div");
+				target = document.createElement('div');
 				document.body.appendChild(target);
 			}
 		}
@@ -1069,7 +1072,7 @@ class Table {
 		let isHeadersCategories = headers.every(h => isNaN(h));
 
 		if (isHeadersCategories) {
-			Chart.setDefaultChartType(config, "column");
+			Chart.setDefaultChartType(config, 'column');
 		}
 
 		// set categories if not set
@@ -1081,39 +1084,39 @@ class Table {
 
 		// one row, so let's take series from rows
 		if (rowsCount === 1) {
-			config.dataFrom = config.dataFrom || "rows";
-		} else if (columnsCount === 1 || (!("dataFrom" in config))) {
-			config.dataFrom = config.dataFrom || "columns";
+			config.dataFrom = config.dataFrom || 'rows';
+		} else if (columnsCount === 1 || (!('dataFrom' in config))) {
+			config.dataFrom = config.dataFrom || 'columns';
 		}
 
-		if ("dataFrom" in config) {
-			if (config.dataFrom === "rows") {
-				config.data = {rows:[]}
-				config.data.rows.push(headers)
-				config.data.rows = config.data.rows.concat(this.rows(true))
-			} else if (config.dataFrom === "columns") {
-				config.data = {columns:[]}
-				config.data.columns = config.data.columns.concat(this.columns(true))
+		if ('dataFrom' in config) {
+			if (config.dataFrom === 'rows') {
+				config.data = {rows:[]};
+				config.data.rows.push(headers);
+				config.data.rows = config.data.rows.concat(this.rows(true));
+			} else if (config.dataFrom === 'columns') {
+				config.data = {columns:[]};
+				config.data.columns = config.data.columns.concat(this.columns(true));
 				if (config.data.columns.length === headers.length) {
 					headers.forEach((h, i) => {
-						config.data.columns[i].splice(0, 0, h)
-					})
+						config.data.columns[i].splice(0, 0, h);
+					});
 				}
 			}
-		} else if ("seriesFrom" in config) {
-			if (config.seriesFrom === "rows") {
+		} else if ('seriesFrom' in config) {
+			if (config.seriesFrom === 'rows') {
 				this.rows(config.rows ? config.rows : true).forEach((row, i) => {
 					config.series[i] = config.series[i] || {};
 					config.series[i].data = headers.map(h => this.cell(i, h));
-				})
-			} else if (config.seriesFrom === "columns") {
+				});
+			} else if (config.seriesFrom === 'columns') {
 				this.columns(config.columns ? config.columns : true).forEach((col, i) => {
 					config.series[i] = config.series[i] || {};
 					config.series[i].data = [];
 					for (let r = 0; r < rowsCount; r++) {
 						config.series[i].data.push(this.cell(r, i));
 					}
-				})
+				});
 			}
 		}
 		
@@ -1143,12 +1146,12 @@ class Table {
 	static fetch(input, api, config) {
 		return new Promise((resolve, reject) => {
 			window.fetch(input, api).then(response => {
-				if (!response.ok) {throw new Error(response.status + " " + response.statusText);}
+				if (!response.ok) {throw new Error(response.status + ' ' + response.statusText);}
 				response.text().then(text => {
-					resolve(Table.create(text, config || api))
-				})
-			})
-		})
+					resolve(Table.create(text, config || api));
+				});
+			});
+		});
 	}
 
 	/**
@@ -1169,7 +1172,7 @@ class Table {
 	 * @returns {number}
 	 */
 	static cmp(a, b) {
-		return typeof a == "string" && typeof b == "string" ? a.localeCompare(b) : a-b;
+		return typeof a === 'string' && typeof b === 'string' ? a.localeCompare(b) : a-b;
 	}
 
 	/**
@@ -1199,10 +1202,10 @@ class Table {
 	static rollingMean(data, neighbors) {
 		// https://stackoverflow.com/questions/41386083/plot-rolling-moving-average-in-d3-js-v4/41388581#41387286
 		return data.map((val, idx, arr) => {
-			let start = Math.max(0, idx - neighbors), end = idx + neighbors
-			let subset = arr.slice(start, end + 1)
-			let sum = subset.reduce((a,b) => a + b)
-			return sum / subset.length
+			let start = Math.max(0, idx - neighbors), end = idx + neighbors;
+			let subset = arr.slice(start, end + 1);
+			let sum = subset.reduce((a,b) => a + b);
+			return sum / subset.length;
 		});
 	}
 	
@@ -1244,7 +1247,7 @@ class Table {
 	static zip(...data) {
 	
 		// we have a single nested array, so let's recall with flattened arguments
-		if (data.length==1 && Array.isArray(data) && data.every(d => Array.isArray(d))) {
+		if (data.length===1 && Array.isArray(data) && data.every(d => Array.isArray(d))) {
 			return Table.zip.apply(null, ...data);
 		}
 		
@@ -1261,17 +1264,17 @@ function parseCsvLine(line) {
 	let arr = [];
 	line.replace(regex, (m0, m1, m2, m3) => {
 		if (m1 !== undefined) {
-			arr.push(m1.replace(/\\'/g, "'"));
+			arr.push(m1.replace(/\\'/g, '\''));
 		} else if (m2 !== undefined) {
-			arr.push(m2.replace(/\\"/g, "\""));
+			arr.push(m2.replace(/\\"/g, '"'));
 		} else if (m3 !== undefined) {
 			arr.push(m3);
 		}
-		return "";
+		return '';
 	});
-	if (/,\s*$/.test(line)) {arr.push("");}
+	if (/,\s*$/.test(line)) {arr.push('');}
 	return arr;
 	
 }
 
-export default Table
+export default Table;

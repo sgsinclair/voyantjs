@@ -1,3 +1,5 @@
+/* global Highcharts */
+
 /**
  * Class representing a Chart.
  * @memberof Spyral
@@ -23,9 +25,9 @@ class Chart {
 	 * @param {HTMLElement} target 
 	 * @param {Array} data 
 	 */
-    constructor(target, data) {
-	    this.target = target;
-	    this.data = data;
+	constructor(target, data) {
+		this.target = target;
+		this.data = data;
 	}
 
 	/**
@@ -48,8 +50,8 @@ class Chart {
 	 */
 	static create(target, config) {
 		// convert title and suppress if not provided
-		if ("title" in config) {
-			if (typeof config.title == "string") {
+		if ('title' in config) {
+			if (typeof config.title === 'string') {
 				config.title = {text: config.title};
 			}
 		} else {
@@ -57,8 +59,8 @@ class Chart {
 		}
 		
 		// convert subtitle and convert if not provided
-		if ("subtitle" in config) {
-			if (typeof config.subtitle == "string") {
+		if ('subtitle' in config) {
+			if (typeof config.subtitle === 'string') {
 				config.subtitle = {text: config.subtitle};
 			}
 		} else {
@@ -66,19 +68,19 @@ class Chart {
 		}
 		
 		// convert credits
-		if (!("credits" in config)) {
+		if (!('credits' in config)) {
 			config.credits = false;
 		}
 		
 		// suppress xAxis title unless provided
-		if (!("xAxis" in config)) {config.xAxis = {}}
-		if (!("title" in config.xAxis)) {
+		if (!('xAxis' in config)) {config.xAxis = {};}
+		if (!('title' in config.xAxis)) {
 			//config.xAxis.title = false;
 		}
 	
 		// suppress xAxis title unless provided
-		if (!("yAxis" in config)) {config.yAxis = {}}
-		if (!("title" in config.yAxis)) {
+		if (!('yAxis' in config)) {config.yAxis = {};}
+		if (!('title' in config.yAxis)) {
 			config.yAxis.title = false;
 		}
 		
@@ -91,18 +93,18 @@ class Chart {
 	 * @param {string} type The type of chart
 	 */
 	static setDefaultChartType(config, type) {
-		if ("type" in config) {
+		if ('type' in config) {
 			config.chart.type = config.type;
 			delete config.type;
-			return
+			return;
 		}
 		
 		// TODO: check plot options and series?
 
-		if ("chart" in config) {
-			if ("type" in config.chart) {return} // already set
+		if ('chart' in config) {
+			if ('type' in config.chart) {return;} // already set
 		} else {
-			config.chart = {}
+			config.chart = {};
 		}
 
 		config.chart.type = type;
@@ -117,9 +119,9 @@ class Chart {
 	static setSeriesData(config, data) {
 		if (Array.isArray(data)) {
 			if (Array.isArray(data[0])) {
-				config.series = data.map(subArray => { return {data: subArray} })
+				config.series = data.map(subArray => { return {data: subArray}; });
 			} else {
-				config.series = [{data: data}]
+				config.series = [{data: data}];
 			}
 		}
 	}
@@ -131,7 +133,7 @@ class Chart {
 	 */
 	bar(config={}) {
 		Chart.setSeriesData(config, this.data);
-		return Chart.bar(this.target, config)
+		return Chart.bar(this.target, config);
 	}
 	/**
 	 * Create a bar chart
@@ -139,9 +141,9 @@ class Chart {
 	 * @param {Object} config 
 	 * @returns {Highcharts.Chart}
 	 */
-    static bar(target, config) {
-		Chart.setDefaultChartType(config, 'bar')
-		return Highcharts.chart(target, config)
+	static bar(target, config) {
+		Chart.setDefaultChartType(config, 'bar');
+		return Highcharts.chart(target, config);
 	}
 
 	/**
@@ -151,7 +153,7 @@ class Chart {
 	 */
 	line(config={}) {
 		Chart.setSeriesData(config, this.data);
-		return Chart.line(this.target, config)
+		return Chart.line(this.target, config);
 	}
 	/**
 	 * Create a line chart
@@ -159,9 +161,9 @@ class Chart {
 	 * @param {Object} config 
 	 * @returns {Highcharts.Chart}
 	 */
-    static line(target, config) {
-		Chart.setDefaultChartType(config, 'line')
-		return Highcharts.chart(target, config)
+	static line(target, config) {
+		Chart.setDefaultChartType(config, 'line');
+		return Highcharts.chart(target, config);
 	}
 
 	/**
@@ -171,7 +173,7 @@ class Chart {
 	 */
 	scatter(config={}) {
 		Chart.setSeriesData(config, this.data);
-		return Chart.scatter(this.target, config)
+		return Chart.scatter(this.target, config);
 	}
 	/**
 	 * Create a scatter plot
@@ -179,9 +181,9 @@ class Chart {
 	 * @param {Object} config 
 	 * @returns {Highcharts.Chart}
 	 */
-    static scatter(target, config) {
-		Chart.setDefaultChartType(config, 'scatter')
-		return Highcharts.chart(target, config)
+	static scatter(target, config) {
+		Chart.setDefaultChartType(config, 'scatter');
+		return Highcharts.chart(target, config);
 	}
 
 	/**
@@ -197,10 +199,10 @@ class Chart {
 				},
 				keys: ['from', 'to']
 			}
-		}
+		};
 		Chart.setSeriesData(config, this.data);
 
-		return Chart.networkgraph(this.target, config)
+		return Chart.networkgraph(this.target, config);
 	}
 	/**
 	 * Create a network graph
@@ -209,9 +211,9 @@ class Chart {
 	 * @returns {Highcharts.Chart}
 	 */
 	static networkgraph(target, config) {
-		Chart.setDefaultChartType(config, 'networkgraph')
+		Chart.setDefaultChartType(config, 'networkgraph');
 		return Highcharts.chart(target, config);
 	}
 }
 
-export default Chart
+export default Chart;

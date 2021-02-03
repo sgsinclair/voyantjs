@@ -5,7 +5,7 @@ import LDA from 'lda-topic-model';
 // this is essentially a private method to determine if we're in corpus or documents mode.
 // if docIndex or docId is defined, or if mode=="documents" then we're in documents mode
 function isDocumentsMode(config={}) {
-	return "docIndex" in config || "docId" in config || ("mode" in config && config.mode=="documents");
+	return 'docIndex' in config || 'docId' in config || ('mode' in config && config.mode==='documents');
 }
 
 /**
@@ -330,7 +330,7 @@ class Corpus {
  * This is currently not used, except in the Dynamic Table of Contexts skin. Still, it may be worth specifying a title for later use.
  */
  
- /**
+/**
  * @cfg {String} curatorTsv a simple TSV of paths and labels for the DToC interface (this isn't typically used outside of the specialized DToC context).
  *
  * The DToC skin allows curation of XML tags and attributes in order to constrain the entries shown in the interface or to provide friendlier labels. This assumes plain text unicode input with one definition per line where the simple XPath expression is separated by a tab from a label.
@@ -362,7 +362,7 @@ class Corpus {
 	 * @return {Promise|String} a Promise for the string ID of the corpus
 	 */
 	id() {
-		let me = this
+		let me = this;
 		return new Promise(resolve => resolve(me.corpusid));
 	}
 
@@ -371,9 +371,9 @@ class Corpus {
 	 * @param {Object} config 
 	 * @param {Object} api 
 	 */
-//	static id(config, api) {
-//		return Corpus.load(config).then(corpus => corpus.id(api || config));
-//	}
+	//	static id(config, api) {
+	//		return Corpus.load(config).then(corpus => corpus.id(api || config));
+	//	}
 
 	/**
 	 * Get a Promise for the metadata object (of the corpus or document, depending on which mode is used).
@@ -448,10 +448,10 @@ class Corpus {
 	 */
 	metadata(config) {
 		return Load.trombone(config, {
-			tool: isDocumentsMode(config) ? "corpus.DocumentsMetadata" : "corpus.CorpusMetadata",
+			tool: isDocumentsMode(config) ? 'corpus.DocumentsMetadata' : 'corpus.CorpusMetadata',
 			corpus: this.corpusid
 		})
-		.then(data => isDocumentsMode(config) ? data.documentsMetadata.documents : data.corpus.metadata)
+		.then(data => isDocumentsMode(config) ? data.documentsMetadata.documents : data.corpus.metadata);
 	}
 
 	/*
@@ -459,9 +459,9 @@ class Corpus {
 	 * @param {*} config 
 	 * @param {*} api 
 	 */
-//	static metadata(config, api) {
-//		return Corpus.load(config).then(corpus => corpus.metadata(api || config));
-//	}
+	//	static metadata(config, api) {
+	//		return Corpus.load(config).then(corpus => corpus.metadata(api || config));
+	//	}
 	
 	/**
 	 * Get a Promise for a brief summary of the corpus that includes essential metadata (documents count, terms count, etc.) 
@@ -475,8 +475,8 @@ class Corpus {
 	summary() {
 		return this.metadata().then(data => {
 			// TODO: make this a template
-			return `This corpus (${data.alias ? data.alias : data.id}) has ${data.documentsCount.toLocaleString()} documents with ${data.lexicalTokensCount.toLocaleString()} total words and ${data.lexicalTypesCount.toLocaleString()} unique word forms.`
-		})
+			return `This corpus (${data.alias ? data.alias : data.id}) has ${data.documentsCount.toLocaleString()} documents with ${data.lexicalTokensCount.toLocaleString()} total words and ${data.lexicalTypesCount.toLocaleString()} unique word forms.`;
+		});
 	}
 
 	/*
@@ -484,9 +484,9 @@ class Corpus {
 	 * @param {*} config 
 	 * @param {*} api 
 	 */
-//	static summary(config, api) {
-//		return Corpus.load(config).then(corpus => corpus.summary(api || config));
-//	}
+	//	static summary(config, api) {
+	//		return Corpus.load(config).then(corpus => corpus.summary(api || config));
+	//	}
 	
 	/**
 	 * Get a Promise for an Array of the document titles.
@@ -508,10 +508,9 @@ class Corpus {
 	 * @param {Object} config an Object specifying parameters (see list above) 
 	 * @returns {Promise|Array} a Promise for an Array of document titles  
 	 */
-	titles(config) {
-		return this.metadata({
-			mode: "documents"
-		}).then(data => data.map(doc => doc.title));
+	titles(config={}) {
+		config.mode = 'documents';
+		return this.metadata(config).then(data => data.map(doc => doc.title));
 	}
 
 	/*
@@ -519,9 +518,9 @@ class Corpus {
 	 * @param {*} config 
 	 * @param {*} api 
 	 */
-//	static titles(config, api) {
-//		return Corpus.load(config).then(corpus => corpus.titles(api || config));
-//	}
+	//	static titles(config, api) {
+	//		return Corpus.load(config).then(corpus => corpus.titles(api || config));
+	//	}
 	
 	/**
 	 * Get a Promise for the text of the entire corpus.
@@ -544,7 +543,7 @@ class Corpus {
 	 * @returns {Promise|String} a Promise for a string of the corpus
 	 */
 	text(config) {
-		return this.texts(config).then(data => data.join("\n\n---\n\n"))
+		return this.texts(config).then(data => data.join('\n\n---\n\n'));
 	}
 
 	/*
@@ -552,9 +551,9 @@ class Corpus {
 	 * @param {*} config 
 	 * @param {*} api 
 	 */
-//	static text(config, api) {
-//		return Corpus.load(config).then(corpus => corpus.text(api || config));	
-//	}
+	//	static text(config, api) {
+	//		return Corpus.load(config).then(corpus => corpus.text(api || config));	
+	//	}
 	
 	/**
 	 * Get a Promise for an Array of texts from the entire corpus.
@@ -576,9 +575,9 @@ class Corpus {
 	 */
 	texts(config) {
 		return Load.trombone(config, {
-			tool: "corpus.CorpusTexts",
+			tool: 'corpus.CorpusTexts',
 			corpus: this.corpusid
-		}).then(data => data.texts.texts)
+		}).then(data => data.texts.texts);
 	}
 
 	/*
@@ -586,9 +585,9 @@ class Corpus {
 	 * @param {*} config 
 	 * @param {*} api 
 	 */
-//	static texts(config, api) {
-//		return Corpus.load(config).then(corpus => corpus.texts(api || config));	
-//	}
+	//	static texts(config, api) {
+	//		return Corpus.load(config).then(corpus => corpus.texts(api || config));	
+	//	}
 	
 	/**
 	 * Get a Promise for an Array of terms (either CorpusTerms or DocumentTerms, depending on the specified mode).
@@ -665,9 +664,9 @@ class Corpus {
 	 */
 	terms(config) {
 		return Load.trombone(config, {
-			tool: isDocumentsMode(config) ? "corpus.DocumentTerms" : "corpus.CorpusTerms",
+			tool: isDocumentsMode(config) ? 'corpus.DocumentTerms' : 'corpus.CorpusTerms',
 			corpus: this.corpusid
-		}).then(data => isDocumentsMode(config) ? data.documentTerms.terms : data.corpusTerms.terms)
+		}).then(data => isDocumentsMode(config) ? data.documentTerms.terms : data.corpusTerms.terms);
 	}
 
 	/*
@@ -675,9 +674,9 @@ class Corpus {
 	 * @param {*} config 
 	 * @param {*} api 
 	 */
-//	static terms(config, api) {
-//		return Corpus.load(config).then(corpus => corpus.terms(api || config));
-//	}
+	//	static terms(config, api) {
+	//		return Corpus.load(config).then(corpus => corpus.terms(api || config));
+	//	}
 	
 	/**
 	 * Get a Promise for an Array of document tokens.
@@ -718,9 +717,9 @@ class Corpus {
 	 */
 	tokens(config) {
 		return Load.trombone(config, {
-			tool: "corpus.DocumentTokens",
+			tool: 'corpus.DocumentTokens',
 			corpus: this.corpusid
-		}).then(data => data.documentTokens.tokens)
+		}).then(data => data.documentTokens.tokens);
 	}
 
 	/*
@@ -728,9 +727,9 @@ class Corpus {
 	 * @param {*} config 
 	 * @param {*} api 
 	 */
-//	static tokens(config, api) {
-//		return Corpus.load(config).then(corpus => corpus.tokens(api || config));
-//	}
+	//	static tokens(config, api) {
+	//		return Corpus.load(config).then(corpus => corpus.tokens(api || config));
+	//	}
 
 	/**
 	 * Get a Promise for an Array of words from the corpus.
@@ -757,12 +756,12 @@ class Corpus {
 	 */
 	words(config = {}) {
 		// by default DocumentTokens limits to 50 which probably isn't expected
-		if (!("limit" in config)) {config.limit=0;}
+		if (!('limit' in config)) {config.limit=0;}
 		return Load.trombone(config, {
-			tool: "corpus.DocumentTokens",
+			tool: 'corpus.DocumentTokens',
 			noOthers: true,
 			corpus: this.corpusid
-		}).then(data => data.documentTokens.tokens.map(t => t.term))
+		}).then(data => data.documentTokens.tokens.map(t => t.term));
 	}
 
 	/*
@@ -770,9 +769,9 @@ class Corpus {
 	 * @param {Object} config 
 	 * @param {Object} api 
 	 */
-//	static words(config, api) {
-//		return Corpus.load(config).then(corpus => corpus.words(api || config));
-//	}
+	//	static words(config, api) {
+	//		return Corpus.load(config).then(corpus => corpus.words(api || config));
+	//	}
 	
 	/**
 	 * Get a Promise for an Array of Objects that contain keywords in contexts (KWICs).
@@ -820,11 +819,11 @@ class Corpus {
      * @returns {Promise|Array} a Promise for an Array of KWIC Objects
      */
 	contexts(config) {
-		if ((!config || !config.query) && console) {console.warn("No query provided for contexts request.")}
+		if ((!config || !config.query) && console) {console.warn('No query provided for contexts request.');}
 		return Load.trombone(config, {
-			tool: "corpus.DocumentContexts",
+			tool: 'corpus.DocumentContexts',
 			corpus: this.corpusid
-		}).then(data => data.documentContexts.contexts)
+		}).then(data => data.documentContexts.contexts);
 	}
 	
 	/*
@@ -832,9 +831,9 @@ class Corpus {
 	 * @param {Object} config 
 	 * @param {Object} api 
 	 */
-//	static contexts(config, api) {
-//		return Corpus.load(config).then(corpus => corpus.contexts(api || config));
-//	}
+	//	static contexts(config, api) {
+	//		return Corpus.load(config).then(corpus => corpus.contexts(api || config));
+	//	}
 	
 	/**
 	 * Get a Promise for an Array of collocates (either document or corpus collocates, depending on the specified mode).
@@ -897,11 +896,11 @@ class Corpus {
 	 * @returns {Promise|Array} a Promise for a Array of Terms
 	 */
 	collocates(config) {
-		if ((!config || !config.query) && console) {console.warn("No query provided for collocates request.")}
+		if ((!config || !config.query) && console) {console.warn('No query provided for collocates request.');}
 		return Load.trombone(config, {
-			tool: "corpus.CorpusCollocates",
+			tool: 'corpus.CorpusCollocates',
 			corpus: this.corpusid
-		}).then(data => data.corpusCollocates.collocates)
+		}).then(data => data.corpusCollocates.collocates);
 	}
 	
 	/*
@@ -909,9 +908,9 @@ class Corpus {
 	 * @param {Object} config 
 	 * @param {Object} api 
 	 */
-//	static collocates(config, api) {
-//		return Corpus.load(config).then(corpus => corpus.collocates(api || config));
-//	}
+	//	static collocates(config, api) {
+	//		return Corpus.load(config).then(corpus => corpus.collocates(api || config));
+	//	}
 
 	/**
 	 * Get a Promise for an Array of phrases or n-grams (either document or corpus phrases, depending on the specified mode).
@@ -969,9 +968,9 @@ class Corpus {
      */
 	phrases(config) {
 		return Load.trombone(config, {
-			tool: isDocumentsMode(config) ? "corpus.DocumentNgrams" : "corpus.CorpusNgrams",
+			tool: isDocumentsMode(config) ? 'corpus.DocumentNgrams' : 'corpus.CorpusNgrams',
 			corpus: this.corpusid
-		}).then(data => isDocumentsMode(config) ? data.documentNgrams.ngrams : data.corpusNgrams.ngrams)
+		}).then(data => isDocumentsMode(config) ? data.documentNgrams.ngrams : data.corpusNgrams.ngrams);
 	}
 	
 	/*
@@ -979,9 +978,9 @@ class Corpus {
 	 * @param {Object} config 
 	 * @param {Object} api 
 	 */
-//	static phrases(config, api) {
-//		return Corpus.load(config).then(corpus => corpus.phrases(api || config));
-//	}
+	//	static phrases(config, api) {
+	//		return Corpus.load(config).then(corpus => corpus.phrases(api || config));
+	//	}
 	
 	/**
 	 * Get a Promise for an Array of correlations (either document or corpus correlations, depending on the specified mode).
@@ -1066,15 +1065,15 @@ class Corpus {
      */
 	correlations(config) {
 		if ((!config || !config.query) && console) {
-			console.warn("No query provided for correlations request.")
+			console.warn('No query provided for correlations request.');
 			if (!isDocumentsMode(config)) {
-				throw new Error("Unable to run correlations for a corpus without a query.")
+				throw new Error('Unable to run correlations for a corpus without a query.');
 			}
 		}
 		return Load.trombone(config, {
-			tool: isDocumentsMode(config) ? "corpus.DocumentTermCorrelations" : "corpus.CorpusTermCorrelations",
+			tool: isDocumentsMode(config) ? 'corpus.DocumentTermCorrelations' : 'corpus.CorpusTermCorrelations',
 			corpus: this.corpusid
-		}).then(data => data.termCorrelations.correlations)
+		}).then(data => data.termCorrelations.correlations);
 	}
 	
 	/*
@@ -1082,20 +1081,19 @@ class Corpus {
 	 * @param {Object} config 
 	 * @param {Object} api 
 	 */
-//	static correlations(config, api) {
-//		return Corpus.load(config).then(corpus => corpus.correlations(api || config));
-//	}
+	//	static correlations(config, api) {
+	//		return Corpus.load(config).then(corpus => corpus.correlations(api || config));
+	//	}
 
 	/**
 	 * Get lemmas. This is the equivalent of calling: this.tokens({ withPosLemmas: true, noOthers: true })
 	 * @param {Object} config an Object specifying parameters (see above)
      * @returns {Promise|Array} a Promise for an Array of lemma Objects
 	 */
-	lemmas(config) {
-		return this.tokens({
-			withPosLemmas: true,
-			noOthers: true
-		})
+	lemmas(config={}) {
+		config.withPosLemmas = true;
+		config.noOthers = true;
+		return this.tokens(config);
 	}
 
 	/**
@@ -1117,28 +1115,28 @@ class Corpus {
 			numberTopics: config.numberTopics || 10,
 			sweeps: config.sweeps || 100,
 			bins: parseInt(config.bins) || 10
-		}
+		};
 
 		const data = await Load.trombone({
-			tool: "resource.KeywordsManager",
-			stopList: config.language || "auto",
+			tool: 'resource.KeywordsManager',
+			stopList: config.language || 'auto',
 			corpus: this.corpusid
-		})
+		});
 		const stopwords = data.keywords.keywords;
 
 		let texts = await this.texts({
 			noMarkup: true,
 			compactSpace: true,
 			format: 'text'
-		})
+		});
 		
 		// our corpus contains a single document, so split it into segments
-		if (texts.length==1) {
-			let words = texts[0].split(" ");
+		if (texts.length===1) {
+			let words = texts[0].split(' ');
 			let wordsPerBin = Math.ceil(words.length/options.bins);
 			let ts = [];
 			for (let i=0; i<options.bins; i++) {
-				ts[i] = words.slice(i*wordsPerBin, (i*wordsPerBin)+wordsPerBin).join(" ");
+				ts[i] = words.slice(i*wordsPerBin, (i*wordsPerBin)+wordsPerBin).join(' ');
 			}
 			texts = ts;
 		}
@@ -1149,13 +1147,13 @@ class Corpus {
 			documents.push({
 				id: index,
 				text: text
-			})
-		})
+			});
+		});
 
 		return new Promise((resolve, reject) => {
 			const lda = new LDA(options, documents, stopwords);
 			resolve(lda);
-		})
+		});
 		
 	}
 	
@@ -1287,8 +1285,8 @@ class Corpus {
 		let me = this;
 		return new Promise((resolve, reject) => {
 			
-			let isTool = function(obj) {return obj && (typeof obj=="string" && /\W/.test(obj)==false) || (typeof obj == "object" && "forTool" in obj)}
-			let isConfig = function(obj) {return obj && typeof obj == "object" && !("forTool" in obj)}
+			let isTool = function(obj) {return obj && (typeof obj==='string' && /\W/.test(obj)===false) || (typeof obj === 'object' && 'forTool' in obj);};
+			let isConfig = function(obj) {return obj && typeof obj === 'object' && !('forTool' in obj);};
 			let lastArg = arguments[arguments.length-1];
 			config = isConfig(lastArg) ? lastArg : {};
 			
@@ -1297,17 +1295,17 @@ class Corpus {
 				let defaultAttributes = {
 					width: undefined,
 					height: undefined,
-					style: "width: 350px; height: 350px",
-					float: "right"
-				}
-				let out = "";
+					style: 'width: 350px; height: 350px',
+					float: 'right'
+				};
+				let out = '';
 				for (let i=0; i<arguments.length; i++) {
 					let t = arguments[i];
 					if (isTool(t)) {
-						if (typeof t == "string") {t = {forTool: t}} // make sure we have object
+						if (typeof t === 'string') {t = {forTool: t};} // make sure we have object
 						
 						// build iframe tag
-						out+="<iframe ";
+						out+='<iframe ';
 						for (let attr in defaultAttributes) {
 							var val = (attr in t ? t[attr] : undefined) || (attr in config ? config[attr] : undefined) || (attr in defaultAttributes ? defaultAttributes[attr] : undefined);
 							if (val!==undefined) {
@@ -1316,34 +1314,34 @@ class Corpus {
 						}
 						
 						// build url
-						var url = new URL((config && config.voyantUrl ? config.voyantUrl : Load.baseUrl) + "tool/"+t.forTool+"/");
-						url.searchParams.append("corpus", me.corpusid);			
+						var url = new URL((config && config.voyantUrl ? config.voyantUrl : Load.baseUrl) + 'tool/'+t.forTool+'/');
+						url.searchParams.append('corpus', me.corpusid);			
 						// add API values from config (some may be ignored)
 						let all = Object.assign(t,config);
 						Object.keys(all).forEach(key => {
-							if (key !=="input" && !(key in defaultAttributes)) {
-								url.searchParams.append(key, all[key])
+							if (key !=='input' && !(key in defaultAttributes)) {
+								url.searchParams.append(key, all[key]);
 							}
 						});
 						
 						// finish tag
-						out+=' src="'+url+'"></iframe>'
+						out+=' src="'+url+'"></iframe>';
 					}
 				}
 				return resolve(out);
 			} else {
 				if (Array.isArray(_tool)) {
-					_tool = _tool.join(";")
+					_tool = _tool.join(';');
 				}
 				
 				let defaultAttributes = {
 					width: undefined,
 					height: undefined,
-					style: "width: 90%; height: "+(350*(_tool ? _tool : "").split(";").length)+"px"
-				}
+					style: 'width: 90%; height: '+(350*(_tool ? _tool : '').split(';').length)+'px'
+				};
 				
 				// build iframe tag
-				let out ="<iframe ";
+				let out ='<iframe ';
 				for (let attr in defaultAttributes) {
 					var val = (attr in config ? config[attr] : undefined) || (attr in defaultAttributes ? defaultAttributes[attr] : undefined);
 					if (val!==undefined) {
@@ -1352,17 +1350,17 @@ class Corpus {
 				}
 
 				// build url
-				var url = new URL((config && config.voyantUrl ? config.voyantUrl : Load.baseUrl)+(_tool ? ("?view=customset&tableLayout="+_tool) : ""));
-				url.searchParams.append("corpus", me.corpusid);			
+				var url = new URL((config && config.voyantUrl ? config.voyantUrl : Load.baseUrl)+(_tool ? ('?view=customset&tableLayout='+_tool) : ''));
+				url.searchParams.append('corpus', me.corpusid);			
 				// add API values from config (some may be ignored)
 				Object.keys(config).forEach(key => {
-					if (key !=="input" && !(key in defaultAttributes)) {
-						url.searchParams.append(key, config[key])
+					if (key !=='input' && !(key in defaultAttributes)) {
+						url.searchParams.append(key, config[key]);
 					}
 				});
-				resolve(out+" src='"+url+"'></iframe");
+				resolve(out+' src=\''+url+'\'></iframe');
 			}
-		})
+		});
 	}
 
 	/*
@@ -1371,24 +1369,24 @@ class Corpus {
 	 * @param {*} config 
 	 * @param {*} api 
 	 */
-//	static tool(tool, config, api) {
-//		return Corpus.load(config).then(corpus => corpus.tool(tool, config, api));
-//	}
+	//	static tool(tool, config, api) {
+	//		return Corpus.load(config).then(corpus => corpus.tool(tool, config, api));
+	//	}
 
 	/**
 	 * An alias for {@link #summary}.
 	 */
 	toString() {
-		return this.summary()
+		return this.summary();
 	}
 		
 	/*
 	 * Create a new Corpus using the provided config
 	 * @param {Object} config 
 	 */
-//	static create(config) {
-//		return Corpus.load(config);
-//	}
+	//	static create(config) {
+	//		return Corpus.load(config);
+	//	}
 
 	/**
 	 * Load a Corpus using the provided config and api
@@ -1402,7 +1400,7 @@ class Corpus {
 				resolve(config);
 			}
 
-			if (typeof config === "string") {
+			if (typeof config === 'string') {
 				if (config.length>0 && /\W/.test(config)===false) {
 					config = {corpus: config};
 				} else {
@@ -1417,13 +1415,13 @@ class Corpus {
 				} else {
 					config.forEach(file => {
 						formData.append('input', file);
-					})
+					});
 				}
 				
 				// append any other form options that may have been included
-				if (api && typeof api == "object") {
+				if (api && typeof api === 'object') {
 					for (let key in api) {
-						formData.append(key, api[key])
+						formData.append(key, api[key]);
 					}
 				}
 
@@ -1435,23 +1433,23 @@ class Corpus {
 				};
 			}
 			
-			Load.trombone({...config,...api}, {tool: "corpus.CorpusMetadata"})
-				.then(data => resolve(new Corpus(data.corpus.metadata.id)))
+			Load.trombone({...config,...api}, {tool: 'corpus.CorpusMetadata'})
+				.then(data => resolve(new Corpus(data.corpus.metadata.id)));
 			
 		});
 
-		["id","metadata","summary","titles","text","texts","terms","tokens","words","contexts","collocates","phrases","correlations","lemmas","tool"].forEach(name => {
+		['id','metadata','summary','titles','text','texts','terms','tokens','words','contexts','collocates','phrases','correlations','lemmas','tool'].forEach(name => {
 			promise[name] = function() {
-				var args = arguments
-				return promise.then(corpus => {return corpus[name].apply(corpus, args)})
-			}
-		})
+				var args = arguments;
+				return promise.then(corpus => {return corpus[name].apply(corpus, args);});
+			};
+		});
 		promise.assign = function(name) {
-			return this.then(corpus => {window[name] = corpus; return corpus})
-		}
+			return this.then(corpus => {window[name] = corpus; return corpus;});
+		};
 
 		return promise;
 	}
 }
 
-export default Corpus
+export default Corpus;

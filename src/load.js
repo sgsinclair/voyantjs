@@ -1,3 +1,5 @@
+/* global Voyant, Ext, Spyral */
+
 import FileInput from './fileinput';
 
 /**
@@ -23,35 +25,35 @@ class Load {
 	 * @returns {JSON}
 	 */
 	static trombone(config = {}, params) {
-		let url = new URL(config.trombone ? config.trombone : this.baseUrl + "trombone", window.location.origin);
+		let url = new URL(config.trombone ? config.trombone : this.baseUrl + 'trombone', window.location.origin);
 		delete config.trombone;
 		
 		let all = { ...config, ...params };
 		for (let key in all) {
-			if (all[key] === undefined) { delete all[key] }
+			if (all[key] === undefined) { delete all[key]; }
 		}
 		let searchParams = Object.keys(all).map((key) => {
 			if (all[key] instanceof Array) {
 				return all[key].map((val) => {
-					return encodeURIComponent(key) + '=' + encodeURIComponent(val)
-				}).join("&")
+					return encodeURIComponent(key) + '=' + encodeURIComponent(val);
+				}).join('&');
 			} else {
-				return encodeURIComponent(key) + '=' + encodeURIComponent(all[key])
+				return encodeURIComponent(key) + '=' + encodeURIComponent(all[key]);
 			}
-		}).join("&")
+		}).join('&');
 		
-		if ("method" in all === false) {
-			all.method = "GET";
+		if ('method' in all === false) {
+			all.method = 'GET';
 		}
 
 		let opt = {};
-		if (all.method === "GET") {
+		if (all.method === 'GET') {
 			if (searchParams.length < 800) {
 				for (let key in all) {
 					if (all[key] instanceof Array) {
 						all[key].forEach((val) => {
 							url.searchParams.append(key, val);	
-						})
+						});
 					} else {
 						url.searchParams.set(key, all[key]);
 					}
@@ -61,14 +63,14 @@ class Load {
 					method: 'POST',
 					headers: { 'Content-Type': 'application/x-www-form-urlencoded;charset=UTF-8' },
 					body: searchParams
-				}
+				};
 			}
-		} else if (all.method === "POST") {
+		} else if (all.method === 'POST') {
 			opt = {
 				method: 'POST'
-			}
-			if ("body" in all) {
-				opt.body = all["body"];
+			};
+			if ('body' in all) {
+				opt.body = all['body'];
 			} else {
 				opt.headers = { 'Content-Type': 'application/x-www-form-urlencoded;charset=UTF-8' };
 				opt.body = searchParams;
@@ -79,24 +81,24 @@ class Load {
 		
 		return fetch(url.toString(), opt).then(response => {
 			if (response.ok) {
-				return response.json()
+				return response.json();
 			}
 			else {
 				return response.text().then(text => {
 					if (Voyant && Voyant.util && Voyant.util.DetailedError) {
 						new Voyant.util.DetailedError({
-							msg: "",
+							msg: '',
 							error: text.split(/(\r\n|\r|\n)/).shift(),
 							details: text
 						}).showMsg();
 					} else {
-						alert(text.split(/(\r\n|\r|\n)/).shift())
-						if (window.console) { console.error(text) }
+						alert(text.split(/(\r\n|\r|\n)/).shift());
+						if (window.console) { console.error(text); }
 					}
 					throw Error(text);
 				});
 			}
-		})
+		});
 	}
 
 	/**
@@ -106,8 +108,8 @@ class Load {
 	 * @returns {Response}
 	 */
 	static load(urlToFetch, config) {
-		let url = new URL(config && config.trombone ? config.trombone : this.baseUrl + "trombone");
-		url.searchParams.set("fetchData", urlToFetch);
+		let url = new URL(config && config.trombone ? config.trombone : this.baseUrl + 'trombone');
+		url.searchParams.set('fetchData', urlToFetch);
 		return fetch(url.toString()).then(response => {
 			if (response.ok) {
 				return response;
@@ -120,13 +122,13 @@ class Load {
 							details: text
 						}).showMsg();
 					} else {
-						alert(text.split(/(\r\n|\r|\n)/).shift())
-						if (window.console) { console.error(text) }
+						alert(text.split(/(\r\n|\r|\n)/).shift());
+						if (window.console) { console.error(text); }
 					}
 					throw Error(text);
 				});
 			}
-		}).catch(err => { throw err })
+		}).catch(err => { throw err; });
 	}
 
 	/**
@@ -181,7 +183,7 @@ class Load {
 				// check for pre-existing target
 				const codeWrapper = spyralTarget.closest('.notebook-code-wrapper');
 				if (codeWrapper === null) {
-					console.warn("Spyral.Load.files: can't find CodeEditorWrapper parent");
+					console.warn('Spyral.Load.files: can\'t find CodeEditorWrapper parent');
 					target = null;
 				} else {
 					target = codeWrapper.querySelector('[spyral-temp-doc]');
@@ -201,7 +203,7 @@ class Load {
 					target = target.parentElement;
 				}
 			} else {
-				target = document.createElement("div");
+				target = document.createElement('div');
 				target.setAttribute('class', 'target');
 				document.body.appendChild(target);
 			}
@@ -213,7 +215,7 @@ class Load {
 
 		let promise;
 		if (hasPreExistingTarget) {
-			promise = new Promise(async (resolve, reject) => {
+			promise = new Promise(async(resolve, reject) => {
 				const storedFiles = await FileInput.getStoredFiles(target);
 				if (storedFiles !== null) {
 					resolve(storedFiles);
@@ -235,11 +237,11 @@ class Load {
 				}
 	
 				new FileInput(target, resolve, reject);
-			})
+			});
 		} else {
 			promise = new Promise((resolve, reject) => {
 				new FileInput(target, resolve, reject);
-			})
+			});
 		}
 		
 		// graft this function to avoid need for then
@@ -247,19 +249,19 @@ class Load {
 			var args = arguments;
 			return this.then(files => {
 				return Spyral.Notebook.setNextBlockFromFiles.apply(Load, [files].concat(Array.from(args)));
-			})
-		}
+			});
+		};
 		
 		promise.loadCorpusFromFiles = function() {
 			var args = arguments;
 			return this.then(files => {
 				return Spyral.Corpus.load.apply(Spyral.Corpus, [files].concat(Array.from(args)));
-			})
-		}
+			});
+		};
 		
 		return promise;
 		
 	}
 }
 
-export default Load
+export default Load;

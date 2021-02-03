@@ -1,3 +1,5 @@
+/* global Voyant, Ext */ 
+
 import Util from './util';
 
 /**
@@ -66,7 +68,7 @@ class FileInput {
 		resetButton.setAttribute('style', 'width: 16px; height: 16px; border: 1px solid #999; float: right; line-height: 12px; color: #666; cursor: pointer;');
 		resetButton.setAttribute('title', 'Remove File Input');
 		// listener to remove the element, which can be called from a saved notebook
-		resetButton.setAttribute('onclick', "if (typeof Voyant !== 'undefined' && typeof Ext !== 'undefined') { Ext.getCmp(this.parentElement.parentElement.getAttribute('id')).destroy(); } else { this.parentElement.remove(); }");
+		resetButton.setAttribute('onclick', 'if (typeof Voyant !== "undefined" && typeof Ext !== "undefined") { Ext.getCmp(this.parentElement.parentElement.getAttribute("id")).destroy(); } else { this.parentElement.remove(); }');
 		// additional listener to reject the promise, if this input was created through run code
 		resetButton.addEventListener('click', function() {
 			this.reject();
@@ -78,17 +80,17 @@ class FileInput {
 			this.inputParent.addEventListener(event, (e) => {
 				e.preventDefault();
 				e.stopPropagation();
-			})
+			});
 		});
 		['dragover','dragenter'].forEach((event) => {
-			this.inputParent.addEventListener(event, (e) => {
+			this.inputParent.addEventListener(event, () => {
 				this.inputParent.style.setProperty('background-color', '#ccc');
-			})
+			});
 		});
 		['dragend','dragleave','drop'].forEach((event) => {
-			this.inputParent.addEventListener(event, (e) => {
+			this.inputParent.addEventListener(event, () => {
 				this.inputParent.style.removeProperty('background-color');
-			})
+			});
 		});
 		this.inputParent.addEventListener('drop', (event) => {
 			this._showFiles(event.dataTransfer.files);
@@ -96,7 +98,7 @@ class FileInput {
 		});
 
 		this.target.appendChild(this.inputParent);
-		console.log('init done')
+		console.log('init done');
 	}
 
 	// update label with file info
@@ -123,30 +125,30 @@ class FileInput {
 					fr.readAsDataURL(files[currIndex]);
 				} else {
 					// store each file in its own session storage entry
-					const childIds = readFiles.map((val, index) => {
+					const childIds = readFiles.map((val) => {
 						const childId = Util.id(32);
 						window.sessionStorage.setItem('filename-'+childId, val.filename);
 						window.sessionStorage.setItem('data-'+childId, val.data);
 						window.sessionStorage.setItem('type-'+childId, val.type);
 						return childId;
-					})
+					});
 					// store the ids for each file for later retrieval
 					window.sessionStorage.setItem(this.inputParent.getAttribute('spyral-temp-doc'), childIds.join());
 
 					createServerStorage();
-					if (typeof ServerStorage !== 'undefined') {
-						const serverStorage = new ServerStorage();
+					if (typeof Voyant !== 'undefined' && typeof Voyant.util.ServerStorage !== 'undefined') {
+						const serverStorage = new Voyant.util.ServerStorage();
 						serverStorage.storeResource(this.inputParent.getAttribute('spyral-temp-doc'), childIds.join());
 						readFiles.map((val, index) => {
 							const childId = childIds[index];
 							serverStorage.storeResource(childId, {filename: val.filename, data: val.data, type: val.type});
 							return childId;
-						})
+						});
 					}
 					
 					this.resolve(files);
 				}
-			}
+			};
 
 			fr.readAsDataURL(files[currIndex]);
 		} else {
@@ -174,8 +176,8 @@ class FileInput {
 			} else {
 				// check server storage (if available)
 				createServerStorage();
-				if (typeof ServerStorage !== undefined) {
-					const serverStorage = new ServerStorage();
+				if (typeof Voyant !== 'undefined' && typeof Voyant.util.ServerStorage !== 'undefined') {
+					const serverStorage = new Voyant.util.ServerStorage();
 					try {
 						fileIds = await serverStorage.getStoredResource(spyralTempDoc);
 						if (fileIds !== undefined) {
@@ -238,15 +240,15 @@ class FileInput {
 
 function createServerStorage() {
 	if (typeof Voyant !== 'undefined' && typeof Ext !== 'undefined') {
-		if (typeof ServerStorage === 'undefined') {
-			Ext.define('ServerStorage', {
+		if (typeof Voyant.util.ServerStorage === 'undefined') {
+			Ext.define('Voyant.util.ServerStorage', {
 				extend: 'Voyant.util.Storage',
 				getTromboneUrl: function() {
-					return Voyant.application.getTromboneUrl()
+					return Voyant.application.getTromboneUrl();
 				}
-			})
+			});
 		}
 	}
 }
 
-export default FileInput
+export default FileInput;

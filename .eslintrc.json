@@ -3,15 +3,27 @@
         "browser": true,
         "es2021": true
     },
-    "extends": "eslint:recommended",
+	"extends": "eslint:recommended",
+	"parser": "@babel/eslint-parser",
     "parserOptions": {
-        "ecmaVersion": 12,
+        "ecmaVersion": 11,
         "sourceType": "module"
-    },
+	},
+	// "plugins": [
+    //     "jsdoc"
+    // ],
     "rules": {
+		"eqeqeq": [
+			"error",
+			"always"
+		],
         "indent": [
             "error",
-            "tab"
+			"tab",
+			{
+				"ignoreComments": true,
+				"MemberExpression": "off"
+			}
         ],
         "linebreak-style": [
             "error",
@@ -24,6 +36,10 @@
         "semi": [
             "error",
             "always"
-        ]
+		],
+		"space-before-function-paren": [
+			"error",
+			"never"
+		]
     }
 }
