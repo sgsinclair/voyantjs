@@ -16,6 +16,8 @@ class Util {
 		for (let i = 0; i < times; i++) {
 			id += Math.random().toString(36).substring(2); // the result of this is 11 characters long
 		}
+		const letters = 'abcdefghijklmnopqrstuvwxyz';
+		id = letters[Math.floor(Math.random()*26)] + id; // ensure the id starts with a letter
 		return id.substring(0, len);
 	}
 
