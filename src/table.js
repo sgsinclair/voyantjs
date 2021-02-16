@@ -1240,7 +1240,7 @@ class Table {
 	}
 	
 	/**
-	 * Perform a zip operation of the provided arrays {@link https://en.wikipedia.org/wiki/Convolution_(computer_science)}
+	 * Perform a zip operation of the provided arrays. Learn more about zip on [Wikipedia](https://en.wikipedia.org/wiki/Convolution_%28computer_science%29).
 	 * @param {Array} data
 	 * @returns {Array}
 	 */
