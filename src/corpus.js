@@ -1320,7 +1320,11 @@ class Corpus {
 						let all = Object.assign(t,config);
 						Object.keys(all).forEach(key => {
 							if (key !=='input' && !(key in defaultAttributes)) {
-								url.searchParams.append(key, all[key]);
+								let value = all[key];
+								if (typeof value !== 'string') {
+									value = JSON.stringify(value);
+								}
+								url.searchParams.append(key, value);
 							}
 						});
 						
@@ -1358,7 +1362,7 @@ class Corpus {
 						url.searchParams.append(key, config[key]);
 					}
 				});
-				resolve(out+' src=\''+url+'\'></iframe');
+				resolve(out+' src=\''+url+'\'></iframe>');
 			}
 		});
 	}
