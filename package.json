@@ -51,7 +51,7 @@
     "watchify": "^4.0.0"
   },
   "dependencies": {
-    "highcharts": "^8.1.2",
+    "highcharts": "^9.0.0",
     "lda-topic-model": "git+https://github.com/ajmacdonald/lda-topic-model.git"
   },
   "directories": {
