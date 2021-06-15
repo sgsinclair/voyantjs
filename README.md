@@ -1,7 +1,5 @@
-[![Version](https://img.shields.io/npm/v/voyant.svg)](https://www.npmjs.com/package/voyant)
-[![CodeCov](https://codecov.io/gh/sgsinclair/voyantjs/graph/badge.svg)](https://codecov.io/gh/sgsinclair/voyantjs)
-[![Travis](https://img.shields.io/travis/sgsinclair/voyantjs.svg)](https://travis-ci.org/sgsinclair/voyantjs)
-[![License](https://img.shields.io/npm/l/voyant.svg)](https://github.com/sgsinclair/voyantjs/blob/master/LICENSE)
+#### With the passing of Stéfan Sinclair, this repository has been archived. ####
+#### Please see [voyanttools/voyantjs](https://github.com/voyanttools/voyantjs) for future development. ####
 
 # Voyant
 
